@@ -1,9 +1,28 @@
 // ========================================
-// 90 ДНЕЙ — ОСНОВНАЯ ЛОГИКА
+// 90 ДНЕЙ
+// Основная логика приложения
 // ========================================
 
-// Получаем задачи из памяти браузера
-let tasks = JSON.parse(localStorage.getItem("90days_tasks")) || [];
+
+// ========================================
+// НАСТРОЙКИ ЧЕЛЛЕНДЖА
+// ========================================
+
+// Первый день челленджа
+const CHALLENGE_START = "2026-10-01";
+
+// Продолжительность
+const CHALLENGE_LENGTH = 90;
+
+
+// ========================================
+// ЗАДАЧИ
+// ========================================
+
+let tasks =
+    JSON.parse(
+        localStorage.getItem("90days_tasks")
+    ) || [];
 
 
 // ========================================
@@ -11,7 +30,215 @@ let tasks = JSON.parse(localStorage.getItem("90days_tasks")) || [];
 // ========================================
 
 function saveTasks() {
-    localStorage.setItem("90days_tasks", JSON.stringify(tasks));
+
+    localStorage.setItem(
+        "90days_tasks",
+        JSON.stringify(tasks)
+    );
+}
+
+
+// ========================================
+// ТЕКУЩАЯ ДАТА
+// ========================================
+
+function getToday() {
+
+    const now = new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+// ========================================
+// ДЕНЬ ЧЕЛЛЕНДЖА
+// ========================================
+
+function getChallengeDay() {
+
+    const start =
+        new Date(CHALLENGE_START + "T00:00:00");
+
+    const today =
+        new Date(getToday() + "T00:00:00");
+
+    const difference =
+        today - start;
+
+    const days =
+        Math.floor(
+            difference /
+            (1000 * 60 * 60 * 24)
+        ) + 1;
+
+    return days;
+}
+
+
+// ========================================
+// ПРОГРЕСС ЧЕЛЛЕНДЖА
+// ========================================
+
+function getChallengeProgress() {
+
+    const day =
+        getChallengeDay();
+
+    if (day < 1) {
+        return 0;
+    }
+
+    if (day > CHALLENGE_LENGTH) {
+        return 100;
+    }
+
+    return Math.round(
+        (day / CHALLENGE_LENGTH) * 100
+    );
+}
+
+
+// ========================================
+// ФОРМАТИРОВАНИЕ ДАТЫ
+// ========================================
+
+function formatDate() {
+
+    const date =
+        new Date();
+
+    return date.toLocaleDateString(
+        "ru-RU",
+        {
+            day: "numeric",
+            month: "long"
+        }
+    );
+}
+
+
+// ========================================
+// ЗАПУСК ПРИЛОЖЕНИЯ
+// ========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        updateChallengeInfo();
+
+        renderTasks();
+
+    }
+);
+
+
+// ========================================
+// ИНФОРМАЦИЯ О ЧЕЛЛЕНДЖЕ
+// ========================================
+
+function updateChallengeInfo() {
+
+    const day =
+        getChallengeDay();
+
+    const progress =
+        getChallengeProgress();
+
+
+    // День X
+
+    const daysElement =
+        document.querySelector(".days span:first-child");
+
+    if (daysElement) {
+
+        if (day < 1) {
+
+            daysElement.textContent =
+                "Старт 1 октября";
+
+        } else if (day > 90) {
+
+            daysElement.textContent =
+                "Челлендж завершён";
+
+        } else {
+
+            daysElement.textContent =
+                `День ${day}`;
+
+        }
+    }
+
+
+    // Из 90
+
+    const totalElement =
+        document.querySelector(".days span:last-child");
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            "из 90";
+
+    }
+
+
+    // Процент
+
+    const progressText =
+        document.querySelector(
+            ".progress-header span:last-child"
+        );
+
+    if (progressText) {
+
+        progressText.textContent =
+            `${progress}%`;
+
+    }
+
+
+    // Полоска
+
+    const progressFill =
+        document.querySelector(
+            ".progress-fill"
+        );
+
+    if (progressFill) {
+
+        progressFill.style.width =
+            `${progress}%`;
+
+    }
+
+
+    // Дата
+
+    const dateElement =
+        document.querySelector(".date");
+
+    if (dateElement) {
+
+        dateElement.textContent =
+            formatDate();
+
+    }
 }
 
 
@@ -19,43 +246,49 @@ function saveTasks() {
 // ОТКРЫТИЕ ФОРМЫ
 // ========================================
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    const addButton = document.querySelector(".primary-button");
-
-    addButton.addEventListener("click", openTaskForm);
-
-    renderTasks();
-});
-
-
-// ========================================
-// ФОРМА НОВОЙ ЗАДАЧИ
-// ========================================
-
 function openTaskForm() {
 
-    const existingForm = document.querySelector(".task-form");
+    const oldForm =
+        document.querySelector(".task-form");
 
-    if (existingForm) {
-        existingForm.remove();
+    if (oldForm) {
+
+        oldForm.remove();
+
         return;
     }
 
-    const form = document.createElement("div");
 
-    form.className = "task-form";
+    const form =
+        document.createElement("div");
+
+    form.className =
+        "task-form";
+
 
     form.innerHTML = `
+
         <div class="form-overlay"></div>
 
         <div class="form-window">
 
-            <button class="close-form">×</button>
+            <button
+                class="close-form"
+                aria-label="Закрыть"
+            >
+                ×
+            </button>
 
-            <p class="eyebrow">НОВЫЙ ШАГ</p>
 
-            <h2>Что ты хочешь сделать сегодня?</h2>
+            <p class="eyebrow">
+                НОВЫЙ ШАГ
+            </p>
+
+
+            <h2>
+                Что ты хочешь сделать сегодня?
+            </h2>
+
 
             <input
                 type="text"
@@ -64,9 +297,11 @@ function openTaskForm() {
                 autocomplete="off"
             >
 
+
             <label for="task-category">
                 Сфера
             </label>
+
 
             <select id="task-category">
 
@@ -88,6 +323,7 @@ function openTaskForm() {
 
             </select>
 
+
             <button class="save-task">
                 Добавить шаг
             </button>
@@ -95,46 +331,73 @@ function openTaskForm() {
         </div>
     `;
 
+
     document.body.appendChild(form);
 
 
-    // Закрытие
+    // Закрыть
 
-    form.querySelector(".close-form")
-        .addEventListener("click", () => {
-            form.remove();
-        });
-
-
-    form.querySelector(".form-overlay")
-        .addEventListener("click", () => {
-            form.remove();
-        });
+    form
+        .querySelector(".close-form")
+        .addEventListener(
+            "click",
+            () => form.remove()
+        );
 
 
-    // Сохранение
+    form
+        .querySelector(".form-overlay")
+        .addEventListener(
+            "click",
+            () => form.remove()
+        );
 
-    form.querySelector(".save-task")
-        .addEventListener("click", addTask);
+
+    // Сохранить
+
+    form
+        .querySelector(".save-task")
+        .addEventListener(
+            "click",
+            addTask
+        );
 
 
-    // Enter тоже добавляет задачу
+    // Enter
 
-    form.querySelector("#task-title")
-        .addEventListener("keydown", (event) => {
+    form
+        .querySelector("#task-title")
+        .addEventListener(
+            "keydown",
+            event => {
 
-            if (event.key === "Enter") {
-                addTask();
+                if (event.key === "Enter") {
+
+                    addTask();
+
+                }
+
+            }
+        );
+
+
+    // Фокус
+
+    setTimeout(
+        () => {
+
+            const input =
+                document.querySelector(
+                    "#task-title"
+                );
+
+            if (input) {
+                input.focus();
             }
 
-        });
-
-
-    // Сразу ставим курсор
-
-    setTimeout(() => {
-        document.querySelector("#task-title").focus();
-    }, 100);
+        },
+        100
+    );
 }
 
 
@@ -144,21 +407,42 @@ function openTaskForm() {
 
 function addTask() {
 
-    const titleInput = document.querySelector("#task-title");
-    const categoryInput = document.querySelector("#task-category");
+    const titleInput =
+        document.querySelector(
+            "#task-title"
+        );
 
-    const title = titleInput.value.trim();
-    const category = categoryInput.value;
+    const categoryInput =
+        document.querySelector(
+            "#task-category"
+        );
+
+
+    const title =
+        titleInput.value.trim();
+
+    const category =
+        categoryInput.value;
+
 
     if (!title) {
 
+        titleInput.classList.add(
+            "input-error"
+        );
+
         titleInput.focus();
 
-        titleInput.classList.add("input-error");
+        setTimeout(
+            () => {
 
-        setTimeout(() => {
-            titleInput.classList.remove("input-error");
-        }, 700);
+                titleInput.classList.remove(
+                    "input-error"
+                );
+
+            },
+            700
+        );
 
         return;
     }
@@ -183,7 +467,16 @@ function addTask() {
 
     saveTasks();
 
-    document.querySelector(".task-form").remove();
+
+    const form =
+        document.querySelector(
+            ".task-form"
+        );
+
+    if (form) {
+        form.remove();
+    }
+
 
     renderTasks();
 }
@@ -195,17 +488,26 @@ function addTask() {
 
 function renderTasks() {
 
-    const todaySection = document.querySelector(".today");
+    const todaySection =
+        document.querySelector(
+            ".today"
+        );
 
-    if (!todaySection) return;
+    if (!todaySection) {
+        return;
+    }
 
 
-    const todayTasks = tasks.filter(task =>
-        task.date === getToday()
-    );
+    const todayTasks =
+        tasks.filter(
+            task =>
+                task.date === getToday()
+        );
 
 
-    // Если задач пока нет
+    // ====================================
+    // НЕТ ЗАДАЧ
+    // ====================================
 
     if (todayTasks.length === 0) {
 
@@ -226,7 +528,7 @@ function renderTasks() {
                 </div>
 
                 <span class="date">
-                    1 октября
+                    ${formatDate()}
                 </span>
 
             </div>
@@ -252,62 +554,78 @@ function renderTasks() {
                 </button>
 
             </div>
+
         `;
 
 
         document
             .querySelector(".primary-button")
-            .addEventListener("click", openTaskForm);
+            .addEventListener(
+                "click",
+                openTaskForm
+            );
 
-        updateProgress();
+
+        updateChallengeInfo();
 
         return;
     }
 
 
-    // Если задачи есть
+    // ====================================
+    // ЕСТЬ ЗАДАЧИ
+    // ====================================
 
-    const completed = todayTasks.filter(
-        task => task.completed
-    ).length;
-
-
-    const taskHTML = todayTasks.map(task => `
-
-        <div class="task-item ${task.completed ? "completed" : ""}"
-             data-id="${task.id}">
-
-            <button
-                class="task-check"
-                aria-label="Отметить задачу"
-            >
-                ${task.completed ? "✓" : ""}
-            </button>
+    const completed =
+        todayTasks.filter(
+            task => task.completed
+        ).length;
 
 
-            <div class="task-content">
+    const taskHTML =
+        todayTasks
+            .map(
+                task => `
 
-                <div class="task-title">
-                    ${escapeHTML(task.title)}
+                <div
+                    class="task-item
+                    ${task.completed ? "completed" : ""}"
+                    data-id="${task.id}"
+                >
+
+                    <button
+                        class="task-check"
+                        aria-label="Выполнить задачу"
+                    >
+                        ${task.completed ? "✓" : ""}
+                    </button>
+
+
+                    <div class="task-content">
+
+                        <div class="task-title">
+                            ${escapeHTML(task.title)}
+                        </div>
+
+                        <div class="task-category">
+                            ${task.category}
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="delete-task"
+                        aria-label="Удалить задачу"
+                    >
+                        ×
+                    </button>
+
                 </div>
 
-                <div class="task-category">
-                    ${task.category}
-                </div>
-
-            </div>
-
-
-            <button
-                class="delete-task"
-                aria-label="Удалить задачу"
-            >
-                ×
-            </button>
-
-        </div>
-
-    `).join("");
+            `
+            )
+            .join("");
 
 
     todaySection.innerHTML = `
@@ -347,35 +665,39 @@ function renderTasks() {
     `;
 
 
-    // Отметка выполнения
+    // Выполнение
 
     document
         .querySelectorAll(".task-check")
-        .forEach(button => {
+        .forEach(
+            button => {
 
-            button.addEventListener(
-                "click",
-                toggleTask
-            );
+                button.addEventListener(
+                    "click",
+                    toggleTask
+                );
 
-        });
+            }
+        );
 
 
     // Удаление
 
     document
         .querySelectorAll(".delete-task")
-        .forEach(button => {
+        .forEach(
+            button => {
 
-            button.addEventListener(
-                "click",
-                deleteTask
-            );
+                button.addEventListener(
+                    "click",
+                    deleteTask
+                );
 
-        });
+            }
+        );
 
 
-    // Добавление новой
+    // Добавление
 
     document
         .querySelector(".add-task-button")
@@ -385,7 +707,11 @@ function renderTasks() {
         );
 
 
-    updateProgress();
+    updateChallengeInfo();
+
+    updateDailyProgress(
+        todayTasks
+    );
 }
 
 
@@ -395,22 +721,32 @@ function renderTasks() {
 
 function toggleTask(event) {
 
-    const taskElement =
-        event.currentTarget.closest(".task-item");
+    const element =
+        event.currentTarget
+            .closest(".task-item");
+
 
     const taskId =
-        Number(taskElement.dataset.id);
+        Number(
+            element.dataset.id
+        );
 
 
-    const task = tasks.find(
-        task => task.id === taskId
-    );
+    const task =
+        tasks.find(
+            task =>
+                task.id === taskId
+        );
 
 
-    if (!task) return;
+    if (!task) {
+        return;
+    }
 
 
-    task.completed = !task.completed;
+    task.completed =
+        !task.completed;
+
 
     saveTasks();
 
@@ -419,21 +755,27 @@ function toggleTask(event) {
 
 
 // ========================================
-// УДАЛЕНИЕ ЗАДАЧИ
+// УДАЛЕНИЕ
 // ========================================
 
 function deleteTask(event) {
 
-    const taskElement =
-        event.currentTarget.closest(".task-item");
+    const element =
+        event.currentTarget
+            .closest(".task-item");
+
 
     const taskId =
-        Number(taskElement.dataset.id);
+        Number(
+            element.dataset.id
+        );
 
 
-    tasks = tasks.filter(
-        task => task.id !== taskId
-    );
+    tasks =
+        tasks.filter(
+            task =>
+                task.id !== taskId
+        );
 
 
     saveTasks();
@@ -443,14 +785,13 @@ function deleteTask(event) {
 
 
 // ========================================
-// ПРОГРЕСС
+// ПРОГРЕСС ЗА ДЕНЬ
 // ========================================
 
-function updateProgress() {
+function updateDailyProgress(todayTasks) {
 
-    const todayTasks = tasks.filter(
-        task => task.date === getToday()
-    );
+    const total =
+        todayTasks.length;
 
 
     const completed =
@@ -459,15 +800,13 @@ function updateProgress() {
         ).length;
 
 
-    const total =
-        todayTasks.length;
-
-
     const percent =
         total === 0
             ? 0
             : Math.round(
-                (completed / total) * 100
+                completed /
+                total *
+                100
             );
 
 
@@ -484,69 +823,35 @@ function updateProgress() {
 
 
     if (progressText) {
+
         progressText.textContent =
             `${percent}%`;
+
     }
 
 
     if (progressFill) {
+
         progressFill.style.width =
             `${percent}%`;
+
     }
 }
 
 
 // ========================================
-// ДАТА
-// ========================================
-
-function getToday() {
-
-    const now = new Date();
-
-    const year =
-        now.getFullYear();
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(2, "0");
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(2, "0");
-
-
-    return `${year}-${month}-${day}`;
-}
-
-
-function formatDate() {
-
-    const date = new Date();
-
-
-    return date.toLocaleDateString(
-        "ru-RU",
-        {
-            day: "numeric",
-            month: "long"
-        }
-    );
-}
-
-
-// ========================================
-// ЗАЩИТА ОТ HTML
+// ЗАЩИТА ТЕКСТА
 // ========================================
 
 function escapeHTML(text) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
 }
