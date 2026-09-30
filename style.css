@@ -1,0 +1,317 @@
+:root {
+    --milk: #f5f2ec;
+    --paper: #fbfaf7;
+    --graphite: #242320;
+    --soft-gray: #8d8981;
+    --line: #ddd8ce;
+    --gold: #b3a078;
+    --sage: #9da394;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--milk);
+    color: var(--graphite);
+    font-family: "DM Sans", sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+}
+
+button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+}
+
+#app {
+    width: 100%;
+    max-width: 560px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 28px 24px 110px;
+}
+
+/* Верхняя часть */
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 64px;
+}
+
+.logo {
+    font-family: "Playfair Display", serif;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    margin-top: 3px;
+    color: var(--soft-gray);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.settings-button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--graphite);
+    font-size: 16px;
+    transition: 0.25s ease;
+}
+
+.settings-button:hover {
+    background: var(--paper);
+}
+
+/* Приветствие */
+
+.welcome {
+    margin-bottom: 56px;
+}
+
+.eyebrow {
+    margin-bottom: 13px;
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(38px, 9vw, 54px);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -1.5px;
+}
+
+.intro {
+    max-width: 410px;
+    margin-top: 22px;
+    color: var(--soft-gray);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Прогресс */
+
+.progress-section {
+    margin-bottom: 64px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+}
+
+.progress-header span:last-child {
+    color: var(--gold);
+}
+
+.progress-line {
+    width: 100%;
+    height: 2px;
+    background: var(--line);
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.5s ease;
+}
+
+.days {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: var(--soft-gray);
+    font-size: 11px;
+}
+
+/* Сегодня */
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+.section-heading h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.date {
+    color: var(--soft-gray);
+    font-size: 12px;
+}
+
+/* Пустое состояние */
+
+.empty-state {
+    padding: 54px 10px 40px;
+    text-align: center;
+}
+
+.empty-number {
+    margin-bottom: 18px;
+    color: var(--gold);
+    font-family: "Playfair Display", serif;
+    font-size: 52px;
+    font-weight: 400;
+}
+
+.empty-state h3 {
+    font-family: "Playfair Display", serif;
+    font-size: 25px;
+    font-weight: 400;
+}
+
+.empty-state p {
+    max-width: 280px;
+    margin: 12px auto 26px;
+    color: var(--soft-gray);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Кнопка */
+
+.primary-button {
+    padding: 14px 24px;
+    border: 1px solid var(--graphite);
+    background: var(--graphite);
+    color: var(--white);
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    transition: 0.25s ease;
+}
+
+.primary-button:hover {
+    background: #3a3833;
+}
+
+/* Нижняя навигация */
+
+.bottom-navigation {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    z-index: 10;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    width: calc(100% - 32px);
+    max-width: 512px;
+
+    padding: 8px;
+
+    transform: translateX(-50%);
+
+    border: 1px solid rgba(221, 216, 206, 0.9);
+    background: rgba(251, 250, 247, 0.92);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow: 0 8px 30px rgba(36, 35, 32, 0.06);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    padding: 9px 4px;
+
+    background: transparent;
+    color: var(--soft-gray);
+
+    transition: 0.25s ease;
+}
+
+.nav-item span {
+    font-family: "Playfair Display", serif;
+    font-size: 13px;
+}
+
+.nav-item small {
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.nav-item.active {
+    color: var(--graphite);
+}
+
+.nav-item.active span {
+    color: var(--gold);
+}
+
+/* Большие экраны */
+
+@media (min-width: 700px) {
+
+    body {
+        display: flex;
+        justify-content: center;
+    }
+
+    #app {
+        padding-top: 45px;
+    }
+
+    .bottom-navigation {
+        bottom: 24px;
+    }
+}
+
+/* Маленькие телефоны */
+
+@media (max-width: 380px) {
+
+    #app {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
+
+    .section-heading h2 {
+        font-size: 27px;
+    }
+
+    .nav-item small {
+        font-size: 8px;
+    }
+}
