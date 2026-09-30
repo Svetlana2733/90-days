@@ -714,8 +714,6 @@ function showPage(
     }
 
 }
-
-
 // ========================================
 // ФОРМА ЗАДАЧИ
 // ========================================
@@ -1258,9 +1256,13 @@ function openTaskForm(
         "click",
         () => form.remove()
     );
-
-
-    form.querySelector(
+form.querySelector(
+    ".form-overlay"
+).addEventListener(
+    "click",
+    () => form.remove()
+);
+        form.querySelector(
         "#save-task"
     ).addEventListener(
         "click",
@@ -1498,75 +1500,54 @@ function renderTasks() {
     }
 
 
-    const dailyProgressText =
-        document.querySelector(
-            "#daily-progress-text"
-        );
+    const grouped =
+        {};
 
 
-    const dailyProgressFill =
-        document.querySelector(
-            "#daily-progress-fill"
-        );
+    CATEGORIES.forEach(
+        category => {
+
+            grouped[
+                category
+            ] = [];
+
+        }
+    );
 
 
-    const completedCount =
-        todayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    today
-                )
-        ).length;
+    todayTasks.forEach(
+        task => {
+
+            if (
+                !grouped[
+                    task.category
+                ]
+            ) {
+
+                grouped[
+                    task.category
+                ] = [];
+
+            }
 
 
-    if (
-        dailyProgressText
-    ) {
+            grouped[
+                task.category
+            ].push(
+                task
+            );
 
-        dailyProgressText.textContent =
-            `${completedCount} из ${todayTasks.length}`;
-
-    }
-
-
-    if (
-        dailyProgressFill
-    ) {
-
-        const percent =
-            todayTasks.length
-                ? (
-                    completedCount /
-                    todayTasks.length
-                ) * 100
-                : 0;
-
-
-        dailyProgressFill.style.width =
-            `${percent}%`;
-
-    }
-
-
-    if (
-        !todayTasks.length
-    ) {
-
-        return;
-
-    }
+        }
+    );
 
 
     CATEGORIES.forEach(
         category => {
 
             const categoryTasks =
-                todayTasks.filter(
-                    task =>
-                        task.category ===
-                        category
-                );
+                grouped[
+                    category
+                ];
 
 
             if (
@@ -1580,7 +1561,7 @@ function renderTasks() {
 
             const group =
                 document.createElement(
-                    "div"
+                    "section"
                 );
 
 
@@ -1588,144 +1569,53 @@ function renderTasks() {
                 "task-group";
 
 
-            group.innerHTML = `
+            const heading =
+                document.createElement(
+                    "div"
+                );
 
-                <div
-                    class="task-group-title"
-                >
+
+            heading.className =
+                "task-group-heading";
+
+
+            heading.innerHTML = `
+
+                <span>
                     ${category}
-                </div>
+                </span>
 
-                <div
-                    class="task-list"
-                ></div>
+                <span>
+                    ${categoryTasks.filter(
+                        task =>
+                            isTaskCompleted(
+                                task,
+                                today
+                            )
+                    ).length}
+                    /
+                    ${categoryTasks.length}
+                </span>
 
             `;
 
 
-            const list =
-                group.querySelector(
-                    ".task-list"
-                );
+            group.appendChild(
+                heading
+            );
 
 
             categoryTasks.forEach(
                 task => {
 
-                    const completed =
-                        isTaskCompleted(
+                    const taskElement =
+                        createTaskElement(
                             task,
                             today
                         );
 
 
-                    const taskElement =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    taskElement.className =
-                        "task-item" +
-                        (
-                            completed
-                                ? " completed"
-                                : ""
-                        );
-
-
-                    taskElement.innerHTML = `
-
-                        <button
-                            class="task-check"
-                            aria-label="${
-                                completed
-                                    ? "Отметить как невыполненную"
-                                    : "Отметить как выполненную"
-                            }"
-                        >
-                            <span></span>
-                        </button>
-
-
-                        <div
-                            class="task-content"
-                        >
-
-                            <div
-                                class="task-title"
-                            >
-                                ${escapeText(
-                                    task.title
-                                )}
-                            </div>
-
-
-                            <div
-                                class="task-meta"
-                            >
-                                ${
-                                    task.repeat ===
-                                    "daily"
-                                        ? "Каждый день"
-                                        : task.repeat ===
-                                          "weekly"
-                                            ? "По выбранным дням"
-                                            : "Сегодня"
-                                }
-                            </div>
-
-                        </div>
-
-
-                        <button
-                            class="task-edit"
-                            aria-label="Редактировать"
-                        >
-                            ⋯
-                        </button>
-
-                    `;
-
-
-                    const checkButton =
-                        taskElement.querySelector(
-                            ".task-check"
-                        );
-
-
-                    checkButton.addEventListener(
-                        "click",
-                        event => {
-
-                            event.stopPropagation();
-
-                            toggleTask(
-                                task,
-                                today
-                            );
-
-                        }
-                    );
-
-
-                    taskElement.querySelector(
-                        ".task-edit"
-                    ).addEventListener(
-                        "click",
-                        event => {
-
-                            event.stopPropagation();
-
-                            openTaskMenu(
-                                task
-                            );
-
-                        }
-                    );
-
-
-                    list.appendChild(
+                    group.appendChild(
                         taskElement
                     );
 
@@ -1740,17 +1630,313 @@ function renderTasks() {
         }
     );
 
+
+    const addButton =
+        document.createElement(
+            "button"
+        );
+
+
+    addButton.className =
+        "add-task-button";
+
+
+    addButton.type =
+        "button";
+
+
+    addButton.textContent =
+        "+ Добавить задачу";
+
+
+    addButton.addEventListener(
+        "click",
+        () => {
+
+            openTaskForm();
+
+        }
+    );
+
+
+    container.appendChild(
+        addButton
+    );
+
+
+    updateTodayProgress(
+        todayTasks,
+        today
+    );
+
 }
 
 
 // ========================================
-// ПЕРЕКЛЮЧЕНИЕ ЗАДАЧИ
+// СОЗДАНИЕ ЗАДАЧИ НА ЭКРАНЕ
 // ========================================
 
-function toggleTask(
+function createTaskElement(
     task,
     dateString
 ) {
+
+    const completed =
+        isTaskCompleted(
+            task,
+            dateString
+        );
+
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "task-item";
+
+
+    if (
+        completed
+    ) {
+
+        element.classList.add(
+            "completed"
+        );
+
+    }
+
+
+    element.innerHTML = `
+
+        <button
+            class="task-check"
+            type="button"
+            aria-label="${
+                completed
+                    ? "Отметить как невыполненную"
+                    : "Отметить как выполненную"
+            }"
+        >
+            <span></span>
+        </button>
+
+
+        <div
+            class="task-content"
+        >
+
+            <div
+                class="task-title"
+            >
+                ${escapeHtml(
+                    task.title
+                )}
+            </div>
+
+
+            ${
+                task.repeat &&
+                task.repeat !== "once"
+                    ? `
+                        <div
+                            class="task-meta"
+                        >
+                            ${
+                                task.repeat ===
+                                "daily"
+                                    ? "Каждый день"
+                                    : "По выбранным дням"
+                            }
+                        </div>
+                    `
+                    : ""
+            }
+
+        </div>
+
+
+        <div
+            class="task-actions"
+        >
+
+            <button
+                class="edit-task"
+                type="button"
+                aria-label="Редактировать"
+            >
+                ✎
+            </button>
+
+
+            <button
+                class="delete-task"
+                type="button"
+                aria-label="Удалить"
+            >
+                ×
+            </button>
+
+        </div>
+
+    `;
+
+
+    const checkButton =
+        element.querySelector(
+            ".task-check"
+        );
+
+
+    checkButton.addEventListener(
+        "click",
+        () => {
+
+            toggleTask(
+                task.id,
+                dateString
+            );
+
+        }
+    );
+
+
+    const editButton =
+        element.querySelector(
+            ".edit-task"
+        );
+
+
+    editButton.addEventListener(
+        "click",
+        () => {
+
+            openTaskForm(
+                task
+            );
+
+        }
+    );
+
+
+    const deleteButton =
+        element.querySelector(
+            ".delete-task"
+        );
+
+
+    deleteButton.addEventListener(
+        "click",
+        () => {
+
+            deleteTask(
+                task.id
+            );
+
+        }
+    );
+
+
+    return element;
+
+}
+
+
+// ========================================
+// ПРОГРЕСС СЕГОДНЯ
+// ========================================
+
+function updateTodayProgress(
+    todayTasks,
+    dateString
+) {
+
+    const total =
+        todayTasks.length;
+
+
+    const completed =
+        todayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        ).length;
+
+
+    const progress =
+        total
+            ? Math.round(
+                (
+                    completed /
+                    total
+                ) * 100
+            )
+            : 0;
+
+
+    const progressText =
+        document.querySelector(
+            "#today-progress"
+        );
+
+
+    if (
+        progressText
+    ) {
+
+        progressText.textContent =
+            `${completed} из ${total}`;
+
+    }
+
+
+    const progressFill =
+        document.querySelector(
+            "#today-progress-fill"
+        );
+
+
+    if (
+        progressFill
+    ) {
+
+        progressFill.style.width =
+            `${progress}%`;
+
+    }
+
+}
+
+
+// ========================================
+// ОТМЕТИТЬ ЗАДАЧУ
+// ========================================
+
+function toggleTask(
+    taskId,
+    dateString
+) {
+
+    const task =
+        tasks.find(
+            item =>
+                item.id ===
+                taskId
+        );
+
+
+    if (
+        !task
+    ) {
+
+        return;
+
+    }
+
 
     if (
         !task.completions
@@ -1782,158 +1968,64 @@ function toggleTask(
 
 
 // ========================================
-// МЕНЮ ЗАДАЧИ
+// УДАЛИТЬ ЗАДАЧУ
 // ========================================
 
-function openTaskMenu(
-    task
+function deleteTask(
+    taskId
 ) {
 
-    const oldMenu =
-        document.querySelector(
-            ".task-menu"
+    const task =
+        tasks.find(
+            item =>
+                item.id ===
+                taskId
         );
 
 
     if (
-        oldMenu
+        !task
     ) {
 
-        oldMenu.remove();
+        return;
 
     }
 
 
-    const menu =
-        document.createElement(
-            "div"
+    const confirmed =
+        confirm(
+            `Удалить задачу «${task.title}»?`
         );
 
 
-    menu.className =
-        "task-menu";
+    if (
+        !confirmed
+    ) {
+
+        return;
+
+    }
 
 
-    menu.innerHTML = `
-
-        <div
-            class="form-overlay"
-        ></div>
-
-
-        <div
-            class="task-menu-window"
-        >
-
-            <button
-                class="close-form"
-                aria-label="Закрыть"
-            >
-                ×
-            </button>
+    tasks =
+        tasks.filter(
+            item =>
+                item.id !==
+                taskId
+        );
 
 
-            <p
-                class="eyebrow"
-            >
-                ДЕЙСТВИЕ
-            </p>
+    saveTasks();
 
+    renderTasks();
 
-            <h2>
-                ${escapeText(
-                    task.title
-                )}
-            </h2>
-
-
-            <button
-                class="menu-button"
-                id="edit-task-button"
-            >
-                Редактировать
-            </button>
-
-
-            <button
-                class="menu-button danger"
-                id="delete-task-button"
-            >
-                Удалить
-            </button>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-        menu
-    );
-
-
-    menu.querySelector(
-        ".close-form"
-    ).addEventListener(
-        "click",
-        () => menu.remove()
-    );
-
-
-    menu.querySelector(
-        ".form-overlay"
-    ).addEventListener(
-        "click",
-        () => menu.remove()
-    );
-
-
-    menu.querySelector(
-        "#edit-task-button"
-    ).addEventListener(
-        "click",
-        () => {
-
-            menu.remove();
-
-            openTaskForm(
-                task
-            );
-
-        }
-    );
-
-
-    menu.querySelector(
-        "#delete-task-button"
-    ).addEventListener(
-        "click",
-        () => {
-
-            tasks =
-                tasks.filter(
-                    item =>
-                        item.id !==
-                        task.id
-                );
-
-
-            saveTasks();
-
-            menu.remove();
-
-            renderTasks();
-
-            renderCalendar();
-
-        }
-    );
+    renderCalendar();
 
 }
 
 
 // ========================================
-// ПЕРВАЯ КНОПКА
+// ПЕРВАЯ ЗАДАЧА
 // ========================================
 
 function setupFirstTaskButton() {
@@ -1963,21 +2055,23 @@ function setupFirstTaskButton() {
     );
 
 }
+// ========================================
+// КАЛЕНДАРЬ
+// ========================================
+
+let currentCalendarDate =
+    new Date(
+        CHALLENGE_START +
+        "T00:00:00"
+    );
+
+
+let selectedCalendarDate =
+    getToday();
 
 
 // ========================================
-// ДОБАВИТЬ ЗАДАЧУ
-// ========================================
-
-function addTaskButton() {
-
-    openTaskForm();
-
-}
-
-
-// ========================================
-// ЭКРАН КАЛЕНДАРЯ
+// РЕНДЕР КАЛЕНДАРЯ
 // ========================================
 
 function renderCalendar() {
@@ -1985,12 +2079,6 @@ function renderCalendar() {
     const calendar =
         document.querySelector(
             "#challenge-calendar"
-        );
-
-
-    const selectedDay =
-        document.querySelector(
-            "#selected-day"
         );
 
 
@@ -2007,326 +2095,1238 @@ function renderCalendar() {
         "";
 
 
-    if (
-        selectedDay
-    ) {
+    const year =
+        currentCalendarDate.getFullYear();
 
-        selectedDay.innerHTML =
-            "";
 
-    }
+    const month =
+        currentCalendarDate.getMonth();
 
 
-    const start =
-        getDateObject(
-            CHALLENGE_START
-        );
-
-
-    const months =
-        {};
-
-
-    for (
-        let i = 0;
-        i < CHALLENGE_LENGTH;
-        i++
-    ) {
-
-        const dateString =
-            addDays(
-                CHALLENGE_START,
-                i
-            );
-
-
-        const date =
-            getDateObject(
-                dateString
-            );
-
-
-        const monthKey =
-            `${date.getFullYear()}-${date.getMonth()}`;
-
-
-        if (
-            !months[monthKey]
-        ) {
-
-            months[monthKey] =
-                {
-
-                    year:
-                        date.getFullYear(),
-
-                    month:
-                        date.getMonth(),
-
-                    days:
-                        []
-
-                };
-
-        }
-
-
-        months[
-            monthKey
-        ].days.push(
-            dateString
-        );
-
-    }
-
-
-    Object.values(
-        months
-    ).forEach(
-        monthData => {
-
-            const monthBlock =
-                document.createElement(
-                    "div"
-                );
-
-
-            monthBlock.className =
-                "calendar-month";
-
-
-            const monthTitle =
-                document.createElement(
-                    "h3"
-                );
-
-
-            monthTitle.textContent =
-                new Date(
-                    monthData.year,
-                    monthData.month,
-                    1
-                ).toLocaleDateString(
-                    "ru-RU",
-                    {
-                        month: "long",
-                        year: "numeric"
-                    }
-                );
-
-
-            monthBlock.appendChild(
-                monthTitle
-            );
-
-
-            const weekdays =
-                document.createElement(
-                    "div"
-                );
-
-
-            weekdays.className =
-                "calendar-weekdays";
-
-
-            [
-                "Пн",
-                "Вт",
-                "Ср",
-                "Чт",
-                "Пт",
-                "Сб",
-                "Вс"
-            ].forEach(
-                day => {
-
-                    const element =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    element.textContent =
-                        day;
-
-
-                    weekdays.appendChild(
-                        element
-                    );
-
-                }
-            );
-
-
-            monthBlock.appendChild(
-                weekdays
-            );
-
-
-            const grid =
-                document.createElement(
-                    "div"
-                );
-
-
-            grid.className =
-                "calendar-grid";
-
-
-            const firstDay =
-                new Date(
-                    monthData.year,
-                    monthData.month,
-                    1
-                ).getDay();
-
-
-            const mondayIndex =
-                firstDay === 0
-                    ? 6
-                    : firstDay - 1;
-
-
-            for (
-                let i = 0;
-                i < mondayIndex;
-                i++
-            ) {
-
-                const empty =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                empty.className =
-                    "calendar-day empty";
-
-
-                grid.appendChild(
-                    empty
-                );
-
+    const monthName =
+        currentCalendarDate.toLocaleDateString(
+            "ru-RU",
+            {
+                month: "long",
+                year: "numeric"
             }
+        );
 
 
-            monthData.days.forEach(
-                dateString => {
-
-                    const dayElement =
-                        document.createElement(
-                            "button"
-                        );
+    const monthHeader =
+        document.createElement(
+            "div"
+        );
 
 
-                    dayElement.type =
-                        "button";
+    monthHeader.className =
+        "calendar-month";
 
 
-                    dayElement.className =
-                        "calendar-day";
+    monthHeader.innerHTML = `
+
+        <button
+            type="button"
+            class="calendar-arrow"
+            id="calendar-prev"
+        >
+            ‹
+        </button>
 
 
-                    const dayNumber =
-                        getDateObject(
-                            dateString
-                        ).getDate();
+        <div
+            class="calendar-month-title"
+        >
+            ${monthName}
+        </div>
 
 
-                    dayElement.innerHTML = `
+        <button
+            type="button"
+            class="calendar-arrow"
+            id="calendar-next"
+        >
+            ›
+        </button>
 
-                        <span>
-                            ${dayNumber}
-                        </span>
-
-                    `;
-
-
-                    const dayTasks =
-                        getTasksForDate(
-                            dateString
-                        );
+    `;
 
 
-                    const completedTasks =
-                        dayTasks.filter(
-                            task =>
-                                isTaskCompleted(
-                                    task,
-                                    dateString
-                                )
-                        );
+    calendar.appendChild(
+        monthHeader
+    );
 
 
-                    if (
-                        dayTasks.length &&
-                        completedTasks.length ===
-                        dayTasks.length
-                    ) {
-
-                        dayElement.classList.add(
-                            "status-complete"
-                        );
-
-                    } else if (
-                        completedTasks.length
-                    ) {
-
-                        dayElement.classList.add(
-                            "status-partial"
-                        );
-
-                    }
+    const weekdays =
+        document.createElement(
+            "div"
+        );
 
 
-                    if (
-                        dateString ===
-                        getToday()
-                    ) {
-
-                        dayElement.classList.add(
-                            "today"
-                        );
-
-                    }
+    weekdays.className =
+        "calendar-weekdays";
 
 
-                    dayElement.addEventListener(
-                        "click",
-                        () => {
+    [
+        "Пн",
+        "Вт",
+        "Ср",
+        "Чт",
+        "Пт",
+        "Сб",
+        "Вс"
+    ].forEach(
+        day => {
 
-                            renderSelectedDay(
-                                dateString
-                            );
-
-                        }
-                    );
-
-
-                    grid.appendChild(
-                        dayElement
-                    );
-
-                }
-            );
+            const element =
+                document.createElement(
+                    "div"
+                );
 
 
-            monthBlock.appendChild(
-                grid
-            );
+            element.textContent =
+                day;
 
 
-            calendar.appendChild(
-                monthBlock
+            weekdays.appendChild(
+                element
             );
 
         }
     );
 
+
+    calendar.appendChild(
+        weekdays
+    );
+
+
+    const grid =
+        document.createElement(
+            "div"
+        );
+
+
+    grid.className =
+        "calendar-grid";
+
+
+    const firstDay =
+        new Date(
+            year,
+            month,
+            1
+        );
+
+
+    let startDay =
+        firstDay.getDay();
+
+
+    // Делаем понедельник первым днём
+
+    if (
+        startDay ===
+        0
+    ) {
+
+        startDay =
+            7;
+
+    }
+
+
+    const daysInMonth =
+        new Date(
+            year,
+            month + 1,
+            0
+        ).getDate();
+
+
+    // Пустые клетки перед первым числом
+
+    for (
+        let i = 1;
+        i < startDay;
+        i++
+    ) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.className =
+            "calendar-day empty";
+
+
+        grid.appendChild(
+            empty
+        );
+
+    }
+
+
+    // Дни месяца
+
+    for (
+        let day = 1;
+        day <= daysInMonth;
+        day++
+    ) {
+
+        const dateString =
+            `${year}-${String(
+                month + 1
+            ).padStart(
+                2,
+                "0"
+            )}-${String(
+                day
+            ).padStart(
+                2,
+                "0"
+            )}`;
+
+
+        const dayElement =
+            document.createElement(
+                "button"
+            );
+
+
+        dayElement.type =
+            "button";
+
+
+        dayElement.className =
+            "calendar-day";
+
+
+        const dayTasks =
+            getTasksForDate(
+                dateString
+            );
+
+
+        const completedTasks =
+            dayTasks.filter(
+                task =>
+                    isTaskCompleted(
+                        task,
+                        dateString
+                    )
+            ).length;
+
+
+        if (
+            dayTasks.length &&
+            completedTasks ===
+            dayTasks.length
+        ) {
+
+            dayElement.classList.add(
+                "status-complete"
+            );
+
+        } else if (
+            completedTasks > 0
+        ) {
+
+            dayElement.classList.add(
+                "status-partial"
+            );
+
+        }
+
+
+        if (
+            dateString ===
+            getToday()
+        ) {
+
+            dayElement.classList.add(
+                "today"
+            );
+
+        }
+
+
+        if (
+            dateString ===
+            selectedCalendarDate
+        ) {
+
+            dayElement.classList.add(
+                "selected-day"
+            );
+
+        }
+
+
+        dayElement.innerHTML = `
+
+            <span
+                class="calendar-day-number"
+            >
+                ${day}
+            </span>
+
+
+            ${
+                dayTasks.length
+                    ? `
+                        <span
+                            class="calendar-day-count"
+                        >
+                            ${completedTasks}/${dayTasks.length}
+                        </span>
+                    `
+                    : ""
+            }
+
+        `;
+
+
+        dayElement.addEventListener(
+            "click",
+            () => {
+
+                selectedCalendarDate =
+                    dateString;
+
+
+                renderCalendar();
+
+                renderSelectedDay();
+
+            }
+        );
+
+
+        grid.appendChild(
+            dayElement
+        );
+
+    }
+
+
+    calendar.appendChild(
+        grid
+    );
+
+
+    const previousButton =
+        calendar.querySelector(
+            "#calendar-prev"
+        );
+
+
+    const nextButton =
+        calendar.querySelector(
+            "#calendar-next"
+        );
+
+
+    previousButton.addEventListener(
+        "click",
+        () => {
+
+            currentCalendarDate =
+                new Date(
+                    year,
+                    month - 1,
+                    1
+                );
+
+
+            renderCalendar();
+
+        }
+    );
+
+
+    nextButton.addEventListener(
+        "click",
+        () => {
+
+            currentCalendarDate =
+                new Date(
+                    year,
+                    month + 1,
+                    1
+                );
+
+
+            renderCalendar();
+
+        }
+    );
+
+
+    renderSelectedDay();
+
+}
+
+
+// ========================================
+// ВЫБРАННЫЙ ДЕНЬ
+// ========================================
+
+function renderSelectedDay() {
+
+    const container =
+        document.querySelector(
+            "#selected-day"
+        );
+
+
+    if (
+        !container
+    ) {
+
+        return;
+
+    }
+
+
+    const dateString =
+        selectedCalendarDate;
+
+
+    const dayTasks =
+        getTasksForDate(
+            dateString
+        );
+
+
+    const completed =
+        dayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        ).length;
+
+
+    container.innerHTML = `
+
+        <div
+            class="selected-day-header"
+        >
+
+            <div>
+
+                <div
+                    class="selected-day-label"
+                >
+                    ${formatWeekDay(
+                        dateString
+                    )}
+                </div>
+
+
+                <div
+                    class="selected-day-title"
+                >
+                    ${formatDate(
+                        dateString
+                    )}
+                </div>
+
+            </div>
+
+
+            <div
+                class="selected-day-count"
+            >
+                ${completed}/${dayTasks.length}
+            </div>
+
+        </div>
+
+
+        <div
+            class="selected-day-tasks"
+        ></div>
+
+    `;
+
+
+    const taskContainer =
+        container.querySelector(
+            ".selected-day-tasks"
+        );
+
+
+    if (
+        !dayTasks.length
+    ) {
+
+        taskContainer.innerHTML = `
+
+            <div
+                class="calendar-empty"
+            >
+                На этот день задач пока нет.
+            </div>
+
+        `;
+
+
+        const addButton =
+            document.createElement(
+                "button"
+            );
+
+
+        addButton.type =
+            "button";
+
+
+        addButton.className =
+            "calendar-add-task";
+
+
+        addButton.textContent =
+            "+ Добавить задачу";
+
+
+        addButton.addEventListener(
+            "click",
+            () => {
+
+                openTaskForm();
+
+            }
+        );
+
+
+        taskContainer.appendChild(
+            addButton
+        );
+
+
+        return;
+
+    }
+
+
+    dayTasks.forEach(
+        task => {
+
+            const completed =
+                isTaskCompleted(
+                    task,
+                    dateString
+                );
+
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "calendar-task";
+
+
+            if (
+                completed
+            ) {
+
+                button.classList.add(
+                    "completed"
+                );
+
+            }
+
+
+            button.innerHTML = `
+
+                <span
+                    class="calendar-task-dot"
+                ></span>
+
+
+                <span
+                    class="calendar-task-title"
+                >
+                    ${escapeHtml(
+                        task.title
+                    )}
+                </span>
+
+
+                <span
+                    class="calendar-task-hint"
+                >
+                    нажми, чтобы отметить
+                </span>
+
+            `;
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    toggleTask(
+                        task.id,
+                        dateString
+                    );
+
+                }
+            );
+
+
+            taskContainer.appendChild(
+                button
+            );
+
+        }
+    );
+
+
+    const addButton =
+        document.createElement(
+            "button"
+        );
+
+
+    addButton.type =
+        "button";
+
+
+    addButton.className =
+        "calendar-add-task";
+
+
+    addButton.textContent =
+        "+ Добавить задачу";
+
+
+    addButton.addEventListener(
+        "click",
+        () => {
+
+            openTaskForm();
+
+        }
+    );
+
+
+    taskContainer.appendChild(
+        addButton
+    );
+
+}
+
+
+// ========================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ========================================
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHtml(
+        value
+    );
+
 }
 // ========================================
-// РЕДАКТИРОВАНИЕ СФЕР
+// ДО → ПОСЛЕ
+// ========================================
+
+const BEFORE_AFTER_KEY =
+    "90days_before_after";
+
+
+let beforeAfterData =
+    JSON.parse(
+        localStorage.getItem(
+            BEFORE_AFTER_KEY
+        )
+    ) || {
+
+        pointA: {
+
+            photo: "",
+
+            answers: {
+
+                mainGoal: "",
+
+                why: "",
+
+                currentState: "",
+
+                proudOf: "",
+
+                wantToChange: ""
+
+            }
+
+        },
+
+        pointB: {
+
+            photo: "",
+
+            answers: {
+
+                mainGoal: "",
+
+                why: "",
+
+                currentState: "",
+
+                proudOf: "",
+
+                wantToChange: ""
+
+            }
+
+        },
+
+        wheel: [
+
+            {
+                name: "Духовный рост",
+                a: 5,
+                b: null
+            },
+
+            {
+                name: "Здоровье",
+                a: 5,
+                b: null
+            },
+
+            {
+                name: "Развитие блога",
+                a: 5,
+                b: null
+            },
+
+            {
+                name: "Финансы",
+                a: 5,
+                b: null
+            }
+
+        ]
+
+    };
+
+
+// ========================================
+// СОХРАНЕНИЕ
+// ========================================
+
+function saveBeforeAfter() {
+
+    localStorage.setItem(
+        BEFORE_AFTER_KEY,
+        JSON.stringify(
+            beforeAfterData
+        )
+    );
+
+}
+
+
+// ========================================
+// ИНИЦИАЛИЗАЦИЯ
+// ========================================
+
+function setupBeforeAfter() {
+
+    const page =
+        document.querySelector(
+            "#before-after-page"
+        );
+
+
+    if (
+        !page
+    ) {
+
+        return;
+
+    }
+
+
+    renderBeforeAfter();
+
+}
+
+
+// ========================================
+// ОСНОВНОЙ ЭКРАН
+// ========================================
+
+function renderBeforeAfter() {
+
+    const page =
+        document.querySelector(
+            "#before-after-page"
+        );
+
+
+    if (
+        !page
+    ) {
+
+        return;
+
+    }
+
+
+    page.innerHTML = `
+
+        <section
+            class="ba-section"
+        >
+
+            <div
+                class="page-heading"
+            >
+
+                <p
+                    class="eyebrow"
+                >
+                    МОЯ ТОЧКА А → ТОЧКА Б
+                </p>
+
+
+                <h1
+                    class="page-title"
+                >
+                    До → После
+                </h1>
+
+
+                <p
+                    class="page-description"
+                >
+                    Зафиксируй, с чего начинаешь,
+                    чтобы через 90 дней увидеть,
+                    как далеко ты пришла.
+                </p>
+
+            </div>
+
+
+            <div
+                class="ba-card"
+            >
+
+                <div
+                    class="ba-card-heading"
+                >
+
+                    <div>
+
+                        <p
+                            class="eyebrow"
+                        >
+                            ДЕНЬ 1
+                        </p>
+
+
+                        <h2>
+                            Моя точка А
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="ba-fields"
+                >
+
+                    <label>
+                        Что я хочу изменить
+                        за эти 90 дней?
+
+                        <textarea
+                            id="ba-main-goal"
+                            placeholder="Напиши своими словами..."
+                        >${escapeHtml(
+                            beforeAfterData.pointA
+                                .answers.mainGoal
+                        )}</textarea>
+
+                    </label>
+
+
+                    <label>
+                        Почему для меня
+                        это важно?
+
+                        <textarea
+                            id="ba-why"
+                            placeholder="Что стоит за этим желанием?"
+                        >${escapeHtml(
+                            beforeAfterData.pointA
+                                .answers.why
+                        )}</textarea>
+
+                    </label>
+
+
+                    <label>
+                        Как я чувствую себя
+                        сейчас?
+
+                        <textarea
+                            id="ba-current-state"
+                            placeholder="Опиши своё состояние..."
+                        >${escapeHtml(
+                            beforeAfterData.pointA
+                                .answers.currentState
+                        )}</textarea>
+
+                    </label>
+
+
+                    <label>
+                        Чем я уже сейчас
+                        могу гордиться?
+
+                        <textarea
+                            id="ba-proud"
+                            placeholder="Даже если кажется, что это мелочи..."
+                        >${escapeHtml(
+                            beforeAfterData.pointA
+                                .answers.proudOf
+                        )}</textarea>
+
+                    </label>
+
+
+                    <label>
+                        Что я хочу увидеть
+                        в себе через 90 дней?
+
+                        <textarea
+                            id="ba-want-change"
+                            placeholder="Представь себя в конце пути..."
+                        >${escapeHtml(
+                            beforeAfterData.pointA
+                                .answers.wantToChange
+                        )}</textarea>
+
+                    </label>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    id="save-point-a"
+                >
+                    Сохранить точку А
+                </button>
+
+
+                <div
+                    class="ba-message"
+                    id="point-a-message"
+                ></div>
+
+            </div>
+
+
+            <div
+                class="ba-card"
+            >
+
+                <div
+                    class="ba-card-heading"
+                >
+
+                    <div>
+
+                        <p
+                            class="eyebrow"
+                        >
+                            МОЁ КОЛЕСО ЖИЗНИ
+                        </p>
+
+
+                        <h2>
+                            Как я оцениваю свою жизнь сейчас
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p
+                    class="page-description"
+                >
+                    Оцени каждую сферу от 1 до 10.
+                    Здесь нет правильных ответов —
+                    важна только твоя честная точка А.
+                </p>
+
+
+                <div
+                    id="wheel-visual"
+                    class="wheel-visual"
+                ></div>
+
+
+                <div
+                    id="wheel-average"
+                    class="wheel-average"
+                ></div>
+
+
+                <div
+                    id="wheel-editor"
+                    class="wheel-editor"
+                ></div>
+
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="edit-wheel"
+                >
+                    Изменить сферы
+                </button>
+
+            </div>
+
+
+            <div
+                class="ba-card ba-locked"
+            >
+
+                <p
+                    class="eyebrow"
+                >
+                    ДЕНЬ 90
+                </p>
+
+
+                <h2>
+                    Моя точка Б
+                </h2>
+
+
+                <p>
+                    Эта часть откроется,
+                    когда ты дойдёшь до конца
+                    90-дневного пути.
+                </p>
+
+            </div>
+
+
+            <div
+                id="ba-comparison"
+                class="ba-comparison"
+            ></div>
+
+        </section>
+
+    `;
+
+
+    setupPointAEvents();
+
+    renderWheel();
+
+    renderPointBPreview();
+
+}
+
+
+// ========================================
+// СОХРАНЕНИЕ ТОЧКИ А
+// ========================================
+
+function setupPointAEvents() {
+
+    const fields = {
+
+        mainGoal:
+            document.querySelector(
+                "#ba-main-goal"
+            ),
+
+        why:
+            document.querySelector(
+                "#ba-why"
+            ),
+
+        currentState:
+            document.querySelector(
+                "#ba-current-state"
+            ),
+
+        proudOf:
+            document.querySelector(
+                "#ba-proud"
+            ),
+
+        wantToChange:
+            document.querySelector(
+                "#ba-want-change"
+            )
+
+    };
+
+
+    const saveButton =
+        document.querySelector(
+            "#save-point-a"
+        );
+
+
+    if (
+        !saveButton
+    ) {
+
+        return;
+
+    }
+
+
+    saveButton.addEventListener(
+        "click",
+        () => {
+
+            Object.keys(
+                fields
+            ).forEach(
+                key => {
+
+                    if (
+                        fields[key]
+                    ) {
+
+                        beforeAfterData
+                            .pointA
+                            .answers[key] =
+                                fields[key]
+                                    .value
+                                    .trim();
+
+                    }
+
+                }
+            );
+
+
+            saveBeforeAfter();
+
+
+            const message =
+                document.querySelector(
+                    "#point-a-message"
+                );
+
+
+            if (
+                message
+            ) {
+
+                message.textContent =
+                    "Точка А сохранена ♥";
+
+
+                setTimeout(
+                    () => {
+
+                        message.textContent =
+                            "";
+
+                    },
+                    2500
+                );
+
+            }
+
+        }
+    );
+
+
+    const editWheel =
+        document.querySelector(
+            "#edit-wheel"
+        );
+
+
+    if (
+        editWheel
+    ) {
+
+        editWheel.addEventListener(
+            "click",
+            () => {
+
+                toggleWheelEditor();
+
+            }
+        );
+
+    }
+
+}
+
+
+// ========================================
+// РЕДАКТОР СФЕР
 // ========================================
 
 function toggleWheelEditor() {
@@ -2346,14 +3346,10 @@ function toggleWheelEditor() {
     }
 
 
-    const isOpen =
+    if (
         editor.classList.contains(
             "visible"
-        );
-
-
-    if (
-        isOpen
+        )
     ) {
 
         editor.classList.remove(
@@ -2379,7 +3375,7 @@ function toggleWheelEditor() {
 
 
 // ========================================
-// РЕДАКТОР СФЕР
+// СФЕРЫ
 // ========================================
 
 function renderWheelEditor() {
@@ -2412,18 +3408,17 @@ function renderWheelEditor() {
 
             <input
                 type="text"
-                id="new-wheel-category"
+                id="new-wheel-sphere"
                 placeholder="Название новой сферы"
-                maxlength="40"
             >
 
 
             <button
                 type="button"
-                id="add-wheel-category"
-                class="small-outline-button"
+                id="add-wheel-sphere"
+                class="secondary-button"
             >
-                + Добавить
+                + Добавить сферу
             </button>
 
         </div>
@@ -2438,7 +3433,10 @@ function renderWheelEditor() {
 
 
     beforeAfterData.wheel.forEach(
-        (category, index) => {
+        (
+            category,
+            index
+        ) => {
 
             const row =
                 document.createElement(
@@ -2447,95 +3445,53 @@ function renderWheelEditor() {
 
 
             row.className =
-                "wheel-editor-row";
+                "ba-wheel-row";
 
 
             row.innerHTML = `
 
-                <input
-                    type="text"
-                    value="${escapeAttribute(
+                <span>
+                    ${escapeHtml(
                         category.name
-                    )}"
-                    maxlength="40"
+                    )}
+                </span>
+
+
+                <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value="${
+                        category.a || 5
+                    }"
+                    data-wheel-index="${index}"
+                    class="ba-range"
                 >
 
 
-                <button
-                    type="button"
-                    class="delete-wheel-category"
-                    aria-label="Удалить сферу"
-                >
-                    ×
-                </button>
+                <strong>
+                    ${
+                        category.a || 5
+                    }
+                </strong>
+
+
+                ${
+                    beforeAfterData.wheel.length >
+                    1
+                        ? `
+                            <button
+                                type="button"
+                                class="wheel-delete"
+                                data-delete-wheel="${index}"
+                            >
+                                ×
+                            </button>
+                        `
+                        : ""
+                }
 
             `;
-
-
-            const input =
-                row.querySelector(
-                    "input"
-                );
-
-
-            input.addEventListener(
-                "input",
-                () => {
-
-                    const value =
-                        input.value.trim();
-
-
-                    if (
-                        value
-                    ) {
-
-                        beforeAfterData.wheel[
-                            index
-                        ].name =
-                            value;
-
-                    }
-
-
-                    saveBeforeAfter();
-
-                    renderWheel();
-
-                }
-            );
-
-
-            row.querySelector(
-                ".delete-wheel-category"
-            ).addEventListener(
-                "click",
-                () => {
-
-                    if (
-                        beforeAfterData.wheel.length <=
-                        1
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    beforeAfterData.wheel.splice(
-                        index,
-                        1
-                    );
-
-
-                    saveBeforeAfter();
-
-                    renderWheel();
-
-                    renderWheelEditor();
-
-                }
-            );
 
 
             list.appendChild(
@@ -2546,91 +3502,185 @@ function renderWheelEditor() {
     );
 
 
-    const newInput =
-        editor.querySelector(
-            "#new-wheel-category"
-        );
+    editor
+        .querySelectorAll(
+            ".ba-range"
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "input",
+                    () => {
+
+                        const index =
+                            Number(
+                                input.dataset
+                                    .wheelIndex
+                            );
 
 
-    const addButton =
-        editor.querySelector(
-            "#add-wheel-category"
-        );
+                        beforeAfterData
+                            .wheel[index]
+                            .a =
+                                Number(
+                                    input.value
+                                );
 
 
-    addButton.addEventListener(
-        "click",
-        () => {
+                        const value =
+                            input.parentElement
+                                .querySelector(
+                                    "strong"
+                                );
 
-            const name =
-                newInput.value.trim();
+
+                        if (
+                            value
+                        ) {
+
+                            value.textContent =
+                                input.value;
+
+                        }
 
 
-            if (
-                !name
-            ) {
+                        saveBeforeAfter();
 
-                newInput.focus();
+                        renderWheel();
 
-                return;
+                    }
+                );
 
             }
+        );
 
 
-            beforeAfterData.wheel.push({
+    editor
+        .querySelectorAll(
+            "[data-delete-wheel]"
+        )
+        .forEach(
+            button => {
 
-                id:
-                    Date.now() +
-                    Math.random(),
+                button.addEventListener(
+                    "click",
+                    () => {
 
-                name:
-                    name,
-
-                a:
-                    5,
-
-                b:
-                    null
-
-            });
-
-
-            saveBeforeAfter();
-
-            newInput.value =
-                "";
+                        const index =
+                            Number(
+                                button.dataset
+                                    .deleteWheel
+                            );
 
 
-            renderWheel();
+                        beforeAfterData
+                            .wheel
+                            .splice(
+                                index,
+                                1
+                            );
 
-            renderWheelEditor();
 
-        }
-    );
+                        saveBeforeAfter();
+
+                        renderWheel();
+
+                        renderWheelEditor();
+
+                    }
+                );
+
+            }
+        );
+
+
+    editor
+        .querySelector(
+            "#add-wheel-sphere"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                const input =
+                    editor.querySelector(
+                        "#new-wheel-sphere"
+                    );
+
+
+                const name =
+                    input.value.trim();
+
+
+                if (
+                    !name
+                ) {
+
+                    input.focus();
+
+                    return;
+
+                }
+
+
+                beforeAfterData
+                    .wheel
+                    .push({
+
+                        name:
+                            name,
+
+                        a:
+                            5,
+
+                        b:
+                            null
+
+                    });
+
+
+                saveBeforeAfter();
+
+                input.value =
+                    "";
+
+                renderWheel();
+
+                renderWheelEditor();
+
+            }
+        );
 
 }
 
 
 // ========================================
-// КОЛЕСО ЖИЗНИ
+// ЗАПУСК РАЗДЕЛА
+// ========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setupBeforeAfter();
+
+    }
+);
+// ========================================
+// ВИЗУАЛЬНОЕ КОЛЕСО ЖИЗНИ
 // ========================================
 
 function renderWheel() {
 
-    const visual =
+    const container =
         document.querySelector(
             "#wheel-visual"
         );
 
 
-    const average =
-        document.querySelector(
-            "#wheel-average"
-        );
-
-
     if (
-        !visual
+        !container
     ) {
 
         return;
@@ -2638,42 +3688,60 @@ function renderWheel() {
     }
 
 
-    const categories =
+    const wheel =
         beforeAfterData.wheel;
 
 
     if (
-        !categories.length
+        !wheel.length
     ) {
 
-        visual.innerHTML = `
+        container.innerHTML = `
 
-            <div
-                class="wheel-empty"
-            >
-                Добавь хотя бы одну сферу.
+            <div class="wheel-empty">
+                Добавь хотя бы одну сферу
+                своей жизни.
             </div>
 
         `;
-
-
-        if (
-            average
-        ) {
-
-            average.innerHTML =
-                "";
-
-        }
-
 
         return;
 
     }
 
 
+    /*
+        Каждый сектор получает свой
+        нежный пастельный оттенок.
+    */
+
+    const colors = [
+
+        "#E8DDE5",
+
+        "#DDE8E1",
+
+        "#E8E2D5",
+
+        "#E1DDEA",
+
+        "#E8D9D4",
+
+        "#D9E4E8",
+
+        "#E7E1D4",
+
+        "#E2DCE8",
+
+        "#DDE7DE",
+
+        "#E8DED8"
+
+    ];
+
+
     const size =
-        420;
+        320;
 
 
     const center =
@@ -2681,142 +3749,19 @@ function renderWheel() {
 
 
     const radius =
-        145;
+        132;
 
 
-    const count =
-        categories.length;
+    const innerRadius =
+        25;
 
 
-    const angleStep =
-        (
-            Math.PI * 2
-        ) /
-        count;
+    const angle =
+        360 /
+        wheel.length;
 
 
-    let polygonPoints =
-        "";
-
-
-    categories.forEach(
-        (category, index) => {
-
-            const angle =
-                (
-                    angleStep *
-                    index
-                ) -
-                Math.PI / 2;
-
-
-            const value =
-                Number(
-                    category.a || 0
-                );
-
-
-            const r =
-                radius *
-                (
-                    value /
-                    10
-                );
-
-
-            const x =
-                center +
-                Math.cos(
-                    angle
-                ) *
-                r;
-
-
-            const y =
-                center +
-                Math.sin(
-                    angle
-                ) *
-                r;
-
-
-            polygonPoints +=
-                `${x},${y} `;
-
-        }
-    );
-
-
-    let grid =
-        "";
-
-
-    [2, 4, 6, 8, 10].forEach(
-        value => {
-
-            const points =
-                categories
-                    .map(
-                        (
-                            category,
-                            index
-                        ) => {
-
-                            const angle =
-                                (
-                                    angleStep *
-                                    index
-                                ) -
-                                Math.PI / 2;
-
-
-                            const r =
-                                radius *
-                                (
-                                    value /
-                                    10
-                                );
-
-
-                            const x =
-                                center +
-                                Math.cos(
-                                    angle
-                                ) *
-                                r;
-
-
-                            const y =
-                                center +
-                                Math.sin(
-                                    angle
-                                ) *
-                                r;
-
-
-                            return `${x},${y}`;
-
-                        }
-                    )
-                    .join(" ");
-
-
-            grid += `
-
-                <polygon
-                    points="${points}"
-                    fill="none"
-                    stroke="rgba(110, 98, 103, 0.14)"
-                    stroke-width="1"
-                />
-
-            `;
-
-        }
-    );
-
-
-    let axes =
+    let sectors =
         "";
 
 
@@ -2824,79 +3769,182 @@ function renderWheel() {
         "";
 
 
-    categories.forEach(
-        (category, index) => {
+    wheel.forEach(
+        (
+            sphere,
+            index
+        ) => {
 
-            const angle =
+            const value =
+                Math.max(
+                    1,
+                    Math.min(
+                        10,
+                        Number(
+                            sphere.a ||
+                            1
+                        )
+                    )
+                );
+
+
+            const outerRadius =
+                innerRadius +
                 (
-                    angleStep *
-                    index
-                ) -
-                Math.PI / 2;
-
-
-            const x =
-                center +
-                Math.cos(
-                    angle
+                    radius -
+                    innerRadius
                 ) *
-                radius;
+                (
+                    value /
+                    10
+                );
 
 
-            const y =
-                center +
-                Math.sin(
+            const startAngle =
+                -90 +
+                (
+                    index *
                     angle
-                ) *
-                radius;
+                );
 
 
-            axes += `
+            const endAngle =
+                startAngle +
+                angle;
 
-                <line
-                    x1="${center}"
-                    y1="${center}"
-                    x2="${x}"
-                    y2="${y}"
-                    stroke="rgba(110, 98, 103, 0.12)"
-                    stroke-width="1"
-                />
+
+            const largeArc =
+                angle >
+                180
+                    ? 1
+                    : 0;
+
+
+            const startOuter =
+                polarToCartesian(
+                    center,
+                    center,
+                    outerRadius,
+                    startAngle
+                );
+
+
+            const endOuter =
+                polarToCartesian(
+                    center,
+                    center,
+                    outerRadius,
+                    endAngle
+                );
+
+
+            const startInner =
+                polarToCartesian(
+                    center,
+                    center,
+                    innerRadius,
+                    startAngle
+                );
+
+
+            const endInner =
+                polarToCartesian(
+                    center,
+                    center,
+                    innerRadius,
+                    endAngle
+                );
+
+
+            const path = [
+
+                `M ${startInner.x} ${startInner.y}`,
+
+                `L ${startOuter.x} ${startOuter.y}`,
+
+                `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y}`,
+
+                `L ${endInner.x} ${endInner.y}`,
+
+                `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${startInner.x} ${startInner.y}`,
+
+                "Z"
+
+            ].join(" ");
+
+
+            sectors += `
+
+                <path
+                    d="${path}"
+                    fill="${
+                        colors[
+                            index %
+                            colors.length
+                        ]
+                    }"
+                    stroke="#FFFFFF"
+                    stroke-width="3"
+                    class="wheel-sector"
+                >
+
+                    <title>
+                        ${escapeHtml(
+                            sphere.name
+                        )}: ${value}/10
+                    </title>
+
+                </path>
 
             `;
 
 
             const labelRadius =
-                radius + 32;
+                radius +
+                27;
 
 
-            const labelX =
-                center +
-                Math.cos(
-                    angle
-                ) *
-                labelRadius;
+            const labelAngle =
+                startAngle +
+                angle / 2;
 
 
-            const labelY =
-                center +
-                Math.sin(
-                    angle
-                ) *
-                labelRadius;
+            const label =
+                polarToCartesian(
+                    center,
+                    center,
+                    labelRadius,
+                    labelAngle
+                );
 
 
             labels += `
 
                 <text
-                    x="${labelX}"
-                    y="${labelY}"
+                    x="${label.x}"
+                    y="${label.y}"
+                    class="wheel-label"
                     text-anchor="middle"
                     dominant-baseline="middle"
-                    class="wheel-label"
                 >
-                    ${escapeText(
-                        category.name
+                    ${escapeHtml(
+                        sphere.name
                     )}
+                </text>
+
+            `;
+
+
+            labels += `
+
+                <text
+                    x="${label.x}"
+                    y="${label.y + 15}"
+                    class="wheel-value"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                >
+                    ${value}/10
                 </text>
 
             `;
@@ -2905,409 +3953,128 @@ function renderWheel() {
     );
 
 
-    visual.innerHTML = `
+    /*
+        Добавляем тонкие круги-ориентиры.
+    */
 
-        <svg
-            class="life-wheel-svg"
-            viewBox="0 0 ${size} ${size}"
-            role="img"
-            aria-label="Колесо жизни"
-        >
-
-            ${grid}
-
-            ${axes}
+    let guides =
+        "";
 
 
-            <polygon
-                points="${polygonPoints}"
-                class="wheel-value-area"
-            />
+    [
+        0.25,
+        0.5,
+        0.75,
+        1
+    ].forEach(
+        ratio => {
+
+            guides += `
+
+                <circle
+                    cx="${center}"
+                    cy="${center}"
+                    r="${
+                        innerRadius +
+                        (
+                            radius -
+                            innerRadius
+                        ) *
+                        ratio
+                    }"
+                    fill="none"
+                    stroke="#FFFFFF"
+                    stroke-width="1"
+                    opacity="0.85"
+                />
+
+            `;
+
+        }
+    );
 
 
-            ${categories
-                .map(
-                    (
-                        category,
-                        index
-                    ) => {
-
-                        const angle =
-                            (
-                                angleStep *
-                                index
-                            ) -
-                            Math.PI / 2;
-
-
-                        const value =
-                            Number(
-                                category.a || 0
-                            );
-
-
-                        const r =
-                            radius *
-                            (
-                                value /
-                                10
-                            );
-
-
-                        const x =
-                            center +
-                            Math.cos(
-                                angle
-                            ) *
-                            r;
-
-
-                        const y =
-                            center +
-                            Math.sin(
-                                angle
-                            ) *
-                            r;
-
-
-                        return `
-
-                            <circle
-                                cx="${x}"
-                                cy="${y}"
-                                r="4"
-                                class="wheel-point"
-                            />
-
-                        `;
-
-                    }
-                )
-                .join("")}
-
-
-            ${labels}
-
-        </svg>
-
+    container.innerHTML = `
 
         <div
-            class="wheel-values"
+            class="wheel-wrapper"
         >
 
-            ${categories
-                .map(
-                    (
-                        category,
-                        index
-                    ) => `
+            <svg
+                class="life-wheel"
+                viewBox="0 0 ${size} ${size}"
+                role="img"
+                aria-label="Колесо жизни"
+            >
 
-                        <div
-                            class="wheel-value-row"
-                        >
+                ${guides}
 
-                            <span>
-                                ${escapeText(
-                                    category.name
-                                )}
-                            </span>
+                ${sectors}
 
+                <circle
+                    cx="${center}"
+                    cy="${center}"
+                    r="${innerRadius}"
+                    fill="#FFF9F8"
+                />
 
-                            <input
-                                type="range"
-                                min="1"
-                                max="10"
-                                step="1"
-                                value="${
-                                    category.a || 5
-                                }"
-                                data-wheel-index="${index}"
-                            >
+                ${labels}
 
-
-                            <strong
-                                data-wheel-value="${index}"
-                            >
-                                ${category.a || 5}
-                            </strong>
-
-                        </div>
-
-                    `
-                )
-                .join("")}
+            </svg>
 
         </div>
 
     `;
 
 
-    visual.querySelectorAll(
-        "input[type='range']"
-    ).forEach(
-        input => {
-
-            input.addEventListener(
-                "input",
-                () => {
-
-                    const index =
-                        Number(
-                            input.dataset.wheelIndex
-                        );
-
-
-                    const value =
-                        Number(
-                            input.value
-                        );
-
-
-                    beforeAfterData.wheel[
-                        index
-                    ].a =
-                        value;
-
-
-                    const valueElement =
-                        visual.querySelector(
-                            `[data-wheel-value="${index}"]`
-                        );
-
-
-                    if (
-                        valueElement
-                    ) {
-
-                        valueElement.textContent =
-                            value;
-
-                    }
-
-
-                    saveBeforeAfter();
-
-                    updateWheelVisualOnly();
-
-                }
-            );
-
-        }
-    );
-
-
     updateWheelAverage();
 
 }
 
 
 // ========================================
-// ОБНОВИТЬ ТОЛЬКО ГРАФИК
+// ПОЛУЧИТЬ КООРДИНАТЫ ТОЧКИ
 // ========================================
 
-function updateWheelVisualOnly() {
+function polarToCartesian(
+    centerX,
+    centerY,
+    radius,
+    angleInDegrees
+) {
 
-    const svg =
-        document.querySelector(
-            ".life-wheel-svg"
-        );
-
-
-    if (
-        !svg
-    ) {
-
-        renderWheel();
-
-        return;
-
-    }
-
-
-    const categories =
-        beforeAfterData.wheel;
-
-
-    const size =
-        420;
-
-
-    const center =
-        size / 2;
-
-
-    const radius =
-        145;
-
-
-    const count =
-        categories.length;
-
-
-    const angleStep =
+    const angleInRadians =
         (
-            Math.PI * 2
-        ) /
-        count;
+            angleInDegrees -
+            90
+        ) *
+        Math.PI /
+        180;
 
 
-    let points =
-        "";
+    return {
 
+        x:
+            centerX +
+            radius *
+            Math.cos(
+                angleInRadians
+            ),
 
-    categories.forEach(
-        (
-            category,
-            index
-        ) => {
+        y:
+            centerY +
+            radius *
+            Math.sin(
+                angleInRadians
+            )
 
-            const angle =
-                (
-                    angleStep *
-                    index
-                ) -
-                Math.PI / 2;
-
-
-            const value =
-                Number(
-                    category.a || 0
-                );
-
-
-            const r =
-                radius *
-                (
-                    value /
-                    10
-                );
-
-
-            const x =
-                center +
-                Math.cos(
-                    angle
-                ) *
-                r;
-
-
-            const y =
-                center +
-                Math.sin(
-                    angle
-                ) *
-                r;
-
-
-            points +=
-                `${x},${y} `;
-
-        }
-    );
-
-
-    const polygon =
-        svg.querySelector(
-            ".wheel-value-area"
-        );
-
-
-    if (
-        polygon
-    ) {
-
-        polygon.setAttribute(
-            "points",
-            points
-        );
-
-    }
-
-
-    const pointsElements =
-        svg.querySelectorAll(
-            ".wheel-point"
-        );
-
-
-    categories.forEach(
-        (
-            category,
-            index
-        ) => {
-
-            const angle =
-                (
-                    angleStep *
-                    index
-                ) -
-                Math.PI / 2;
-
-
-            const value =
-                Number(
-                    category.a || 0
-                );
-
-
-            const r =
-                radius *
-                (
-                    value /
-                    10
-                );
-
-
-            const x =
-                center +
-                Math.cos(
-                    angle
-                ) *
-                r;
-
-
-            const y =
-                center +
-                Math.sin(
-                    angle
-                ) *
-                r;
-
-
-            const point =
-                pointsElements[
-                    index
-                ];
-
-
-            if (
-                point
-            ) {
-
-                point.setAttribute(
-                    "cx",
-                    x
-                );
-
-
-                point.setAttribute(
-                    "cy",
-                    y
-                );
-
-            }
-
-        }
-    );
-
-
-    updateWheelAverage();
+    };
 
 }
 
 
 // ========================================
-// СРЕДНИЙ БАЛЛ
+// СРЕДНЯЯ ОЦЕНКА
 // ========================================
 
 function updateWheelAverage() {
@@ -3319,7 +4086,8 @@ function updateWheelAverage() {
 
 
     if (
-        !element
+        !element ||
+        !beforeAfterData.wheel.length
     ) {
 
         return;
@@ -3327,49 +4095,30 @@ function updateWheelAverage() {
     }
 
 
-    const values =
-        beforeAfterData.wheel
-            .map(
-                item =>
-                    Number(
-                        item.a
-                    )
-            )
-            .filter(
-                value =>
-                    !Number.isNaN(
-                        value
-                    )
-            );
-
-
-    if (
-        !values.length
-    ) {
-
-        element.innerHTML =
-            "";
-
-        return;
-
-    }
-
-
-    const sum =
-        values.reduce(
+    const total =
+        beforeAfterData.wheel.reduce(
             (
-                total,
-                value
-            ) =>
-                total + value,
+                sum,
+                sphere
+            ) => {
+
+                return (
+                    sum +
+                    Number(
+                        sphere.a ||
+                        0
+                    )
+                );
+
+            },
             0
         );
 
 
     const average =
         (
-            sum /
-            values.length
+            total /
+            beforeAfterData.wheel.length
         ).toFixed(
             1
         );
@@ -3383,7 +4132,7 @@ function updateWheelAverage() {
 
         <strong>
             ${average}
-            / 10
+            <small>/10</small>
         </strong>
 
     `;
@@ -3392,19 +4141,19 @@ function updateWheelAverage() {
 
 
 // ========================================
-// ТОЧКА Б
+// ПРЕДПРОСМОТР ТОЧКИ Б
 // ========================================
 
-function renderPointB() {
+function renderPointBPreview() {
 
-    const container =
+    const comparison =
         document.querySelector(
-            "#point-b-content"
+            "#ba-comparison"
         );
 
 
     if (
-        !container
+        !comparison
     ) {
 
         return;
@@ -3412,47 +4161,48 @@ function renderPointB() {
     }
 
 
+    const hasPointB =
+        beforeAfterData.wheel.some(
+            sphere =>
+                sphere.b !==
+                null &&
+                sphere.b !==
+                undefined
+        );
+
+
     if (
-        !isChallengeFinished()
+        !hasPointB
     ) {
 
-        container.innerHTML = `
+        comparison.innerHTML =
+            "";
 
-            <div
-                class="point-b-locked"
-            >
+        return;
 
-                <div
-                    class="point-b-lock"
-                >
-                    90
-                </div>
+    }
 
 
-                <h3>
-                    Эта часть пока закрыта
-                </h3>
+    renderComparison();
+
+}
 
 
-                <p>
-                    Вернись сюда после
-                    29 декабря. Здесь ты
-                    запишешь, что изменилось
-                    за 90 дней, и сравнишь
-                    себя с точкой А.
-                </p>
+// ========================================
+// СРАВНЕНИЕ ТОЧКА А → ТОЧКА Б
+// ========================================
+
+function renderComparison() {
+
+    const container =
+        document.querySelector(
+            "#ba-comparison"
+        );
 
 
-                <div
-                    class="point-b-date"
-                >
-                    Откроется 30 декабря 2026
-                </div>
-
-            </div>
-
-        `;
-
+    if (
+        !container
+    ) {
 
         return;
 
@@ -3462,84 +4212,23 @@ function renderPointB() {
     container.innerHTML = `
 
         <div
-            class="ba-questions"
+            class="ba-card"
         >
 
-            <label>
-                Что изменилось?
-            </label>
-
-            <textarea
-                id="ba-b-change"
-                placeholder="Что стало другим?"
-            ></textarea>
-
-
-            <label>
-                Что я изменила?
-            </label>
-
-            <textarea
-                id="ba-b-changed"
-                placeholder="Какие действия привели к результату?"
-            ></textarea>
-
-
-            <label>
-                Что я получила за 90 дней?
-            </label>
-
-            <textarea
-                id="ba-b-result"
-                placeholder="Что я приобрела за этот путь?"
-            ></textarea>
-
-        </div>
-
-
-        <div
-            class="wheel-card"
-        >
-
-            <div
-                class="wheel-card-header"
+            <p
+                class="eyebrow"
             >
-
-                <div>
-
-                    <h3>
-                        Моё колесо жизни
-                    </h3>
-
-                    <p>
-                        Оцени те же сферы
-                        ещё раз
-                    </p>
-
-                </div>
-
-            </div>
+                МОЙ ПРОГРЕСС
+            </p>
 
 
-            <div
-                class="wheel-b-values"
-            ></div>
-
-        </div>
-
-
-        <div
-            class="comparison-card"
-        >
-
-            <h3>
+            <h2>
                 Точка А → Точка Б
-            </h3>
+            </h2>
 
 
             <div
                 class="comparison-list"
-                id="comparison-list"
             ></div>
 
         </div>
@@ -3547,37 +4236,20 @@ function renderPointB() {
     `;
 
 
-    const fields = [
-
-        [
-            "#ba-b-change",
-            "change"
-        ],
-
-        [
-            "#ba-b-changed",
-            "changed"
-        ],
-
-        [
-            "#ba-b-result",
-            "result"
-        ]
-
-    ];
+    const list =
+        container.querySelector(
+            ".comparison-list"
+        );
 
 
-    fields.forEach(
-        ([selector, key]) => {
-
-            const element =
-                document.querySelector(
-                    selector
-                );
-
+    beforeAfterData.wheel.forEach(
+        sphere => {
 
             if (
-                !element
+                sphere.b ===
+                null ||
+                sphere.b ===
+                undefined
             ) {
 
                 return;
@@ -3585,168 +4257,13 @@ function renderPointB() {
             }
 
 
-            element.value =
-                beforeAfterData.pointB[
-                    key
-                ];
-
-
-            element.addEventListener(
-                "input",
-                () => {
-
-                    beforeAfterData.pointB[
-                        key
-                    ] =
-                        element.value;
-
-
-                    saveBeforeAfter();
-
-                }
-            );
-
-        }
-    );
-
-
-    const valuesContainer =
-        container.querySelector(
-            ".wheel-b-values"
-        );
-
-
-    beforeAfterData.wheel.forEach(
-        (
-            category,
-            index
-        ) => {
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-
-            row.className =
-                "wheel-value-row";
-
-            row.innerHTML = `
-
-                <span>
-                    ${escapeText(
-                        category.name
-                    )}
-                </span>
-
-
-                <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    step="1"
-                    value="${
-                        category.b || 5
-                    }"
-                >
-
-
-                <strong>
-                    ${category.b || 5}
-                </strong>
-
-            `;
-
-
-            const input =
-                row.querySelector(
-                    "input"
-                );
-
-
-            const value =
-                row.querySelector(
-                    "strong"
-                );
-
-
-            input.addEventListener(
-                "input",
-                () => {
-
-                    category.b =
-                        Number(
-                            input.value
-                        );
-
-
-                    value.textContent =
-                        input.value;
-
-
-                    saveBeforeAfter();
-
-                    renderComparison();
-
-                }
-            );
-
-
-            valuesContainer.appendChild(
-                row
-            );
-
-        }
-    );
-
-
-    renderComparison();
-
-}
-
-
-// ========================================
-// СРАВНЕНИЕ
-// ========================================
-
-function renderComparison() {
-
-    const container =
-        document.querySelector(
-            "#comparison-list"
-        );
-
-
-    if (
-        !container
-    ) {
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        "";
-
-
-    beforeAfterData.wheel.forEach(
-        category => {
-
-            const a =
-                Number(
-                    category.a || 0
-                );
-
-
-            const b =
-                Number(
-                    category.b || 0
-                );
-
-
             const difference =
-                b - a;
+                Number(
+                    sphere.b
+                ) -
+                Number(
+                    sphere.a
+                );
 
 
             const row =
@@ -3759,17 +4276,36 @@ function renderComparison() {
                 "comparison-row";
 
 
+            let changeText =
+                "";
+
+
+            if (
+                difference > 0
+            ) {
+
+                changeText =
+                    `+${difference}`;
+
+            } else {
+
+                changeText =
+                    `${difference}`;
+
+            }
+
+
             row.innerHTML = `
 
                 <span>
-                    ${escapeText(
-                        category.name
+                    ${escapeHtml(
+                        sphere.name
                     )}
                 </span>
 
 
                 <span>
-                    ${a}
+                    ${sphere.a}/10
                 </span>
 
 
@@ -3779,30 +4315,18 @@ function renderComparison() {
 
 
                 <span>
-                    ${b}
+                    ${sphere.b}/10
                 </span>
 
 
-                <strong
-                    class="${
-                        difference > 0
-                            ? "comparison-positive"
-                            : difference < 0
-                                ? "comparison-negative"
-                                : ""
-                    }"
-                >
-                    ${
-                        difference > 0
-                            ? "+" + difference
-                            : difference
-                    }
+                <strong>
+                    ${changeText}
                 </strong>
 
             `;
 
 
-            container.appendChild(
+            list.appendChild(
                 row
             );
 
@@ -3810,17 +4334,209 @@ function renderComparison() {
     );
 
 }
+// ========================================
+// ОБНОВЛЕНИЕ СТРАНИЦЫ ПРИ НАВИГАЦИИ
+// ========================================
+
+function refreshCurrentPage(
+    pageId
+) {
+
+    if (
+        pageId ===
+        "today-page"
+    ) {
+
+        renderTasks();
+
+        updateChallengeInfo();
+
+        return;
+
+    }
+
+
+    if (
+        pageId ===
+        "calendar-page"
+    ) {
+
+        renderCalendar();
+
+        return;
+
+    }
+
+
+    if (
+        pageId ===
+        "before-after-page"
+    ) {
+
+        renderBeforeAfter();
+
+        return;
+
+    }
+
+}
 
 
 // ========================================
-// ЗАПУСК ДО → ПОСЛЕ
+// ДОПОЛНИТЕЛЬНАЯ НАВИГАЦИЯ
 // ========================================
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        const navigation =
+            document.querySelectorAll(
+                ".nav-item"
+            );
+
+
+        navigation.forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const pageId =
+                            button.dataset.page;
+
+
+                        if (
+                            pageId
+                        ) {
+
+                            setTimeout(
+                                () => {
+
+                                    refreshCurrentPage(
+                                        pageId
+                                    );
+
+                                },
+                                0
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+            Показываем «Сегодня»
+            при первом открытии.
+        */
+
+        const firstPage =
+            document.querySelector(
+                "#today-page"
+            );
+
+
+        if (
+            firstPage
+        ) {
+
+            firstPage.classList.add(
+                "active-page"
+            );
+
+        }
+
+
+        /*
+            Инициализируем календарь.
+        */
+
+        renderCalendar();
+
+
+        /*
+            Инициализируем
+            «До → После».
+        */
+
         setupBeforeAfter();
 
     }
 );
+
+
+// ========================================
+// ЗАЩИТА ОТ ОШИБОК LOCALSTORAGE
+// ========================================
+
+window.addEventListener(
+    "storage",
+    event => {
+
+        if (
+            event.key ===
+            "90days_tasks"
+        ) {
+
+            try {
+
+                tasks =
+                    JSON.parse(
+                        event.newValue
+                    ) || [];
+
+            } catch (
+                error
+            ) {
+
+                tasks = [];
+
+            }
+
+
+            renderTasks();
+
+            renderCalendar();
+
+        }
+
+
+        if (
+            event.key ===
+            BEFORE_AFTER_KEY
+        ) {
+
+            try {
+
+                beforeAfterData =
+                    JSON.parse(
+                        event.newValue
+                    ) ||
+                    beforeAfterData;
+
+            } catch (
+                error
+            ) {
+
+                // Оставляем текущие данные
+
+            }
+
+
+            renderBeforeAfter();
+
+        }
+
+    }
+);
+
+
+// ========================================
+// КОНЕЦ APP.JS
+// ========================================
