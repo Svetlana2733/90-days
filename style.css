@@ -1,13 +1,23 @@
 :root {
-    --milk: #f5f2ec;
-    --paper: #fbfaf7;
-    --graphite: #242320;
-    --soft-gray: #8d8981;
-    --line: #ddd8ce;
-    --gold: #b3a078;
-    --sage: #9da394;
+    --background: #f8f0f2;
+    --surface: #fdf9fa;
+    --graphite: #292527;
+    --soft-gray: #91878a;
+
+    --rose: #c99da8;
+    --rose-dark: #ad7f8b;
+    --rose-light: #ead9dd;
+
+    --sage: #a5aa9d;
+
+    --line: #e5d8dc;
     --white: #ffffff;
 }
+
+
+/* ========================================
+   ОСНОВА
+   ======================================== */
 
 * {
     box-sizing: border-box;
@@ -21,15 +31,23 @@ html {
 
 body {
     min-height: 100vh;
-    background: var(--milk);
+
+    background: var(--background);
     color: var(--graphite);
+
     font-family: "DM Sans", sans-serif;
     font-weight: 400;
+
     -webkit-font-smoothing: antialiased;
 }
 
-button {
+button,
+input,
+select {
     font-family: inherit;
+}
+
+button {
     border: none;
     cursor: pointer;
 }
@@ -37,51 +55,75 @@ button {
 #app {
     width: 100%;
     max-width: 560px;
+
     min-height: 100vh;
+
     margin: 0 auto;
+
     padding: 28px 24px 110px;
 }
 
-/* Верхняя часть */
+
+/* ========================================
+   ВЕРХНЯЯ ЧАСТЬ
+   ======================================== */
 
 .top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+
     margin-bottom: 64px;
 }
 
 .logo {
     font-family: "Playfair Display", serif;
-    font-size: 26px;
+
+    font-size: 27px;
     font-weight: 500;
-    letter-spacing: -0.5px;
+
+    letter-spacing: -0.6px;
 }
 
 .subtitle {
     margin-top: 3px;
+
     color: var(--soft-gray);
-    font-size: 11px;
-    letter-spacing: 1.2px;
+
+    font-size: 10px;
+
+    letter-spacing: 1.5px;
+
     text-transform: uppercase;
 }
 
 .settings-button {
     width: 38px;
     height: 38px;
+
     border: 1px solid var(--line);
+
     border-radius: 50%;
+
     background: transparent;
+
     color: var(--graphite);
-    font-size: 16px;
+
+    font-size: 15px;
+
     transition: 0.25s ease;
 }
 
 .settings-button:hover {
-    background: var(--paper);
+    background: var(--surface);
+
+    border-color: var(--rose);
 }
 
-/* Приветствие */
+
+/* ========================================
+   ПРИВЕТСТВИЕ
+   ======================================== */
 
 .welcome {
     margin-bottom: 56px;
@@ -89,29 +131,44 @@ button {
 
 .eyebrow {
     margin-bottom: 13px;
-    color: var(--gold);
+
+    color: var(--rose-dark);
+
     font-size: 10px;
+
     font-weight: 600;
+
     letter-spacing: 2px;
 }
 
 h1 {
     font-family: "Playfair Display", serif;
+
     font-size: clamp(38px, 9vw, 54px);
+
     font-weight: 400;
+
     line-height: 1.08;
+
     letter-spacing: -1.5px;
 }
 
 .intro {
     max-width: 410px;
+
     margin-top: 22px;
+
     color: var(--soft-gray);
+
     font-size: 14px;
+
     line-height: 1.7;
 }
 
-/* Прогресс */
+
+/* ========================================
+   ПРОГРЕСС
+   ======================================== */
 
 .progress-section {
     margin-bottom: 64px;
@@ -120,139 +177,196 @@ h1 {
 .progress-header {
     display: flex;
     justify-content: space-between;
+
     margin-bottom: 12px;
+
     font-size: 12px;
+
     letter-spacing: 0.4px;
 }
 
 .progress-header span:last-child {
-    color: var(--gold);
+    color: var(--rose-dark);
 }
 
 .progress-line {
     width: 100%;
     height: 2px;
+
     background: var(--line);
+
     overflow: hidden;
 }
 
 .progress-fill {
     width: 0%;
     height: 100%;
-    background: var(--gold);
+
+    background: var(--rose);
+
     transition: width 0.5s ease;
 }
 
 .days {
     display: flex;
     justify-content: space-between;
+
     margin-top: 10px;
+
     color: var(--soft-gray);
+
     font-size: 11px;
 }
 
-/* Сегодня */
+
+/* ========================================
+   СЕГОДНЯ
+   ======================================== */
 
 .section-heading {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+
     padding-bottom: 18px;
+
     border-bottom: 1px solid var(--line);
 }
 
 .section-heading h2 {
     font-family: "Playfair Display", serif;
+
     font-size: 30px;
+
     font-weight: 400;
 }
 
 .date {
     color: var(--soft-gray);
+
     font-size: 12px;
 }
 
-/* Пустое состояние */
+
+/* ========================================
+   ПУСТОЕ СОСТОЯНИЕ
+   ======================================== */
 
 .empty-state {
     padding: 54px 10px 40px;
+
     text-align: center;
 }
 
 .empty-number {
     margin-bottom: 18px;
-    color: var(--gold);
+
+    color: var(--rose);
+
     font-family: "Playfair Display", serif;
+
     font-size: 52px;
+
     font-weight: 400;
 }
 
 .empty-state h3 {
     font-family: "Playfair Display", serif;
+
     font-size: 25px;
+
     font-weight: 400;
 }
 
 .empty-state p {
     max-width: 280px;
+
     margin: 12px auto 26px;
+
     color: var(--soft-gray);
+
     font-size: 13px;
+
     line-height: 1.7;
 }
 
-/* Кнопка */
+
+/* ========================================
+   ОСНОВНАЯ КНОПКА
+   ======================================== */
 
 .primary-button {
     padding: 14px 24px;
+
     border: 1px solid var(--graphite);
+
     background: var(--graphite);
+
     color: var(--white);
+
     font-size: 12px;
+
     letter-spacing: 0.4px;
+
     transition: 0.25s ease;
 }
 
 .primary-button:hover {
-    background: #3a3833;
+    background: #403b3d;
+
+    border-color: #403b3d;
 }
 
-/* Нижняя навигация */
+
+/* ========================================
+   НИЖНЯЯ НАВИГАЦИЯ
+   ======================================== */
 
 .bottom-navigation {
     position: fixed;
+
     left: 50%;
     bottom: 16px;
+
     z-index: 10;
 
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
 
     width: calc(100% - 32px);
+
     max-width: 512px;
 
     padding: 8px;
 
     transform: translateX(-50%);
 
-    border: 1px solid rgba(221, 216, 206, 0.9);
-    background: rgba(251, 250, 247, 0.92);
+    border: 1px solid rgba(229, 216, 220, 0.9);
+
+    background: rgba(253, 249, 250, 0.94);
 
     backdrop-filter: blur(18px);
+
     -webkit-backdrop-filter: blur(18px);
 
-    box-shadow: 0 8px 30px rgba(36, 35, 32, 0.06);
+    box-shadow:
+        0 8px 30px rgba(41, 37, 39, 0.06);
 }
 
 .nav-item {
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     gap: 4px;
 
     padding: 9px 4px;
 
     background: transparent;
+
     color: var(--soft-gray);
 
     transition: 0.25s ease;
@@ -260,11 +374,13 @@ h1 {
 
 .nav-item span {
     font-family: "Playfair Display", serif;
+
     font-size: 13px;
 }
 
 .nav-item small {
     font-size: 9px;
+
     white-space: nowrap;
 }
 
@@ -273,87 +389,57 @@ h1 {
 }
 
 .nav-item.active span {
-    color: var(--gold);
+    color: var(--rose-dark);
 }
 
-/* Большие экраны */
 
-@media (min-width: 700px) {
-
-    body {
-        display: flex;
-        justify-content: center;
-    }
-
-    #app {
-        padding-top: 45px;
-    }
-
-    .bottom-navigation {
-        bottom: 24px;
-    }
-}
-
-/* Маленькие телефоны */
-
-@media (max-width: 380px) {
-
-    #app {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-    h1 {
-        font-size: 36px;
-    }
-
-    .section-heading h2 {
-        font-size: 27px;
-    }
-
-    .nav-item small {
-        font-size: 8px;
-    }
-}
 /* ========================================
    ФОРМА ДОБАВЛЕНИЯ ЗАДАЧИ
    ======================================== */
 
 .task-form {
     position: fixed;
+
     inset: 0;
+
     z-index: 100;
 
     display: flex;
+
     align-items: flex-end;
+
     justify-content: center;
 }
 
 .form-overlay {
     position: absolute;
+
     inset: 0;
 
-    background: rgba(36, 35, 32, 0.28);
+    background: rgba(41, 37, 39, 0.28);
 
     backdrop-filter: blur(5px);
+
     -webkit-backdrop-filter: blur(5px);
 }
 
 .form-window {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
+
     max-width: 560px;
 
     padding: 34px 26px 30px;
 
-    background: var(--paper);
+    background: var(--surface);
 
     border-top: 1px solid var(--line);
 
     box-shadow:
-        0 -15px 50px rgba(36, 35, 32, 0.12);
+        0 -15px 50px rgba(41, 37, 39, 0.12);
 
     animation: formAppear 0.25s ease;
 }
@@ -362,11 +448,13 @@ h1 {
 
     from {
         transform: translateY(30px);
+
         opacity: 0;
     }
 
     to {
         transform: translateY(0);
+
         opacity: 1;
     }
 }
@@ -381,6 +469,7 @@ h1 {
     height: 34px;
 
     border: 1px solid var(--line);
+
     border-radius: 50%;
 
     background: transparent;
@@ -388,6 +477,7 @@ h1 {
     color: var(--soft-gray);
 
     font-size: 20px;
+
     font-weight: 300;
 
     transition: 0.2s ease;
@@ -395,7 +485,10 @@ h1 {
 
 .close-form:hover {
     color: var(--graphite);
-    background: var(--milk);
+
+    background: var(--background);
+
+    border-color: var(--rose);
 }
 
 .form-window h2 {
@@ -404,8 +497,11 @@ h1 {
     margin-bottom: 28px;
 
     font-family: "Playfair Display", serif;
+
     font-size: 28px;
+
     font-weight: 400;
+
     line-height: 1.2;
 }
 
@@ -419,11 +515,14 @@ h1 {
 
     border: 1px solid var(--line);
 
-    background: var(--milk);
+    border-radius: 0;
+
+    background: var(--background);
 
     color: var(--graphite);
 
     font-family: "DM Sans", sans-serif;
+
     font-size: 14px;
 
     outline: none;
@@ -433,12 +532,13 @@ h1 {
 
 .form-window input:focus,
 .form-window select:focus {
-    border-color: var(--gold);
-    background: var(--paper);
+    border-color: var(--rose);
+
+    background: var(--surface);
 }
 
 .form-window input::placeholder {
-    color: #aaa59c;
+    color: #aaa0a3;
 }
 
 .form-window label {
@@ -449,6 +549,7 @@ h1 {
     color: var(--soft-gray);
 
     font-size: 11px;
+
     letter-spacing: 0.5px;
 }
 
@@ -460,27 +561,30 @@ h1 {
     margin-top: 5px;
 
     background: var(--graphite);
+
     color: var(--white);
 
     font-size: 12px;
+
     letter-spacing: 0.5px;
 
     transition: 0.25s ease;
 }
 
 .save-task:hover {
-    background: #3a3833;
+    background: var(--rose-dark);
 }
 
 .input-error {
-    border-color: #b98272 !important;
+    border-color: var(--rose-dark) !important;
 
     animation: shake 0.25s ease;
 }
 
 @keyframes shake {
 
-    0%, 100% {
+    0%,
+    100% {
         transform: translateX(0);
     }
 
@@ -504,7 +608,9 @@ h1 {
 
 .task-item {
     display: flex;
+
     align-items: center;
+
     gap: 14px;
 
     padding: 18px 0;
@@ -518,13 +624,16 @@ h1 {
     flex-shrink: 0;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     width: 24px;
     height: 24px;
 
     border: 1px solid var(--graphite);
+
     border-radius: 50%;
 
     background: transparent;
@@ -538,11 +647,13 @@ h1 {
 
 .task-item.completed .task-check {
     border-color: var(--sage);
+
     background: var(--sage);
 }
 
 .task-content {
     flex: 1;
+
     min-width: 0;
 }
 
@@ -550,6 +661,7 @@ h1 {
     color: var(--graphite);
 
     font-size: 14px;
+
     line-height: 1.4;
 
     transition: 0.25s ease;
@@ -561,12 +673,15 @@ h1 {
     color: var(--soft-gray);
 
     font-size: 10px;
+
     letter-spacing: 0.4px;
 }
 
 .task-item.completed .task-title {
     color: var(--soft-gray);
+
     text-decoration: line-through;
+
     text-decoration-thickness: 1px;
 }
 
@@ -578,9 +693,10 @@ h1 {
 
     background: transparent;
 
-    color: #aaa59c;
+    color: #aaa0a3;
 
     font-size: 18px;
+
     font-weight: 300;
 
     opacity: 0;
@@ -593,13 +709,14 @@ h1 {
 }
 
 .delete-task:hover {
-    color: #8f675c;
+    color: var(--rose-dark);
 }
 
 .add-task-button {
     width: 100%;
 
     margin-top: 22px;
+
     padding: 14px;
 
     border: 1px dashed var(--line);
@@ -614,14 +731,38 @@ h1 {
 }
 
 .add-task-button:hover {
-    border-color: var(--gold);
+    border-color: var(--rose);
+
     color: var(--graphite);
-    background: rgba(255, 255, 255, 0.3);
+
+    background: rgba(255, 255, 255, 0.35);
 }
 
 
 /* ========================================
-   МОБИЛЬНАЯ ВЕРСИЯ
+   АДАПТАЦИЯ ПОД БОЛЬШИЕ ЭКРАНЫ
+   ======================================== */
+
+@media (min-width: 700px) {
+
+    body {
+        display: flex;
+
+        justify-content: center;
+    }
+
+    #app {
+        padding-top: 45px;
+    }
+
+    .bottom-navigation {
+        bottom: 24px;
+    }
+}
+
+
+/* ========================================
+   АДАПТАЦИЯ ПОД МАЛЕНЬКИЕ ТЕЛЕФОНЫ
    ======================================== */
 
 @media (max-width: 560px) {
@@ -632,5 +773,26 @@ h1 {
 
     .delete-task {
         opacity: 1;
+    }
+}
+
+@media (max-width: 380px) {
+
+    #app {
+        padding-left: 18px;
+
+        padding-right: 18px;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
+
+    .section-heading h2 {
+        font-size: 27px;
+    }
+
+    .nav-item small {
+        font-size: 8px;
     }
 }
