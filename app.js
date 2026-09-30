@@ -9,12 +9,14 @@
 // ========================================
 
 const CHALLENGE_START = "2026-10-01";
+
 const CHALLENGE_LENGTH = 90;
+
 const CHALLENGE_END = "2026-12-29";
 
 
 // ========================================
-// СФЕРЫ ЗАДАЧ
+// СФЕРЫ
 // ========================================
 
 const CATEGORIES = [
@@ -31,152 +33,10 @@ const CATEGORIES = [
 
 let tasks =
     JSON.parse(
-        localStorage.getItem("90days_tasks")
-    ) || [];
-
-
-// ========================================
-// ДАННЫЕ «ДО → ПОСЛЕ»
-// ========================================
-
-const BEFORE_AFTER_KEY =
-    "90days_before_after";
-
-
-const DEFAULT_WHEEL_CATEGORIES = [
-    "Здоровье",
-    "Финансы",
-    "Работа",
-    "Отношения",
-    "Личное развитие",
-    "Отдых",
-    "Творчество",
-    "Духовный рост"
-];
-
-
-let beforeAfter =
-    JSON.parse(
         localStorage.getItem(
-            BEFORE_AFTER_KEY
+            "90days_tasks"
         )
-    ) || {
-
-        pointA: {
-
-            notSatisfied: "",
-            change: "",
-            receive: ""
-
-        },
-
-        wheelCategories:
-            DEFAULT_WHEEL_CATEGORIES.map(
-                name => ({
-
-                    name: name,
-                    pointA: 5,
-                    pointB: 5
-
-                })
-            ),
-
-        pointB: {
-
-            changed: "",
-            changedHow: "",
-            received: ""
-
-        }
-
-    };
-
-
-// Если структура была создана
-// в старой версии — дополняем её
-
-function normalizeBeforeAfter() {
-
-    if (
-        !beforeAfter.pointA
-    ) {
-
-        beforeAfter.pointA = {
-
-            notSatisfied: "",
-            change: "",
-            receive: ""
-
-        };
-
-    }
-
-
-    if (
-        !beforeAfter.pointB
-    ) {
-
-        beforeAfter.pointB = {
-
-            changed: "",
-            changedHow: "",
-            received: ""
-
-        };
-
-    }
-
-
-    if (
-        !Array.isArray(
-            beforeAfter.wheelCategories
-        ) ||
-        beforeAfter.wheelCategories.length === 0
-    ) {
-
-        beforeAfter.wheelCategories =
-            DEFAULT_WHEEL_CATEGORIES.map(
-                name => ({
-
-                    name: name,
-                    pointA: 5,
-                    pointB: 5
-
-                })
-            );
-
-    }
-
-
-    beforeAfter.wheelCategories =
-        beforeAfter.wheelCategories.map(
-            item => ({
-
-                name:
-                    item.name ||
-                    "Новая сфера",
-
-                pointA:
-                    Number.isFinite(
-                        Number(item.pointA)
-                    )
-                        ? Number(item.pointA)
-                        : 5,
-
-                pointB:
-                    Number.isFinite(
-                        Number(item.pointB)
-                    )
-                        ? Number(item.pointB)
-                        : 5
-
-            })
-        );
-
-}
-
-
-normalizeBeforeAfter();
+    ) || [];
 
 
 // ========================================
@@ -188,18 +48,6 @@ function saveTasks() {
     localStorage.setItem(
         "90days_tasks",
         JSON.stringify(tasks)
-    );
-
-}
-
-
-function saveBeforeAfter() {
-
-    localStorage.setItem(
-        BEFORE_AFTER_KEY,
-        JSON.stringify(
-            beforeAfter
-        )
     );
 
 }
@@ -270,7 +118,7 @@ function getWeekDay(
 
 
 // ========================================
-// ДОБАВИТЬ ДНИ
+// ДОБАВИТЬ ДНИ К ДАТЕ
 // ========================================
 
 function addDays(
@@ -316,22 +164,21 @@ function addDays(
 // ДЕНЬ ЧЕЛЛЕНДЖА
 // ========================================
 
-function getChallengeDay(
-    dateString = getToday()
-) {
+function getChallengeDay() {
 
     const start =
         getDateObject(
             CHALLENGE_START
         );
 
-    const date =
+    const today =
         getDateObject(
-            dateString
+            getToday()
         );
 
     const difference =
-        date - start;
+        today -
+        start;
 
     return (
         Math.floor(
@@ -349,7 +196,7 @@ function getChallengeDay(
 
 
 // ========================================
-// ПРОГРЕСС
+// ПРОГРЕСС 90 ДНЕЙ
 // ========================================
 
 function getChallengeProgress() {
@@ -409,16 +256,47 @@ function formatDate(
 
 
 // ========================================
-// ДЕНЬ НЕДЕЛИ
+// КОРОТКАЯ ДАТА
+// ========================================
+
+function formatShortDate(
+    dateString
+) {
+
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date.toLocaleDateString(
+        "ru-RU",
+        {
+            day: "numeric",
+            month: "short"
+        }
+    )
+        .replace(
+            ".",
+            ""
+        );
+
+}
+
+
+// ========================================
+// НАЗВАНИЕ ДНЯ НЕДЕЛИ
 // ========================================
 
 function formatWeekDay(
     dateString
 ) {
 
-    return getDateObject(
-        dateString
-    ).toLocaleDateString(
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date.toLocaleDateString(
         "ru-RU",
         {
             weekday: "long"
@@ -478,6 +356,8 @@ function isTaskForDate(
     dateString
 ) {
 
+    // Одноразовая
+
     if (
         !task.repeat ||
         task.repeat ===
@@ -492,6 +372,8 @@ function isTaskForDate(
     }
 
 
+    // Период
+
     if (
         !isDateInsideTaskPeriod(
             task,
@@ -504,6 +386,8 @@ function isTaskForDate(
     }
 
 
+    // Каждый день
+
     if (
         task.repeat ===
         "daily"
@@ -513,6 +397,8 @@ function isTaskForDate(
 
     }
 
+
+    // Выбранные дни
 
     if (
         task.repeat ===
@@ -524,7 +410,7 @@ function isTaskForDate(
                 dateString
             );
 
-        return Boolean(
+        return (
             task.weekDays &&
             task.weekDays.includes(
                 weekDay
@@ -612,8 +498,6 @@ document.addEventListener(
         setupFirstTaskButton();
 
         setupNavigation();
-
-        renderBeforeAfter();
 
     }
 );
@@ -779,16 +663,6 @@ function setupNavigation() {
 
                     }
 
-
-                    if (
-                        pageId ===
-                        "before-after-page"
-                    ) {
-
-                        renderBeforeAfter();
-
-                    }
-
                 }
             );
 
@@ -883,9 +757,15 @@ function openTaskForm(
 
     form.innerHTML = `
 
-        <div class="form-overlay"></div>
+        <div
+            class="form-overlay"
+        ></div>
 
-        <div class="form-window">
+
+        <div
+            class="form-window"
+        >
+
 
             <button
                 class="close-form"
@@ -894,25 +774,37 @@ function openTaskForm(
                 ×
             </button>
 
-            <p class="eyebrow">
+
+            <p
+                class="eyebrow"
+            >
+
                 ${
                     isEditing
                         ? "РЕДАКТИРОВАНИЕ"
                         : "НОВЫЙ ШАГ"
                 }
+
             </p>
 
+
             <h2>
+
                 ${
                     isEditing
                         ? "Измени свой шаг"
                         : "Что ты хочешь делать?"
                 }
+
             </h2>
 
-            <label for="task-title">
+
+            <label
+                for="task-title"
+            >
                 Задача
             </label>
+
 
             <input
                 type="text"
@@ -928,42 +820,52 @@ function openTaskForm(
                 }"
             >
 
-            <label for="task-category">
+
+            <label
+                for="task-category"
+            >
                 Сфера
             </label>
 
-            <select id="task-category">
 
-                ${
-                    CATEGORIES
-                        .map(
-                            category => `
+            <select
+                id="task-category"
+            >
 
-                                <option
-                                    value="${category}"
-                                    ${
-                                        isEditing &&
-                                        taskToEdit.category ===
-                                        category
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    ${category}
-                                </option>
+                ${CATEGORIES
+                    .map(
+                        category => `
 
-                            `
-                        )
-                        .join("")
-                }
+                            <option
+                                value="${category}"
+                                ${
+                                    isEditing &&
+                                    taskToEdit.category ===
+                                    category
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                ${category}
+                            </option>
+
+                        `
+                    )
+                    .join("")}
 
             </select>
 
-            <label for="task-repeat">
+
+            <label
+                for="task-repeat"
+            >
                 Повторение
             </label>
 
-            <select id="task-repeat">
+
+            <select
+                id="task-repeat"
+            >
 
                 <option
                     value="once"
@@ -978,6 +880,7 @@ function openTaskForm(
                     Только сегодня
                 </option>
 
+
                 <option
                     value="daily"
                     ${
@@ -990,6 +893,7 @@ function openTaskForm(
                 >
                     Каждый день
                 </option>
+
 
                 <option
                     value="weekly"
@@ -1006,13 +910,21 @@ function openTaskForm(
 
             </select>
 
-            <div>
 
-                <label for="task-period">
+            <div
+                id="period-container"
+            >
+
+                <label
+                    for="task-period"
+                >
                     Период
                 </label>
 
-                <select id="task-period">
+
+                <select
+                    id="task-period"
+                >
 
                     <option
                         value="challenge"
@@ -1027,6 +939,7 @@ function openTaskForm(
                     >
                         Все 90 дней
                     </option>
+
 
                     <option
                         value="until-date"
@@ -1043,6 +956,7 @@ function openTaskForm(
                     </option>
 
                 </select>
+
 
                 <input
                     type="date"
@@ -1067,6 +981,7 @@ function openTaskForm(
 
             </div>
 
+
             <div
                 id="weekdays-container"
                 style="${
@@ -1082,36 +997,142 @@ function openTaskForm(
                     Дни недели
                 </label>
 
-                <div class="weekdays">
 
-                    ${createWeekdayButtons(
-                        isEditing
-                            ? taskToEdit.weekDays
-                            : []
-                    )}
+                <div
+                    class="weekday-options"
+                >
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="1"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(1)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Пн
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="2"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(2)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Вт
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="3"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(3)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Ср
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="4"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(4)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Чт
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="5"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(5)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Пт
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="6"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(6)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Сб
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="0"
+                            ${
+                                isEditing &&
+                                taskToEdit.weekDays &&
+                                taskToEdit.weekDays.includes(0)
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+                        Вс
+                    </label>
 
                 </div>
 
             </div>
 
-            <div class="form-actions">
 
-                ${
-                    isEditing
-                        ? `
-                            <button
-                                class="delete-task-button"
-                                id="delete-task-button"
-                            >
-                                Удалить
-                            </button>
-                        `
-                        : ""
-                }
+            <div
+                class="form-actions"
+            >
+
+                <button
+                    class="secondary-button"
+                    id="cancel-task"
+                >
+                    Отмена
+                </button>
+
 
                 <button
                     class="primary-button"
-                    id="save-task-button"
+                    id="save-task"
                 >
                     ${
                         isEditing
@@ -1121,6 +1142,7 @@ function openTaskForm(
                 </button>
 
             </div>
+
 
         </div>
 
@@ -1132,40 +1154,23 @@ function openTaskForm(
     );
 
 
-    form
-        .querySelector(
-            ".close-form"
-        )
-        .addEventListener(
-            "click",
-            () => form.remove()
-        );
-
-
-    form
-        .querySelector(
-            ".form-overlay"
-        )
-        .addEventListener(
-            "click",
-            () => form.remove()
-        );
-
-
     const repeatSelect =
         form.querySelector(
             "#task-repeat"
         );
+
 
     const periodSelect =
         form.querySelector(
             "#task-period"
         );
 
-    const periodDate =
+
+    const endDateInput =
         form.querySelector(
             "#task-end-date"
         );
+
 
     const weekdaysContainer =
         form.querySelector(
@@ -1173,18 +1178,41 @@ function openTaskForm(
         );
 
 
-    function updateFormVisibility() {
+    function updateRepeatFields() {
 
-        periodDate.style.display =
+        const repeat =
+            repeatSelect.value;
+
+
+        if (
+            weekdaysContainer
+        ) {
+
+            weekdaysContainer.style.display =
+                repeat === "weekly"
+                    ? "block"
+                    : "none";
+
+        }
+
+    }
+
+
+    function updatePeriodFields() {
+
+        if (
+            !periodSelect ||
+            !endDateInput
+        ) {
+
+            return;
+
+        }
+
+
+        endDateInput.style.display =
             periodSelect.value ===
             "until-date"
-                ? "block"
-                : "none";
-
-
-        weekdaysContainer.style.display =
-            repeatSelect.value ===
-            "weekly"
                 ? "block"
                 : "none";
 
@@ -1193,327 +1221,232 @@ function openTaskForm(
 
     repeatSelect.addEventListener(
         "change",
-        updateFormVisibility
+        updateRepeatFields
     );
 
 
     periodSelect.addEventListener(
         "change",
-        updateFormVisibility
+        updatePeriodFields
     );
 
 
-    form
-        .querySelector(
-            "#save-task-button"
-        )
-        .addEventListener(
-            "click",
-            () => {
+    updateRepeatFields();
 
-                const title =
-                    form
-                        .querySelector(
-                            "#task-title"
-                        )
-                        .value
-                        .trim();
+    updatePeriodFields();
 
 
-                const category =
-                    form
-                        .querySelector(
-                            "#task-category"
-                        )
-                        .value;
+    form.querySelector(
+        ".close-form"
+    ).addEventListener(
+        "click",
+        () => form.remove()
+    );
 
 
-                const repeat =
-                    repeatSelect.value;
+    form.querySelector(
+        "#cancel-task"
+    ).addEventListener(
+        "click",
+        () => form.remove()
+    );
 
 
-                const period =
-                    periodSelect.value;
+    form.querySelector(
+        ".form-overlay"
+    ).addEventListener(
+        "click",
+        () => form.remove()
+    );
 
 
-                const endDate =
-                    period ===
-                    "until-date"
-                        ? periodDate.value
-                        : CHALLENGE_END;
+    form.querySelector(
+        "#save-task"
+    ).addEventListener(
+        "click",
+        () => {
+
+            const titleInput =
+                form.querySelector(
+                    "#task-title"
+                );
 
 
-                if (
-                    !title
-                ) {
-
-                    alert(
-                        "Напиши название задачи"
-                    );
-
-                    return;
-
-                }
+            const title =
+                titleInput.value.trim();
 
 
-                if (
-                    period ===
-                    "until-date" &&
-                    !endDate
-                ) {
+            if (
+                !title
+            ) {
 
-                    alert(
-                        "Выбери дату окончания"
-                    );
+                titleInput.focus();
 
-                    return;
-
-                }
-
-
-                let weekDays = [];
-
-
-                if (
-                    repeat ===
-                    "weekly"
-                ) {
-
-                    weekDays =
-                        Array
-                            .from(
-                                form.querySelectorAll(
-                                    ".weekday-button.active"
-                                )
-                            )
-                            .map(
-                                button =>
-                                    Number(
-                                        button.dataset.day
-                                    )
-                            );
-
-
-                    if (
-                        weekDays.length ===
-                        0
-                    ) {
-
-                        alert(
-                            "Выбери хотя бы один день недели"
-                        );
-
-                        return;
-
-                    }
-
-                }
-
-
-                if (
-                    isEditing
-                ) {
-
-                    taskToEdit.title =
-                        title;
-
-                    taskToEdit.category =
-                        category;
-
-                    taskToEdit.repeat =
-                        repeat;
-
-                    taskToEdit.endDate =
-                        endDate;
-
-                    taskToEdit.weekDays =
-                        weekDays;
-
-
-                    if (
-                        !taskToEdit.completions
-                    ) {
-
-                        taskToEdit.completions =
-                            {};
-
-                    }
-
-                } else {
-
-                    const today =
-                        getToday();
-
-
-                    tasks.push({
-
-                        id:
-                            Date.now()
-                                .toString(),
-
-                        title:
-                            title,
-
-                        category:
-                            category,
-
-                        repeat:
-                            repeat,
-
-                        date:
-                            today,
-
-                        startDate:
-                            today,
-
-                        endDate:
-                            endDate,
-
-                        weekDays:
-                            weekDays,
-
-                        completions:
-                            {}
-
-                    });
-
-                }
-
-
-                saveTasks();
-
-                form.remove();
-
-                renderTasks();
-
-                renderCalendar();
+                return;
 
             }
-        );
 
 
-    if (
-        isEditing
-    ) {
+            const category =
+                form.querySelector(
+                    "#task-category"
+                ).value;
 
-        form
-            .querySelector(
-                "#delete-task-button"
-            )
-            .addEventListener(
-                "click",
-                () => {
 
-                    if (
-                        !confirm(
-                            "Удалить эту задачу?"
+            const repeat =
+                form.querySelector(
+                    "#task-repeat"
+                ).value;
+
+
+            const today =
+                getToday();
+
+
+            let startDate =
+                isEditing
+                    ? (
+                        taskToEdit.startDate ||
+                        taskToEdit.date ||
+                        today
+                    )
+                    : today;
+
+
+            let endDate =
+                CHALLENGE_END;
+
+
+            if (
+                periodSelect.value ===
+                "until-date"
+            ) {
+
+                endDate =
+                    endDateInput.value ||
+                    CHALLENGE_END;
+
+            }
+
+
+            let weekDays =
+                [];
+
+
+            if (
+                repeat ===
+                "weekly"
+            ) {
+
+                weekDays =
+                    Array.from(
+                        form.querySelectorAll(
+                            "#weekdays-container input[type='checkbox']:checked"
                         )
-                    ) {
+                    )
+                    .map(
+                        input =>
+                            Number(
+                                input.value
+                            )
+                    );
 
-                        return;
-
-                    }
-
-
-                    tasks =
-                        tasks.filter(
-                            task =>
-                                task.id !==
-                                taskToEdit.id
-                        );
+            }
 
 
-                    saveTasks();
+            if (
+                isEditing
+            ) {
 
-                    form.remove();
+                taskToEdit.title =
+                    title;
 
-                    renderTasks();
+                taskToEdit.category =
+                    category;
 
-                    renderCalendar();
+                taskToEdit.repeat =
+                    repeat;
+
+                taskToEdit.startDate =
+                    startDate;
+
+                taskToEdit.endDate =
+                    endDate;
+
+                taskToEdit.weekDays =
+                    weekDays;
+
+
+                if (
+                    !taskToEdit.completions
+                ) {
+
+                    taskToEdit.completions =
+                        {};
 
                 }
-            );
 
-    }
+            } else {
 
-}
+                tasks.push({
+
+                    id:
+                        Date.now(),
+
+                    title:
+
+                        title,
+
+                    category:
+
+                        category,
+
+                    repeat:
+
+                        repeat,
+
+                    date:
+
+                        today,
+
+                    startDate:
+
+                        startDate,
+
+                    endDate:
+
+                        endDate,
+
+                    weekDays:
+
+                        weekDays,
+
+                    completions:
+
+                        {}
+
+                });
+
+            }
 
 
-// ========================================
-// ДНИ НЕДЕЛИ
-// ========================================
+            saveTasks();
 
-function createWeekdayButtons(
-    selectedDays = []
-) {
+            form.remove();
 
-    const days = [
+            renderTasks();
 
-        {
-            number: 1,
-            name: "Пн"
-        },
+            renderCalendar();
 
-        {
-            number: 2,
-            name: "Вт"
-        },
-
-        {
-            number: 3,
-            name: "Ср"
-        },
-
-        {
-            number: 4,
-            name: "Чт"
-        },
-
-        {
-            number: 5,
-            name: "Пт"
-        },
-
-        {
-            number: 6,
-            name: "Сб"
-        },
-
-        {
-            number: 0,
-            name: "Вс"
         }
 
-    ];
-
-
-    return days
-        .map(
-            day => `
-
-                <button
-                    type="button"
-                    class="weekday-button ${
-                        selectedDays.includes(
-                            day.number
-                        )
-                            ? "active"
-                            : ""
-                    }"
-                    data-day="${day.number}"
-                >
-                    ${day.name}
-                </button>
-
-            `
-        )
-        .join("");
+    );
 
 }
 
 
 // ========================================
-// ЗАДАЧИ — СЕГОДНЯ
+// ЭКРАН СЕГОДНЯ
 // ========================================
 
 function renderTasks() {
@@ -1522,6 +1455,7 @@ function renderTasks() {
         document.querySelector(
             "#task-groups"
         );
+
 
     const emptyState =
         document.querySelector(
@@ -1553,43 +1487,73 @@ function renderTasks() {
 
 
     if (
-        todayTasks.length ===
-        0
-    ) {
-
-        container.style.display =
-            "none";
-
-
-        if (
-            emptyState
-        ) {
-
-            emptyState.style.display =
-                "block";
-
-        }
-
-
-        updateDailyProgress(
-            []
-        );
-
-        return;
-
-    }
-
-
-    container.style.display =
-        "block";
-
-
-    if (
         emptyState
     ) {
 
         emptyState.style.display =
-            "none";
+            todayTasks.length
+                ? "none"
+                : "block";
+
+    }
+
+
+    const dailyProgressText =
+        document.querySelector(
+            "#daily-progress-text"
+        );
+
+
+    const dailyProgressFill =
+        document.querySelector(
+            "#daily-progress-fill"
+        );
+
+
+    const completedCount =
+        todayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    today
+                )
+        ).length;
+
+
+    if (
+        dailyProgressText
+    ) {
+
+        dailyProgressText.textContent =
+            `${completedCount} из ${todayTasks.length}`;
+
+    }
+
+
+    if (
+        dailyProgressFill
+    ) {
+
+        const percent =
+            todayTasks.length
+                ? (
+                    completedCount /
+                    todayTasks.length
+                ) * 100
+                : 0;
+
+
+        dailyProgressFill.style.width =
+            `${percent}%`;
+
+    }
+
+
+    if (
+        !todayTasks.length
+    ) {
+
+        return;
 
     }
 
@@ -1606,8 +1570,7 @@ function renderTasks() {
 
 
             if (
-                categoryTasks.length ===
-                0
+                !categoryTasks.length
             ) {
 
                 return;
@@ -1627,11 +1590,15 @@ function renderTasks() {
 
             group.innerHTML = `
 
-                <div class="task-group-title">
+                <div
+                    class="task-group-title"
+                >
                     ${category}
                 </div>
 
-                <div class="task-list"></div>
+                <div
+                    class="task-list"
+                ></div>
 
             `;
 
@@ -1652,38 +1619,64 @@ function renderTasks() {
                         );
 
 
-                    const element =
+                    const taskElement =
                         document.createElement(
                             "div"
                         );
 
 
-                    element.className =
-                        `task ${
+                    taskElement.className =
+                        "task-item" +
+                        (
                             completed
-                                ? "completed"
+                                ? " completed"
                                 : ""
-                        }`;
+                        );
 
 
-                    element.innerHTML = `
+                    taskElement.innerHTML = `
 
                         <button
                             class="task-check"
-                            aria-label="Выполнить"
+                            aria-label="${
+                                completed
+                                    ? "Отметить как невыполненную"
+                                    : "Отметить как выполненную"
+                            }"
                         >
                             <span></span>
                         </button>
 
-                        <div class="task-content">
 
-                            <div class="task-title">
-                                ${escapeHTML(
+                        <div
+                            class="task-content"
+                        >
+
+                            <div
+                                class="task-title"
+                            >
+                                ${escapeText(
                                     task.title
                                 )}
                             </div>
 
+
+                            <div
+                                class="task-meta"
+                            >
+                                ${
+                                    task.repeat ===
+                                    "daily"
+                                        ? "Каждый день"
+                                        : task.repeat ===
+                                          "weekly"
+                                            ? "По выбранным дням"
+                                            : "Сегодня"
+                                }
+                            </div>
+
                         </div>
+
 
                         <button
                             class="task-edit"
@@ -1695,41 +1688,45 @@ function renderTasks() {
                     `;
 
 
-                    element
-                        .querySelector(
+                    const checkButton =
+                        taskElement.querySelector(
                             ".task-check"
-                        )
-                        .addEventListener(
-                            "click",
-                            () => {
-
-                                toggleTask(
-                                    task.id,
-                                    today
-                                );
-
-                            }
                         );
 
 
-                    element
-                        .querySelector(
-                            ".task-edit"
-                        )
-                        .addEventListener(
-                            "click",
-                            () => {
+                    checkButton.addEventListener(
+                        "click",
+                        event => {
 
-                                openTaskForm(
-                                    task
-                                );
+                            event.stopPropagation();
 
-                            }
-                        );
+                            toggleTask(
+                                task,
+                                today
+                            );
+
+                        }
+                    );
+
+
+                    taskElement.querySelector(
+                        ".task-edit"
+                    ).addEventListener(
+                        "click",
+                        event => {
+
+                            event.stopPropagation();
+
+                            openTaskMenu(
+                                task
+                            );
+
+                        }
+                    );
 
 
                     list.appendChild(
-                        element
+                        taskElement
                     );
 
                 }
@@ -1743,104 +1740,17 @@ function renderTasks() {
         }
     );
 
-
-    updateDailyProgress(
-        todayTasks
-    );
-
 }
 
 
 // ========================================
-// ПРОГРЕСС СЕГОДНЯ
-// ========================================
-
-function updateDailyProgress(
-    dayTasks
-) {
-
-    const text =
-        document.querySelector(
-            "#daily-progress-text"
-        );
-
-
-    const fill =
-        document.querySelector(
-            "#daily-progress-fill"
-        );
-
-
-    const total =
-        dayTasks.length;
-
-
-    const completed =
-        dayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    getToday()
-                )
-        ).length;
-
-
-    if (
-        text
-    ) {
-
-        text.textContent =
-            `${completed} из ${total}`;
-
-    }
-
-
-    if (
-        fill
-    ) {
-
-        const percent =
-            total > 0
-                ? (
-                    completed /
-                    total
-                ) * 100
-                : 0;
-
-
-        fill.style.width =
-            `${percent}%`;
-
-    }
-
-}
-
-
-// ========================================
-// ОТМЕТИТЬ ЗАДАЧУ
+// ПЕРЕКЛЮЧЕНИЕ ЗАДАЧИ
 // ========================================
 
 function toggleTask(
-    taskId,
-    dateString = getToday()
+    task,
+    dateString
 ) {
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (
-        !task
-    ) {
-
-        return;
-
-    }
-
 
     if (
         !task.completions
@@ -1864,10 +1774,160 @@ function toggleTask(
 
     saveTasks();
 
-
     renderTasks();
 
     renderCalendar();
+
+}
+
+
+// ========================================
+// МЕНЮ ЗАДАЧИ
+// ========================================
+
+function openTaskMenu(
+    task
+) {
+
+    const oldMenu =
+        document.querySelector(
+            ".task-menu"
+        );
+
+
+    if (
+        oldMenu
+    ) {
+
+        oldMenu.remove();
+
+    }
+
+
+    const menu =
+        document.createElement(
+            "div"
+        );
+
+
+    menu.className =
+        "task-menu";
+
+
+    menu.innerHTML = `
+
+        <div
+            class="form-overlay"
+        ></div>
+
+
+        <div
+            class="task-menu-window"
+        >
+
+            <button
+                class="close-form"
+                aria-label="Закрыть"
+            >
+                ×
+            </button>
+
+
+            <p
+                class="eyebrow"
+            >
+                ДЕЙСТВИЕ
+            </p>
+
+
+            <h2>
+                ${escapeText(
+                    task.title
+                )}
+            </h2>
+
+
+            <button
+                class="menu-button"
+                id="edit-task-button"
+            >
+                Редактировать
+            </button>
+
+
+            <button
+                class="menu-button danger"
+                id="delete-task-button"
+            >
+                Удалить
+            </button>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        menu
+    );
+
+
+    menu.querySelector(
+        ".close-form"
+    ).addEventListener(
+        "click",
+        () => menu.remove()
+    );
+
+
+    menu.querySelector(
+        ".form-overlay"
+    ).addEventListener(
+        "click",
+        () => menu.remove()
+    );
+
+
+    menu.querySelector(
+        "#edit-task-button"
+    ).addEventListener(
+        "click",
+        () => {
+
+            menu.remove();
+
+            openTaskForm(
+                task
+            );
+
+        }
+    );
+
+
+    menu.querySelector(
+        "#delete-task-button"
+    ).addEventListener(
+        "click",
+        () => {
+
+            tasks =
+                tasks.filter(
+                    item =>
+                        item.id !==
+                        task.id
+                );
+
+
+            saveTasks();
+
+            menu.remove();
+
+            renderTasks();
+
+            renderCalendar();
+
+        }
+    );
 
 }
 
@@ -1906,49 +1966,1754 @@ function setupFirstTaskButton() {
 
 
 // ========================================
-// КАЛЕНДАРЬ
+// ДОБАВИТЬ ЗАДАЧУ
 // ========================================
 
-let selectedCalendarDate =
-    null;
+function addTaskButton() {
 
-
-function getInitialCalendarDate() {
-
-    const today =
-        getToday();
-
-
-    if (
-        today <
-        CHALLENGE_START
-    ) {
-
-        return CHALLENGE_START;
-
-    }
-
-
-    if (
-        today >
-        CHALLENGE_END
-    ) {
-
-        return CHALLENGE_END;
-
-    }
-
-
-    return today;
+    openTaskForm();
 
 }
 
 
+// ========================================
+// ЭКРАН КАЛЕНДАРЯ
+// ========================================
+
 function renderCalendar() {
+
+    const calendar =
+        document.querySelector(
+            "#challenge-calendar"
+        );
+
+
+    const selectedDay =
+        document.querySelector(
+            "#selected-day"
+        );
+
+
+    if (
+        !calendar
+    ) {
+
+        return;
+
+    }
+
+
+    calendar.innerHTML =
+        "";
+
+
+    if (
+        selectedDay
+    ) {
+
+        selectedDay.innerHTML =
+            "";
+
+    }
+
+
+    const start =
+        getDateObject(
+            CHALLENGE_START
+        );
+
+
+    const months =
+        {};
+
+
+    for (
+        let i = 0;
+        i < CHALLENGE_LENGTH;
+        i++
+    ) {
+
+        const dateString =
+            addDays(
+                CHALLENGE_START,
+                i
+            );
+
+
+        const date =
+            getDateObject(
+                dateString
+            );
+
+
+        const monthKey =
+            `${date.getFullYear()}-${date.getMonth()}`;
+
+
+        if (
+            !months[monthKey]
+        ) {
+
+            months[monthKey] =
+                {
+
+                    year:
+                        date.getFullYear(),
+
+                    month:
+                        date.getMonth(),
+
+                    days:
+                        []
+
+                };
+
+        }
+
+
+        months[
+            monthKey
+        ].days.push(
+            dateString
+        );
+
+    }
+
+
+    Object.values(
+        months
+    ).forEach(
+        monthData => {
+
+            const monthBlock =
+                document.createElement(
+                    "div"
+                );
+
+
+            monthBlock.className =
+                "calendar-month";
+
+
+            const monthTitle =
+                document.createElement(
+                    "h3"
+                );
+
+
+            monthTitle.textContent =
+                new Date(
+                    monthData.year,
+                    monthData.month,
+                    1
+                ).toLocaleDateString(
+                    "ru-RU",
+                    {
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+
+            monthBlock.appendChild(
+                monthTitle
+            );
+
+
+            const weekdays =
+                document.createElement(
+                    "div"
+                );
+
+
+            weekdays.className =
+                "calendar-weekdays";
+
+
+            [
+                "Пн",
+                "Вт",
+                "Ср",
+                "Чт",
+                "Пт",
+                "Сб",
+                "Вс"
+            ].forEach(
+                day => {
+
+                    const element =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    element.textContent =
+                        day;
+
+
+                    weekdays.appendChild(
+                        element
+                    );
+
+                }
+            );
+
+
+            monthBlock.appendChild(
+                weekdays
+            );
+
+
+            const grid =
+                document.createElement(
+                    "div"
+                );
+
+
+            grid.className =
+                "calendar-grid";
+
+
+            const firstDay =
+                new Date(
+                    monthData.year,
+                    monthData.month,
+                    1
+                ).getDay();
+
+
+            const mondayIndex =
+                firstDay === 0
+                    ? 6
+                    : firstDay - 1;
+
+
+            for (
+                let i = 0;
+                i < mondayIndex;
+                i++
+            ) {
+
+                const empty =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                empty.className =
+                    "calendar-day empty";
+
+
+                grid.appendChild(
+                    empty
+                );
+
+            }
+
+
+            monthData.days.forEach(
+                dateString => {
+
+                    const dayElement =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    dayElement.type =
+                        "button";
+
+
+                    dayElement.className =
+                        "calendar-day";
+
+
+                    const dayNumber =
+                        getDateObject(
+                            dateString
+                        ).getDate();
+
+
+                    dayElement.innerHTML = `
+
+                        <span>
+                            ${dayNumber}
+                        </span>
+
+                    `;
+
+
+                    const dayTasks =
+                        getTasksForDate(
+                            dateString
+                        );
+
+
+                    const completedTasks =
+                        dayTasks.filter(
+                            task =>
+                                isTaskCompleted(
+                                    task,
+                                    dateString
+                                )
+                        );
+
+
+                    if (
+                        dayTasks.length &&
+                        completedTasks.length ===
+                        dayTasks.length
+                    ) {
+
+                        dayElement.classList.add(
+                            "status-complete"
+                        );
+
+                    } else if (
+                        completedTasks.length
+                    ) {
+
+                        dayElement.classList.add(
+                            "status-partial"
+                        );
+
+                    }
+
+
+                    if (
+                        dateString ===
+                        getToday()
+                    ) {
+
+                        dayElement.classList.add(
+                            "today"
+                        );
+
+                    }
+
+
+                    dayElement.addEventListener(
+                        "click",
+                        () => {
+
+                            renderSelectedDay(
+                                dateString
+                            );
+
+                        }
+                    );
+
+
+                    grid.appendChild(
+                        dayElement
+                    );
+
+                }
+            );
+
+
+            monthBlock.appendChild(
+                grid
+            );
+
+
+            calendar.appendChild(
+                monthBlock
+            );
+
+        }
+    );
+
+}
+// ========================================
+// РЕДАКТИРОВАНИЕ СФЕР
+// ========================================
+
+function toggleWheelEditor() {
+
+    const editor =
+        document.querySelector(
+            "#wheel-editor"
+        );
+
+
+    if (
+        !editor
+    ) {
+
+        return;
+
+    }
+
+
+    const isOpen =
+        editor.classList.contains(
+            "visible"
+        );
+
+
+    if (
+        isOpen
+    ) {
+
+        editor.classList.remove(
+            "visible"
+        );
+
+        editor.innerHTML =
+            "";
+
+        return;
+
+    }
+
+
+    editor.classList.add(
+        "visible"
+    );
+
+
+    renderWheelEditor();
+
+}
+
+
+// ========================================
+// РЕДАКТОР СФЕР
+// ========================================
+
+function renderWheelEditor() {
+
+    const editor =
+        document.querySelector(
+            "#wheel-editor"
+        );
+
+
+    if (
+        !editor
+    ) {
+
+        return;
+
+    }
+
+
+    editor.innerHTML = `
+
+        <div
+            class="wheel-editor-list"
+        ></div>
+
+
+        <div
+            class="wheel-editor-add"
+        >
+
+            <input
+                type="text"
+                id="new-wheel-category"
+                placeholder="Название новой сферы"
+                maxlength="40"
+            >
+
+
+            <button
+                type="button"
+                id="add-wheel-category"
+                class="small-outline-button"
+            >
+                + Добавить
+            </button>
+
+        </div>
+
+    `;
+
+
+    const list =
+        editor.querySelector(
+            ".wheel-editor-list"
+        );
+
+
+    beforeAfterData.wheel.forEach(
+        (category, index) => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "wheel-editor-row";
+
+
+            row.innerHTML = `
+
+                <input
+                    type="text"
+                    value="${escapeAttribute(
+                        category.name
+                    )}"
+                    maxlength="40"
+                >
+
+
+                <button
+                    type="button"
+                    class="delete-wheel-category"
+                    aria-label="Удалить сферу"
+                >
+                    ×
+                </button>
+
+            `;
+
+
+            const input =
+                row.querySelector(
+                    "input"
+                );
+
+
+            input.addEventListener(
+                "input",
+                () => {
+
+                    const value =
+                        input.value.trim();
+
+
+                    if (
+                        value
+                    ) {
+
+                        beforeAfterData.wheel[
+                            index
+                        ].name =
+                            value;
+
+                    }
+
+
+                    saveBeforeAfter();
+
+                    renderWheel();
+
+                }
+            );
+
+
+            row.querySelector(
+                ".delete-wheel-category"
+            ).addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        beforeAfterData.wheel.length <=
+                        1
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    beforeAfterData.wheel.splice(
+                        index,
+                        1
+                    );
+
+
+                    saveBeforeAfter();
+
+                    renderWheel();
+
+                    renderWheelEditor();
+
+                }
+            );
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    const newInput =
+        editor.querySelector(
+            "#new-wheel-category"
+        );
+
+
+    const addButton =
+        editor.querySelector(
+            "#add-wheel-category"
+        );
+
+
+    addButton.addEventListener(
+        "click",
+        () => {
+
+            const name =
+                newInput.value.trim();
+
+
+            if (
+                !name
+            ) {
+
+                newInput.focus();
+
+                return;
+
+            }
+
+
+            beforeAfterData.wheel.push({
+
+                id:
+                    Date.now() +
+                    Math.random(),
+
+                name:
+                    name,
+
+                a:
+                    5,
+
+                b:
+                    null
+
+            });
+
+
+            saveBeforeAfter();
+
+            newInput.value =
+                "";
+
+
+            renderWheel();
+
+            renderWheelEditor();
+
+        }
+    );
+
+}
+
+
+// ========================================
+// КОЛЕСО ЖИЗНИ
+// ========================================
+
+function renderWheel() {
+
+    const visual =
+        document.querySelector(
+            "#wheel-visual"
+        );
+
+
+    const average =
+        document.querySelector(
+            "#wheel-average"
+        );
+
+
+    if (
+        !visual
+    ) {
+
+        return;
+
+    }
+
+
+    const categories =
+        beforeAfterData.wheel;
+
+
+    if (
+        !categories.length
+    ) {
+
+        visual.innerHTML = `
+
+            <div
+                class="wheel-empty"
+            >
+                Добавь хотя бы одну сферу.
+            </div>
+
+        `;
+
+
+        if (
+            average
+        ) {
+
+            average.innerHTML =
+                "";
+
+        }
+
+
+        return;
+
+    }
+
+
+    const size =
+        420;
+
+
+    const center =
+        size / 2;
+
+
+    const radius =
+        145;
+
+
+    const count =
+        categories.length;
+
+
+    const angleStep =
+        (
+            Math.PI * 2
+        ) /
+        count;
+
+
+    let polygonPoints =
+        "";
+
+
+    categories.forEach(
+        (category, index) => {
+
+            const angle =
+                (
+                    angleStep *
+                    index
+                ) -
+                Math.PI / 2;
+
+
+            const value =
+                Number(
+                    category.a || 0
+                );
+
+
+            const r =
+                radius *
+                (
+                    value /
+                    10
+                );
+
+
+            const x =
+                center +
+                Math.cos(
+                    angle
+                ) *
+                r;
+
+
+            const y =
+                center +
+                Math.sin(
+                    angle
+                ) *
+                r;
+
+
+            polygonPoints +=
+                `${x},${y} `;
+
+        }
+    );
+
+
+    let grid =
+        "";
+
+
+    [2, 4, 6, 8, 10].forEach(
+        value => {
+
+            const points =
+                categories
+                    .map(
+                        (
+                            category,
+                            index
+                        ) => {
+
+                            const angle =
+                                (
+                                    angleStep *
+                                    index
+                                ) -
+                                Math.PI / 2;
+
+
+                            const r =
+                                radius *
+                                (
+                                    value /
+                                    10
+                                );
+
+
+                            const x =
+                                center +
+                                Math.cos(
+                                    angle
+                                ) *
+                                r;
+
+
+                            const y =
+                                center +
+                                Math.sin(
+                                    angle
+                                ) *
+                                r;
+
+
+                            return `${x},${y}`;
+
+                        }
+                    )
+                    .join(" ");
+
+
+            grid += `
+
+                <polygon
+                    points="${points}"
+                    fill="none"
+                    stroke="rgba(110, 98, 103, 0.14)"
+                    stroke-width="1"
+                />
+
+            `;
+
+        }
+    );
+
+
+    let axes =
+        "";
+
+
+    let labels =
+        "";
+
+
+    categories.forEach(
+        (category, index) => {
+
+            const angle =
+                (
+                    angleStep *
+                    index
+                ) -
+                Math.PI / 2;
+
+
+            const x =
+                center +
+                Math.cos(
+                    angle
+                ) *
+                radius;
+
+
+            const y =
+                center +
+                Math.sin(
+                    angle
+                ) *
+                radius;
+
+
+            axes += `
+
+                <line
+                    x1="${center}"
+                    y1="${center}"
+                    x2="${x}"
+                    y2="${y}"
+                    stroke="rgba(110, 98, 103, 0.12)"
+                    stroke-width="1"
+                />
+
+            `;
+
+
+            const labelRadius =
+                radius + 32;
+
+
+            const labelX =
+                center +
+                Math.cos(
+                    angle
+                ) *
+                labelRadius;
+
+
+            const labelY =
+                center +
+                Math.sin(
+                    angle
+                ) *
+                labelRadius;
+
+
+            labels += `
+
+                <text
+                    x="${labelX}"
+                    y="${labelY}"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    class="wheel-label"
+                >
+                    ${escapeText(
+                        category.name
+                    )}
+                </text>
+
+            `;
+
+        }
+    );
+
+
+    visual.innerHTML = `
+
+        <svg
+            class="life-wheel-svg"
+            viewBox="0 0 ${size} ${size}"
+            role="img"
+            aria-label="Колесо жизни"
+        >
+
+            ${grid}
+
+            ${axes}
+
+
+            <polygon
+                points="${polygonPoints}"
+                class="wheel-value-area"
+            />
+
+
+            ${categories
+                .map(
+                    (
+                        category,
+                        index
+                    ) => {
+
+                        const angle =
+                            (
+                                angleStep *
+                                index
+                            ) -
+                            Math.PI / 2;
+
+
+                        const value =
+                            Number(
+                                category.a || 0
+                            );
+
+
+                        const r =
+                            radius *
+                            (
+                                value /
+                                10
+                            );
+
+
+                        const x =
+                            center +
+                            Math.cos(
+                                angle
+                            ) *
+                            r;
+
+
+                        const y =
+                            center +
+                            Math.sin(
+                                angle
+                            ) *
+                            r;
+
+
+                        return `
+
+                            <circle
+                                cx="${x}"
+                                cy="${y}"
+                                r="4"
+                                class="wheel-point"
+                            />
+
+                        `;
+
+                    }
+                )
+                .join("")}
+
+
+            ${labels}
+
+        </svg>
+
+
+        <div
+            class="wheel-values"
+        >
+
+            ${categories
+                .map(
+                    (
+                        category,
+                        index
+                    ) => `
+
+                        <div
+                            class="wheel-value-row"
+                        >
+
+                            <span>
+                                ${escapeText(
+                                    category.name
+                                )}
+                            </span>
+
+
+                            <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                step="1"
+                                value="${
+                                    category.a || 5
+                                }"
+                                data-wheel-index="${index}"
+                            >
+
+
+                            <strong
+                                data-wheel-value="${index}"
+                            >
+                                ${category.a || 5}
+                            </strong>
+
+                        </div>
+
+                    `
+                )
+                .join("")}
+
+        </div>
+
+    `;
+
+
+    visual.querySelectorAll(
+        "input[type='range']"
+    ).forEach(
+        input => {
+
+            input.addEventListener(
+                "input",
+                () => {
+
+                    const index =
+                        Number(
+                            input.dataset.wheelIndex
+                        );
+
+
+                    const value =
+                        Number(
+                            input.value
+                        );
+
+
+                    beforeAfterData.wheel[
+                        index
+                    ].a =
+                        value;
+
+
+                    const valueElement =
+                        visual.querySelector(
+                            `[data-wheel-value="${index}"]`
+                        );
+
+
+                    if (
+                        valueElement
+                    ) {
+
+                        valueElement.textContent =
+                            value;
+
+                    }
+
+
+                    saveBeforeAfter();
+
+                    updateWheelVisualOnly();
+
+                }
+            );
+
+        }
+    );
+
+
+    updateWheelAverage();
+
+}
+
+
+// ========================================
+// ОБНОВИТЬ ТОЛЬКО ГРАФИК
+// ========================================
+
+function updateWheelVisualOnly() {
+
+    const svg =
+        document.querySelector(
+            ".life-wheel-svg"
+        );
+
+
+    if (
+        !svg
+    ) {
+
+        renderWheel();
+
+        return;
+
+    }
+
+
+    const categories =
+        beforeAfterData.wheel;
+
+
+    const size =
+        420;
+
+
+    const center =
+        size / 2;
+
+
+    const radius =
+        145;
+
+
+    const count =
+        categories.length;
+
+
+    const angleStep =
+        (
+            Math.PI * 2
+        ) /
+        count;
+
+
+    let points =
+        "";
+
+
+    categories.forEach(
+        (
+            category,
+            index
+        ) => {
+
+            const angle =
+                (
+                    angleStep *
+                    index
+                ) -
+                Math.PI / 2;
+
+
+            const value =
+                Number(
+                    category.a || 0
+                );
+
+
+            const r =
+                radius *
+                (
+                    value /
+                    10
+                );
+
+
+            const x =
+                center +
+                Math.cos(
+                    angle
+                ) *
+                r;
+
+
+            const y =
+                center +
+                Math.sin(
+                    angle
+                ) *
+                r;
+
+
+            points +=
+                `${x},${y} `;
+
+        }
+    );
+
+
+    const polygon =
+        svg.querySelector(
+            ".wheel-value-area"
+        );
+
+
+    if (
+        polygon
+    ) {
+
+        polygon.setAttribute(
+            "points",
+            points
+        );
+
+    }
+
+
+    const pointsElements =
+        svg.querySelectorAll(
+            ".wheel-point"
+        );
+
+
+    categories.forEach(
+        (
+            category,
+            index
+        ) => {
+
+            const angle =
+                (
+                    angleStep *
+                    index
+                ) -
+                Math.PI / 2;
+
+
+            const value =
+                Number(
+                    category.a || 0
+                );
+
+
+            const r =
+                radius *
+                (
+                    value /
+                    10
+                );
+
+
+            const x =
+                center +
+                Math.cos(
+                    angle
+                ) *
+                r;
+
+
+            const y =
+                center +
+                Math.sin(
+                    angle
+                ) *
+                r;
+
+
+            const point =
+                pointsElements[
+                    index
+                ];
+
+
+            if (
+                point
+            ) {
+
+                point.setAttribute(
+                    "cx",
+                    x
+                );
+
+
+                point.setAttribute(
+                    "cy",
+                    y
+                );
+
+            }
+
+        }
+    );
+
+
+    updateWheelAverage();
+
+}
+
+
+// ========================================
+// СРЕДНИЙ БАЛЛ
+// ========================================
+
+function updateWheelAverage() {
+
+    const element =
+        document.querySelector(
+            "#wheel-average"
+        );
+
+
+    if (
+        !element
+    ) {
+
+        return;
+
+    }
+
+
+    const values =
+        beforeAfterData.wheel
+            .map(
+                item =>
+                    Number(
+                        item.a
+                    )
+            )
+            .filter(
+                value =>
+                    !Number.isNaN(
+                        value
+                    )
+            );
+
+
+    if (
+        !values.length
+    ) {
+
+        element.innerHTML =
+            "";
+
+        return;
+
+    }
+
+
+    const sum =
+        values.reduce(
+            (
+                total,
+                value
+            ) =>
+                total + value,
+            0
+        );
+
+
+    const average =
+        (
+            sum /
+            values.length
+        ).toFixed(
+            1
+        );
+
+
+    element.innerHTML = `
+
+        <span>
+            Средняя оценка
+        </span>
+
+        <strong>
+            ${average}
+            / 10
+        </strong>
+
+    `;
+
+}
+
+
+// ========================================
+// ТОЧКА Б
+// ========================================
+
+function renderPointB() {
 
     const container =
         document.querySelector(
-            "#challenge-calendar"
+            "#point-b-content"
+        );
+
+
+    if (
+        !container
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !isChallengeFinished()
+    ) {
+
+        container.innerHTML = `
+
+            <div
+                class="point-b-locked"
+            >
+
+                <div
+                    class="point-b-lock"
+                >
+                    90
+                </div>
+
+
+                <h3>
+                    Эта часть пока закрыта
+                </h3>
+
+
+                <p>
+                    Вернись сюда после
+                    29 декабря. Здесь ты
+                    запишешь, что изменилось
+                    за 90 дней, и сравнишь
+                    себя с точкой А.
+                </p>
+
+
+                <div
+                    class="point-b-date"
+                >
+                    Откроется 30 декабря 2026
+                </div>
+
+            </div>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div
+            class="ba-questions"
+        >
+
+            <label>
+                Что изменилось?
+            </label>
+
+            <textarea
+                id="ba-b-change"
+                placeholder="Что стало другим?"
+            ></textarea>
+
+
+            <label>
+                Что я изменила?
+            </label>
+
+            <textarea
+                id="ba-b-changed"
+                placeholder="Какие действия привели к результату?"
+            ></textarea>
+
+
+            <label>
+                Что я получила за 90 дней?
+            </label>
+
+            <textarea
+                id="ba-b-result"
+                placeholder="Что я приобрела за этот путь?"
+            ></textarea>
+
+        </div>
+
+
+        <div
+            class="wheel-card"
+        >
+
+            <div
+                class="wheel-card-header"
+            >
+
+                <div>
+
+                    <h3>
+                        Моё колесо жизни
+                    </h3>
+
+                    <p>
+                        Оцени те же сферы
+                        ещё раз
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="wheel-b-values"
+            ></div>
+
+        </div>
+
+
+        <div
+            class="comparison-card"
+        >
+
+            <h3>
+                Точка А → Точка Б
+            </h3>
+
+
+            <div
+                class="comparison-list"
+                id="comparison-list"
+            ></div>
+
+        </div>
+
+    `;
+
+
+    const fields = [
+
+        [
+            "#ba-b-change",
+            "change"
+        ],
+
+        [
+            "#ba-b-changed",
+            "changed"
+        ],
+
+        [
+            "#ba-b-result",
+            "result"
+        ]
+
+    ];
+
+
+    fields.forEach(
+        ([selector, key]) => {
+
+            const element =
+                document.querySelector(
+                    selector
+                );
+
+
+            if (
+                !element
+            ) {
+
+                return;
+
+            }
+
+
+            element.value =
+                beforeAfterData.pointB[
+                    key
+                ];
+
+
+            element.addEventListener(
+                "input",
+                () => {
+
+                    beforeAfterData.pointB[
+                        key
+                    ] =
+                        element.value;
+
+
+                    saveBeforeAfter();
+
+                }
+            );
+
+        }
+    );
+
+
+    const valuesContainer =
+        container.querySelector(
+            ".wheel-b-values"
+        );
+
+
+    beforeAfterData.wheel.forEach(
+        (
+            category,
+            index
+        ) => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "wheel-value-row";
+
+            row.innerHTML = `
+
+                <span>
+                    ${escapeText(
+                        category.name
+                    )}
+                </span>
+
+
+                <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    step="1"
+                    value="${
+                        category.b || 5
+                    }"
+                >
+
+
+                <strong>
+                    ${category.b || 5}
+                </strong>
+
+            `;
+
+
+            const input =
+                row.querySelector(
+                    "input"
+                );
+
+
+            const value =
+                row.querySelector(
+                    "strong"
+                );
+
+
+            input.addEventListener(
+                "input",
+                () => {
+
+                    category.b =
+                        Number(
+                            input.value
+                        );
+
+
+                    value.textContent =
+                        input.value;
+
+
+                    saveBeforeAfter();
+
+                    renderComparison();
+
+                }
+            );
+
+
+            valuesContainer.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    renderComparison();
+
+}
+
+
+// ========================================
+// СРАВНЕНИЕ
+// ========================================
+
+function renderComparison() {
+
+    const container =
+        document.querySelector(
+            "#comparison-list"
         );
 
 
@@ -1965,1504 +3730,289 @@ function renderCalendar() {
         "";
 
 
-    const monthBlock =
-        document.createElement(
-            "div"
-        );
+    beforeAfterData.wheel.forEach(
+        category => {
+
+            const a =
+                Number(
+                    category.a || 0
+                );
 
 
-    monthBlock.className =
-        "calendar-month";
+            const b =
+                Number(
+                    category.b || 0
+                );
 
 
-    const title =
-        document.createElement(
-            "h3"
-        );
+            const difference =
+                b - a;
 
 
-    title.textContent =
-        "Октябрь — декабрь 2026";
-
-
-    monthBlock.appendChild(
-        title
-    );
-
-
-    const weekdays =
-        document.createElement(
-            "div"
-        );
-
-
-    weekdays.className =
-        "calendar-weekdays";
-
-
-    [
-        "Пн",
-        "Вт",
-        "Ср",
-        "Чт",
-        "Пт",
-        "Сб",
-        "Вс"
-    ].forEach(
-        name => {
-
-            const element =
+            const row =
                 document.createElement(
                     "div"
                 );
 
 
-            element.textContent =
-                name;
+            row.className =
+                "comparison-row";
 
 
-            weekdays.appendChild(
-                element
-            );
-
-        }
-    );
-
-
-    monthBlock.appendChild(
-        weekdays
-    );
-
-
-    const grid =
-        document.createElement(
-            "div"
-        );
-
-
-    grid.className =
-        "calendar-grid";
-
-
-    for (
-        let i = 0;
-        i < CHALLENGE_LENGTH;
-        i++
-    ) {
-
-        const dateString =
-            addDays(
-                CHALLENGE_START,
-                i
-            );
-
-
-        grid.appendChild(
-            createCalendarDay(
-                dateString
-            )
-        );
-
-    }
-
-
-    monthBlock.appendChild(
-        grid
-    );
-
-
-    container.appendChild(
-        monthBlock
-    );
-
-
-    if (
-        !selectedCalendarDate
-    ) {
-
-        selectedCalendarDate =
-            getInitialCalendarDate();
-
-    }
-
-
-    renderSelectedDay(
-        selectedCalendarDate
-    );
-
-}
-
-
-// ========================================
-// ДЕНЬ КАЛЕНДАРЯ
-// ========================================
-
-function createCalendarDay(
-    dateString
-) {
-
-    const button =
-        document.createElement(
-            "button"
-        );
-
-
-    button.className =
-        "calendar-day";
-
-
-    const dayTasks =
-        getTasksForDate(
-            dateString
-        );
-
-
-    const completedTasks =
-        dayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    dateString
-                )
-        );
-
-
-    let status =
-        "empty";
-
-
-    if (
-        dayTasks.length > 0 &&
-        completedTasks.length ===
-        dayTasks.length
-    ) {
-
-        status =
-            "complete";
-
-    } else if (
-        completedTasks.length > 0
-    ) {
-
-        status =
-            "partial";
-
-    }
-
-
-    button.classList.add(
-        `status-${status}`
-    );
-
-
-    if (
-        dateString ===
-        getToday()
-    ) {
-
-        button.classList.add(
-            "today"
-        );
-
-    }
-
-
-    if (
-        dateString ===
-        selectedCalendarDate
-    ) {
-
-        button.classList.add(
-            "selected"
-        );
-
-    }
-
-
-    button.innerHTML = `
-
-        <span class="calendar-day-number">
-            ${getDateObject(
-                dateString
-            ).getDate()}
-        </span>
-
-        <span class="calendar-day-label">
-            День ${
-                getChallengeDay(
-                    dateString
-                )
-            }
-        </span>
-
-    `;
-
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            selectCalendarDay(
-                dateString
-            );
-
-        }
-    );
-
-
-    return button;
-
-}
-
-
-// ========================================
-// ВЫБРАТЬ ДЕНЬ
-// ========================================
-
-function selectCalendarDay(
-    dateString
-) {
-
-    selectedCalendarDate =
-        dateString;
-
-
-    renderCalendar();
-
-
-}
-
-
-// ========================================
-// ВЫБРАННЫЙ ДЕНЬ
-// ========================================
-
-function renderSelectedDay(
-    dateString
-) {
-
-    const container =
-        document.querySelector(
-            "#selected-day"
-        );
-
-
-    if (
-        !container
-    ) {
-
-        return;
-
-    }
-
-
-    const dayTasks =
-        getTasksForDate(
-            dateString
-        );
-
-
-    const completed =
-        dayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    dateString
-                )
-        ).length;
-
-
-    let tasksHTML =
-        "";
-
-
-    if (
-        dayTasks.length ===
-        0
-    ) {
-
-        tasksHTML = `
-
-            <div class="calendar-empty">
-                На этот день пока нет шагов.
-            </div>
-
-        `;
-
-    } else {
-
-        tasksHTML =
-            dayTasks
-                .map(
-                    task => {
-
-                        const completed =
-                            isTaskCompleted(
-                                task,
-                                dateString
-                            );
-
-
-                        return `
-
-                            <button
-                                class="
-                                    calendar-task
-                                    ${
-                                        completed
-                                            ? "completed"
-                                            : ""
-                                    }
-                                "
-                                data-task-id="${task.id}"
-                                data-date="${dateString}"
-                            >
-
-                                <span
-                                    class="calendar-task-dot"
-                                ></span>
-
-                                <span
-                                    class="calendar-task-title"
-                                >
-                                    ${escapeHTML(
-                                        task.title
-                                    )}
-                                </span>
-
-                                <span
-                                    class="calendar-task-hint"
-                                >
-                                    нажми
-                                </span>
-
-                            </button>
-
-                        `;
-
-                    }
-                )
-                .join("");
-
-    }
-
-
-    container.innerHTML = `
-
-        <div class="selected-day-header">
-
-            <div>
-
-                <div class="selected-day-label">
-                    ДЕНЬ ${getChallengeDay(
-                        dateString
-                    )}
-                </div>
-
-                <div class="selected-day-title">
-                    ${formatDate(
-                        dateString
-                    )}
-                </div>
-
-                <div class="selected-day-week">
-                    ${capitalizeFirst(
-                        formatWeekDay(
-                            dateString
-                        )
-                    )}
-                </div>
-
-            </div>
-
-            <div class="selected-day-count">
-                ${completed} из ${dayTasks.length}
-            </div>
-
-        </div>
-
-
-        <div class="selected-day-tasks">
-
-            ${tasksHTML}
-
-        </div>
-
-
-        <button
-            class="calendar-add-task"
-            id="calendar-add-task-button"
-        >
-            + Добавить шаг на этот день
-        </button>
-
-    `;
-
-
-    container
-        .querySelectorAll(
-            ".calendar-task"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        toggleCalendarTask(
-                            button.dataset.taskId,
-                            button.dataset.date
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-    container
-        .querySelector(
-            "#calendar-add-task-button"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                openCalendarTaskForm(
-                    dateString
-                );
-
-            }
-        );
-
-}
-
-
-// ========================================
-// ОТМЕТИТЬ ЗАДАЧУ В КАЛЕНДАРЕ
-// ========================================
-
-function toggleCalendarTask(
-    taskId,
-    dateString
-) {
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (
-        !task
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        !task.completions
-    ) {
-
-        task.completions =
-            {};
-
-    }
-
-
-    task.completions[
-        dateString
-    ] =
-        !Boolean(
-            task.completions[
-                dateString
-            ]
-        );
-
-
-    saveTasks();
-
-
-    renderCalendar();
-
-
-    if (
-        dateString ===
-        getToday()
-    ) {
-
-        renderTasks();
-
-    }
-
-}
-
-
-// ========================================
-// ДОБАВИТЬ ЗАДАЧУ НА ДЕНЬ
-// ========================================
-
-function openCalendarTaskForm(
-    dateString
-) {
-
-    const oldForm =
-        document.querySelector(
-            ".task-form"
-        );
-
-
-    if (
-        oldForm
-    ) {
-
-        oldForm.remove();
-
-    }
-
-
-    const form =
-        document.createElement(
-            "div"
-        );
-
-
-    form.className =
-        "task-form";
-
-
-    form.innerHTML = `
-
-        <div class="form-overlay"></div>
-
-        <div class="form-window">
-
-            <button
-                class="close-form"
-            >
-                ×
-            </button>
-
-            <p class="eyebrow">
-                НОВЫЙ ШАГ
-            </p>
-
-            <h2>
-                ${formatDate(
-                    dateString
-                )}
-            </h2>
-
-            <label>
-                Задача
-            </label>
-
-            <input
-                type="text"
-                id="calendar-task-title"
-                placeholder="Например: написать пост"
-                autocomplete="off"
-            >
-
-            <label>
-                Сфера
-            </label>
-
-            <select
-                id="calendar-task-category"
-            >
-
-                ${
-                    CATEGORIES
-                        .map(
-                            category => `
-
-                                <option
-                                    value="${category}"
-                                >
-                                    ${category}
-                                </option>
-
-                            `
-                        )
-                        .join("")
-                }
-
-            </select>
-
-            <div class="form-actions">
-
-                <button
-                    class="primary-button"
-                    id="save-calendar-task"
-                >
-                    Добавить
-                </button>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-        form
-    );
-
-
-    form
-        .querySelector(
-            ".close-form"
-        )
-        .addEventListener(
-            "click",
-            () => form.remove()
-        );
-
-
-    form
-        .querySelector(
-            ".form-overlay"
-        )
-        .addEventListener(
-            "click",
-            () => form.remove()
-        );
-
-
-    form
-        .querySelector(
-            "#save-calendar-task"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                const title =
-                    form
-                        .querySelector(
-                            "#calendar-task-title"
-                        )
-                        .value
-                        .trim();
-
-
-                const category =
-                    form
-                        .querySelector(
-                            "#calendar-task-category"
-                        )
-                        .value;
-
-
-                if (
-                    !title
-                ) {
-
-                    alert(
-                        "Напиши название задачи"
-                    );
-
-                    return;
-
-                }
-
-
-                tasks.push({
-
-                    id:
-                        Date.now()
-                            .toString(),
-
-                    title:
-                        title,
-
-                    category:
-                        category,
-
-                    repeat:
-                        "once",
-
-                    date:
-                        dateString,
-
-                    startDate:
-                        dateString,
-
-                    endDate:
-                        dateString,
-
-                    weekDays:
-                        [],
-
-                    completions:
-                        {}
-
-                });
-
-
-                saveTasks();
-
-                form.remove();
-
-                renderTasks();
-
-                renderCalendar();
-
-            }
-        );
-
-}
-
-
-// ========================================
-// ========================================
-// ДО → ПОСЛЕ
-// ========================================
-// ========================================
-
-
-// ========================================
-// РЕНДЕР СТРАНИЦЫ
-// ========================================
-
-function renderBeforeAfter() {
-
-    const page =
-        document.querySelector(
-            "#before-after-page"
-        );
-
-
-    if (
-        !page
-    ) {
-
-        return;
-
-    }
-
-
-    page.innerHTML = `
-
-        <section class="before-after-section">
-
-            <div class="page-heading">
-
-                <p class="eyebrow">
-                    МОЯ ТОЧКА А → ТОЧКА Б
-                </p>
-
-                <h1 class="page-title">
-                    До → После
-                </h1>
-
-                <p class="page-description">
-                    Зафиксируй себя в начале пути,
-                    чтобы через 90 дней увидеть,
-                    как много изменилось.
-                </p>
-
-            </div>
-
-
-            <div class="before-after-content">
-
-                ${renderPointA()}
-
-                ${renderWheel()}
-
-                ${renderPointB()}
-
-            </div>
-
-        </section>
-
-    `;
-
-
-    setupBeforeAfterEvents();
-
-}
-
-
-// ========================================
-// ТОЧКА А
-// ========================================
-
-function renderPointA() {
-
-    return `
-
-        <section class="journey-card">
-
-            <div class="journey-card-number">
-                01
-            </div>
-
-            <div class="journey-card-heading">
-
-                <p class="eyebrow">
-                    НАЧАЛО ПУТИ
-                </p>
-
-                <h2>
-                    Точка А
-                </h2>
-
-                <p>
-                    Честно зафиксируй,
-                    где ты находишься сейчас.
-                </p>
-
-            </div>
-
-
-            <div class="reflection-fields">
-
-                <div class="reflection-field">
-
-                    <label>
-                        Что меня сейчас не устраивает?
-                    </label>
-
-                    <textarea
-                        id="point-a-not-satisfied"
-                        placeholder="Напиши всё, что хочется изменить в своей жизни сейчас..."
-                    >${escapeHTML(
-                        beforeAfter.pointA.notSatisfied
-                    )}</textarea>
-
-                </div>
-
-
-                <div class="reflection-field">
-
-                    <label>
-                        Что я хочу изменить?
-                    </label>
-
-                    <textarea
-                        id="point-a-change"
-                        placeholder="Какие изменения я хочу начать создавать?"
-                    >${escapeHTML(
-                        beforeAfter.pointA.change
-                    )}</textarea>
-
-                </div>
-
-
-                <div class="reflection-field">
-
-                    <label>
-                        Что я хочу получить через 90 дней?
-                    </label>
-
-                    <textarea
-                        id="point-a-receive"
-                        placeholder="Какой я хочу увидеть свою жизнь в конце этого пути?"
-                    >${escapeHTML(
-                        beforeAfter.pointA.receive
-                    )}</textarea>
-
-                </div>
-
-            </div>
-
-
-            <button
-                class="primary-button before-after-save"
-                id="save-point-a"
-            >
-                Сохранить точку А
-            </button>
-
-
-            <div
-                class="save-message"
-                id="point-a-message"
-            ></div>
-
-        </section>
-
-    `;
-
-}
-
-
-// ========================================
-// КОЛЕСО БАЛАНСА
-// ========================================
-
-function renderWheel() {
-
-    const categories =
-        beforeAfter.wheelCategories;
-
-
-    return `
-
-        <section class="journey-card wheel-card">
-
-            <div class="journey-card-number">
-                02
-            </div>
-
-            <div class="journey-card-heading">
-
-                <p class="eyebrow">
-                    МОЯ ЖИЗНЬ СЕЙЧАС
-                </p>
-
-                <h2>
-                    Колесо баланса
-                </h2>
-
-                <p>
-                    Оцени каждую сферу своей жизни
-                    от 1 до 10.
-                </p>
-
-            </div>
-
-
-            <div
-                class="wheel-list"
-                id="wheel-list"
-            >
-
-                ${
-                    categories
-                        .map(
-                            (category, index) =>
-                                renderWheelCategory(
-                                    category,
-                                    index
-                                )
-                        )
-                        .join("")
-                }
-
-            </div>
-
-
-            <button
-                class="secondary-action"
-                id="add-wheel-category"
-            >
-                + Добавить сферу
-            </button>
-
-
-            <div class="wheel-summary">
-
-                <div>
-                    Средняя оценка
-                </div>
-
-                <strong
-                    id="wheel-average"
-                >
-                    ${getWheelAverage()}
-                </strong>
+            row.innerHTML = `
 
                 <span>
-                    из 10
-                </span>
-
-            </div>
-
-
-            <button
-                class="primary-button before-after-save"
-                id="save-wheel"
-            >
-                Сохранить колесо баланса
-            </button>
-
-
-            <div
-                class="save-message"
-                id="wheel-message"
-            ></div>
-
-        </section>
-
-    `;
-
-}
-
-
-// ========================================
-// ОДНА СФЕРА КОЛЕСА
-// ========================================
-
-function renderWheelCategory(
-    category,
-    index
-) {
-
-    return `
-
-        <div
-            class="wheel-row"
-            data-index="${index}"
-        >
-
-            <div class="wheel-row-top">
-
-                <input
-                    type="text"
-                    class="wheel-category-name"
-                    value="${escapeAttribute(
+                    ${escapeText(
                         category.name
-                    )}"
-                    data-index="${index}"
-                    aria-label="Название сферы"
-                >
-
-                <button
-                    class="wheel-delete"
-                    data-index="${index}"
-                    aria-label="Удалить сферу"
-                >
-                    ×
-                </button>
-
-            </div>
-
-
-            <div class="wheel-rating">
-
-                <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value="${category.pointA}"
-                    class="wheel-range"
-                    data-index="${index}"
-                >
-
-                <span
-                    class="wheel-rating-value"
-                    data-index="${index}"
-                >
-                    ${category.pointA}
+                    )}
                 </span>
 
-            </div>
+
+                <span>
+                    ${a}
+                </span>
 
 
-            <div class="wheel-scale">
-
-                <span>1</span>
-                <span>5</span>
-                <span>10</span>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
+                <span>
+                    →
+                </span>
 
 
-// ========================================
-// СРЕДНЯЯ ОЦЕНКА
-// ========================================
-
-function getWheelAverage() {
-
-    const categories =
-        beforeAfter.wheelCategories;
+                <span>
+                    ${b}
+                </span>
 
 
-    if (
-        categories.length ===
-        0
-    ) {
+                <strong
+                    class="${
+                        difference > 0
+                            ? "comparison-positive"
+                            : difference < 0
+                                ? "comparison-negative"
+                                : ""
+                    }"
+                >
+                    ${
+                        difference > 0
+                            ? "+" + difference
+                            : difference
+                    }
+                </strong>
 
-        return "0.0";
-
-    }
-
-
-    const total =
-        categories.reduce(
-            (
-                sum,
-                category
-            ) =>
-                sum +
-                Number(
-                    category.pointA
-                ),
-            0
-        );
+            `;
 
 
-    return (
-        total /
-        categories.length
-    ).toFixed(1);
+            container.appendChild(
+                row
+            );
 
-}
-
-
-// ========================================
-// ТОЧКА Б
-// ========================================
-
-function isPointBUnlocked() {
-
-    return (
-        getToday() >
-        CHALLENGE_END
+        }
     );
 
 }
 
 
-function renderPointB() {
+// ========================================
+// ЗАПУСК ДО → ПОСЛЕ
+// ========================================
 
-    const unlocked =
-        isPointBUnlocked();
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-
-    if (
-        !unlocked
-    ) {
-
-        return `
-
-            <section
-                class="journey-card point-b-card locked"
-            >
-
-                <div class="journey-card-number">
-                    03
-                </div>
-
-                <div class="journey-card-heading">
-
-                    <p class="eyebrow">
-                        ФИНИШ 90 ДНЕЙ
-                    </p>
-
-                    <h2>
-                        Точка Б
-                    </h2>
-
-                    <p>
-                        Эта часть откроется после
-                        завершения 90 дней.
-                    </p>
-
-                </div>
-
-
-                <div class="point-b-lock">
-
-                    <div class="point-b-lock-icon">
-                        90
-                    </div>
-
-                    <div>
-                        <strong>
-                            Здесь появится твой результат
-                        </strong>
-
-                        <p>
-                            Сначала проживи эти 90 дней,
-                            а потом вернись сюда и сравни
-                            себя с началом пути.
-                        </p>
-                    </div>
-
-                </div>
-
-            </section>
-
-        `;
+        setupBeforeAfter();
 
     }
-
+);
+function renderPointB() {
 
     return `
+        <p class="ba-description">
+            Теперь оглянись назад и зафиксируй,
+            что изменилось.
+        </p>
 
-        <section class="journey-card point-b-card">
+        <div class="ba-fields">
 
-            <div class="journey-card-number">
-                03
-            </div>
+            <label>
+                <span>Что изменилось?</span>
 
-            <div class="journey-card-heading">
+                <textarea
+                    id="ba-b-changed"
+                    placeholder="Что стало другим за эти 90 дней?"
+                >${escapeText(
+                    data.pointB.changed
+                )}</textarea>
 
-                <p class="eyebrow">
-                    КОНЕЦ ПУТИ
-                </p>
+            </label>
 
-                <h2>
-                    Точка Б
-                </h2>
+            <label>
+                <span>Что я изменила?</span>
 
-                <p>
-                    Теперь оглянись назад и
-                    зафиксируй, что изменилось.
-                </p>
+                <textarea
+                    id="ba-b-how"
+                    placeholder="Какие действия и решения привели к изменениям?"
+                >${escapeText(
+                    data.pointB.changedHow
+                )}</textarea>
 
-            </div>
+            </label>
 
+            <label>
+                <span>Что я получила за 90 дней?</span>
 
-            <div class="reflection-fields">
+                <textarea
+                    id="ba-b-received"
+                    placeholder="Что появилось в моей жизни благодаря этому пути?"
+                >${escapeText(
+                    data.pointB.received
+                )}</textarea>
 
-                <div class="reflection-field">
+            </label>
 
-                    <label>
-                        Что изменилось?
-                    </label>
+        </div>
 
-                    <textarea
-                        id="point-b-changed"
-                        placeholder="Что стало другим за эти 90 дней?"
-                    >${escapeHTML(
-                        beforeAfter.pointB.changed
-                    )}</textarea>
+        <div class="ba-comparison">
 
-                </div>
+            <p class="eyebrow">
+                КОЛЕСО БАЛАНСА
+            </p>
 
+            <h3>
+                Точка А → Точка Б
+            </h3>
 
-                <div class="reflection-field">
+            ${data.wheel.map(
+                (item, index) => `
 
-                    <label>
-                        Что я изменила?
-                    </label>
+                <div class="ba-comparison-row">
 
-                    <textarea
-                        id="point-b-changed-how"
-                        placeholder="Какие действия и решения привели к изменениям?"
-                    >${escapeHTML(
-                        beforeAfter.pointB.changedHow
-                    )}</textarea>
+                    <span>
+                        ${escapeText(item.name)}
+                    </span>
 
-                </div>
+                    <b>
+                        ${item.a}
+                    </b>
 
+                    <em>
+                        →
+                    </em>
 
-                <div class="reflection-field">
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value="${item.b}"
+                        class="ba-range-b"
+                        data-index="${index}"
+                    >
 
-                    <label>
-                        Что я получила?
-                    </label>
-
-                    <textarea
-                        id="point-b-received"
-                        placeholder="Что появилось в моей жизни благодаря этим 90 дням?"
-                    >${escapeHTML(
-                        beforeAfter.pointB.received
-                    )}</textarea>
-
-                </div>
-
-            </div>
-
-
-            <div class="point-b-wheel">
-
-                <p class="eyebrow">
-                    КОЛЕСО БАЛАНСА
-                </p>
-
-                <h3>
-                    Как изменились мои оценки?
-                </h3>
-
-                <div class="comparison-list">
-
-                    ${
-                        beforeAfter
-                            .wheelCategories
-                            .map(
-                                category => `
-
-                                    <div
-                                        class="comparison-row"
-                                    >
-
-                                        <div>
-                                            ${escapeHTML(
-                                                category.name
-                                            )}
-                                        </div>
-
-                                        <span>
-                                            ${category.pointA}
-                                        </span>
-
-                                        <b>
-                                            →
-                                        </b>
-
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="10"
-                                            value="${category.pointB}"
-                                            class="point-b-range"
-                                            data-name="${escapeAttribute(
-                                                category.name
-                                            )}"
-                                        >
-
-                                        <strong
-                                            class="point-b-value"
-                                        >
-                                            ${category.pointB}
-                                        </strong>
-
-                                    </div>
-
-                                `
-                            )
-                            .join("")
-                    }
+                    <strong
+                        class="ba-b-value"
+                        data-index="${index}"
+                    >
+                        ${item.b}
+                    </strong>
 
                 </div>
 
-            </div>
+            `
+            ).join("")}
 
+        </div>
 
-            <button
-                class="primary-button before-after-save"
-                id="save-point-b"
-            >
-                Сохранить точку Б
-            </button>
+        <button
+            class="ba-button"
+            id="ba-save-b"
+        >
+            Сохранить точку Б
+        </button>
 
-
-            <div
-                class="save-message"
-                id="point-b-message"
-            ></div>
-
-        </section>
-
+        <div
+            class="ba-message"
+            id="ba-message-b"
+        ></div>
     `;
-
 }
 
 
 // ========================================
-// НАСТРОЙКИ СОБЫТИЙ «ДО → ПОСЛЕ»
+// СОБЫТИЯ
 // ========================================
 
-function setupBeforeAfterEvents() {
+function bindEvents() {
+
+    const bindInput = (
+        id,
+        path
+    ) => {
+
+        const el =
+            document.getElementById(id);
+
+        if (!el) return;
+
+        el.addEventListener(
+            "input",
+            () => {
+
+                const [
+                    section,
+                    field
+                ] =
+                    path.split(".");
+
+                data[section][field] =
+                    el.value;
+
+                saveData();
+
+            }
+        );
+
+    };
 
 
     // ------------------------------------
-    // Точка А
+    // ТОЧКА А
     // ------------------------------------
 
-    const pointANotSatisfied =
-        document.querySelector(
-            "#point-a-not-satisfied"
+    bindInput(
+        "ba-a-not",
+        "pointA.notSatisfied"
+    );
+
+    bindInput(
+        "ba-a-change",
+        "pointA.change"
+    );
+
+    bindInput(
+        "ba-a-receive",
+        "pointA.receive"
+    );
+
+
+    // ------------------------------------
+    // СОХРАНЕНИЕ ТОЧКИ А
+    // ------------------------------------
+
+    const saveA =
+        document.getElementById(
+            "ba-save-a"
         );
 
+    if (saveA) {
 
-    const pointAChange =
-        document.querySelector(
-            "#point-a-change"
-        );
-
-
-    const pointAReceive =
-        document.querySelector(
-            "#point-a-receive"
-        );
-
-
-    if (
-        pointANotSatisfied
-    ) {
-
-        pointANotSatisfied.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointA.notSatisfied =
-                    pointANotSatisfied.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
-
-    if (
-        pointAChange
-    ) {
-
-        pointAChange.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointA.change =
-                    pointAChange.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
-
-    if (
-        pointAReceive
-    ) {
-
-        pointAReceive.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointA.receive =
-                    pointAReceive.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
-
-    const savePointA =
-        document.querySelector(
-            "#save-point-a"
-        );
-
-
-    if (
-        savePointA
-    ) {
-
-        savePointA.addEventListener(
+        saveA.addEventListener(
             "click",
             () => {
 
-                saveBeforeAfter();
+                saveData();
 
-                showSaveMessage(
-                    "#point-a-message",
+                showMessage(
+                    "ba-message-a",
                     "Точка А сохранена"
                 );
 
@@ -3473,12 +4023,12 @@ function setupBeforeAfterEvents() {
 
 
     // ------------------------------------
-    // Колесо
+    // НАЗВАНИЯ СФЕР
     // ------------------------------------
 
     document
         .querySelectorAll(
-            ".wheel-category-name"
+            ".ba-wheel-name"
         )
         .forEach(
             input => {
@@ -3492,16 +4042,12 @@ function setupBeforeAfterEvents() {
                                 input.dataset.index
                             );
 
-
-                        beforeAfter
-                            .wheelCategories[
-                                index
-                            ]
-                            .name =
+                        data.wheel[index].name =
                             input.value;
 
+                        saveData();
 
-                        saveBeforeAfter();
+                        refreshWheelOnly();
 
                     }
                 );
@@ -3510,70 +4056,44 @@ function setupBeforeAfterEvents() {
         );
 
 
+    // ------------------------------------
+    // ОЦЕНКИ ТОЧКИ А
+    // ------------------------------------
+
     document
         .querySelectorAll(
-            ".wheel-range"
+            ".ba-range"
         )
         .forEach(
-            range => {
+            input => {
 
-                range.addEventListener(
+                input.addEventListener(
                     "input",
                     () => {
 
                         const index =
                             Number(
-                                range.dataset.index
+                                input.dataset.index
                             );
 
+                        data.wheel[index].a =
+                            Number(
+                                input.value
+                            );
 
                         const value =
-                            Number(
-                                range.value
-                            );
-
-
-                        beforeAfter
-                            .wheelCategories[
-                                index
-                            ]
-                            .pointA =
-                            value;
-
-
-                        const valueElement =
                             document.querySelector(
-                                `.wheel-rating-value[data-index="${index}"]`
+                                `.ba-range-value[data-index="${index}"]`
                             );
 
-
-                        if (
-                            valueElement
-                        ) {
-
-                            valueElement.textContent =
-                                value;
-
+                        if (value) {
+                            value.textContent =
+                                input.value;
                         }
 
+                        saveData();
 
-                        const average =
-                            document.querySelector(
-                                "#wheel-average"
-                            );
-
-
-                        if (
-                            average
-                        ) {
-
-                            average.textContent =
-                                getWheelAverage();
-
-                        }
-
-
-                        saveBeforeAfter();
+                        refreshWheelOnly();
 
                     }
                 );
@@ -3582,9 +4102,13 @@ function setupBeforeAfterEvents() {
         );
 
 
+    // ------------------------------------
+    // УДАЛЕНИЕ СФЕРЫ
+    // ------------------------------------
+
     document
         .querySelectorAll(
-            ".wheel-delete"
+            ".ba-wheel-delete"
         )
         .forEach(
             button => {
@@ -3593,16 +4117,8 @@ function setupBeforeAfterEvents() {
                     "click",
                     () => {
 
-                        const index =
-                            Number(
-                                button.dataset.index
-                            );
-
-
                         if (
-                            beforeAfter
-                                .wheelCategories
-                                .length <= 1
+                            data.wheel.length <= 1
                         ) {
 
                             alert(
@@ -3613,18 +4129,16 @@ function setupBeforeAfterEvents() {
 
                         }
 
+                        data.wheel.splice(
+                            Number(
+                                button.dataset.index
+                            ),
+                            1
+                        );
 
-                        beforeAfter
-                            .wheelCategories
-                            .splice(
-                                index,
-                                1
-                            );
+                        saveData();
 
-
-                        saveBeforeAfter();
-
-                        renderBeforeAfter();
+                        render();
 
                     }
                 );
@@ -3633,56 +4147,50 @@ function setupBeforeAfterEvents() {
         );
 
 
-    const addWheelCategory =
-        document.querySelector(
-            "#add-wheel-category"
+    // ------------------------------------
+    // ДОБАВЛЕНИЕ СФЕРЫ
+    // ------------------------------------
+
+    const addSphere =
+        document.getElementById(
+            "ba-add-sphere"
         );
 
+    if (addSphere) {
 
-    if (
-        addWheelCategory
-    ) {
-
-        addWheelCategory.addEventListener(
+        addSphere.addEventListener(
             "click",
             () => {
 
-                beforeAfter
-                    .wheelCategories
-                    .push({
+                data.wheel.push({
 
-                        name:
-                            "Новая сфера",
+                    name:
+                        "Новая сфера",
 
-                        pointA:
-                            5,
+                    a:
+                        5,
 
-                        pointB:
-                            5
+                    b:
+                        5
 
-                    });
+                });
 
+                saveData();
 
-                saveBeforeAfter();
-
-                renderBeforeAfter();
+                render();
 
 
                 const inputs =
                     document.querySelectorAll(
-                        ".wheel-category-name"
+                        ".ba-wheel-name"
                     );
-
 
                 const last =
                     inputs[
                         inputs.length - 1
                     ];
 
-
-                if (
-                    last
-                ) {
+                if (last) {
 
                     last.focus();
 
@@ -3696,24 +4204,25 @@ function setupBeforeAfterEvents() {
     }
 
 
+    // ------------------------------------
+    // СОХРАНЕНИЕ КОЛЕСА
+    // ------------------------------------
+
     const saveWheel =
-        document.querySelector(
-            "#save-wheel"
+        document.getElementById(
+            "ba-save-wheel"
         );
 
-
-    if (
-        saveWheel
-    ) {
+    if (saveWheel) {
 
         saveWheel.addEventListener(
             "click",
             () => {
 
-                saveBeforeAfter();
+                saveData();
 
-                showSaveMessage(
-                    "#wheel-message",
+                showMessage(
+                    "ba-message-wheel",
                     "Колесо баланса сохранено"
                 );
 
@@ -3724,153 +4233,63 @@ function setupBeforeAfterEvents() {
 
 
     // ------------------------------------
-    // Точка Б
+    // ТОЧКА Б
     // ------------------------------------
 
-    const pointBChanged =
-        document.querySelector(
-            "#point-b-changed"
-        );
+    bindInput(
+        "ba-b-changed",
+        "pointB.changed"
+    );
+
+    bindInput(
+        "ba-b-how",
+        "pointB.changedHow"
+    );
+
+    bindInput(
+        "ba-b-received",
+        "pointB.received"
+    );
 
 
-    const pointBChangedHow =
-        document.querySelector(
-            "#point-b-changed-how"
-        );
-
-
-    const pointBReceived =
-        document.querySelector(
-            "#point-b-received"
-        );
-
-
-    if (
-        pointBChanged
-    ) {
-
-        pointBChanged.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointB.changed =
-                    pointBChanged.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
-
-    if (
-        pointBChangedHow
-    ) {
-
-        pointBChangedHow.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointB.changedHow =
-                    pointBChangedHow.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
-
-    if (
-        pointBReceived
-    ) {
-
-        pointBReceived.addEventListener(
-            "input",
-            () => {
-
-                beforeAfter.pointB.received =
-                    pointBReceived.value;
-
-                saveBeforeAfter();
-
-            }
-        );
-
-    }
-
+    // ------------------------------------
+    // ОЦЕНКИ ТОЧКИ Б
+    // ------------------------------------
 
     document
         .querySelectorAll(
-            ".point-b-range"
+            ".ba-range-b"
         )
         .forEach(
-            range => {
+            input => {
 
-                range.addEventListener(
+                input.addEventListener(
                     "input",
                     () => {
 
-                        const name =
-                            range.dataset.name;
-
-
-                        const category =
-                            beforeAfter
-                                .wheelCategories
-                                .find(
-                                    item =>
-                                        item.name ===
-                                        name
-                                );
-
-
-                        if (
-                            !category
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        category.pointB =
+                        const index =
                             Number(
-                                range.value
+                                input.dataset.index
                             );
 
-
-                        const row =
-                            range.closest(
-                                ".comparison-row"
+                        data.wheel[index].b =
+                            Number(
+                                input.value
                             );
 
+                        const value =
+                            document.querySelector(
+                                `.ba-b-value[data-index="${index}"]`
+                            );
 
-                        if (
-                            row
-                        ) {
+                        if (value) {
 
-                            const value =
-                                row.querySelector(
-                                    ".point-b-value"
-                                );
-
-
-                            if (
-                                value
-                            ) {
-
-                                value.textContent =
-                                    range.value;
-
-                            }
+                            value.textContent =
+                                input.value;
 
                         }
 
-
-                        saveBeforeAfter();
+                        saveData();
 
                     }
                 );
@@ -3879,24 +4298,25 @@ function setupBeforeAfterEvents() {
         );
 
 
-    const savePointB =
-        document.querySelector(
-            "#save-point-b"
+    // ------------------------------------
+    // СОХРАНЕНИЕ ТОЧКИ Б
+    // ------------------------------------
+
+    const saveB =
+        document.getElementById(
+            "ba-save-b"
         );
 
+    if (saveB) {
 
-    if (
-        savePointB
-    ) {
-
-        savePointB.addEventListener(
+        saveB.addEventListener(
             "click",
             () => {
 
-                saveBeforeAfter();
+                saveData();
 
-                showSaveMessage(
-                    "#point-b-message",
+                showMessage(
+                    "ba-message-b",
                     "Точка Б сохранена"
                 );
 
@@ -3909,150 +4329,91 @@ function setupBeforeAfterEvents() {
 
 
 // ========================================
-// СООБЩЕНИЕ О СОХРАНЕНИИ
+// ОБНОВЛЕНИЕ КОЛЕСА
 // ========================================
 
-function showSaveMessage(
-    selector,
-    message
-) {
+function refreshWheelOnly() {
 
-    const element =
+    const visual =
         document.querySelector(
-            selector
+            ".wheel-visual"
+        );
+
+    if (!visual) return;
+
+    visual.innerHTML = `
+
+        ${renderWheelSVG("a")}
+
+        <div class="wheel-average">
+            Средняя оценка
+            <strong>
+                ${averageA()}
+            </strong>
+            / 10
+        </div>
+
+    `;
+
+}
+
+
+// ========================================
+// ЗАПУСК
+// ========================================
+
+function init() {
+
+    const page =
+        document.getElementById(
+            "before-after-page"
+        );
+
+    if (!page) return;
+
+
+    const button =
+        document.querySelector(
+            '.nav-item[data-page="before-after-page"]'
         );
 
 
-    if (
-        !element
-    ) {
+    if (button) {
 
-        return;
+        button.addEventListener(
+            "click",
+            () => {
 
-    }
+                setTimeout(
+                    render,
+                    0
+                );
 
-
-    element.textContent =
-        message;
-
-
-    element.classList.add(
-        "visible"
-    );
-
-
-    setTimeout(
-        () => {
-
-            element.classList.remove(
-                "visible"
-            );
-
-        },
-        2500
-    );
-
-}
-
-
-// ========================================
-// HTML ESCAPE
-// ========================================
-
-function escapeHTML(
-    value
-) {
-
-    return String(
-        value || ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-function escapeAttribute(
-    value
-) {
-
-    return escapeHTML(
-        value
-    );
-
-}
-
-
-// ========================================
-// ПЕРВАЯ БУКВА
-// ========================================
-
-function capitalizeFirst(
-    value
-) {
-
-    if (
-        !value
-    ) {
-
-        return "";
-
-    }
-
-
-    return (
-        value.charAt(0)
-            .toUpperCase() +
-        value.slice(1)
-    );
-
-}
-
-
-// ========================================
-// КНОПКИ ДНЕЙ НЕДЕЛИ
-// ========================================
-
-document.addEventListener(
-    "click",
-    event => {
-
-        const button =
-            event.target.closest(
-                ".weekday-button"
-            );
-
-
-        if (
-            !button
-        ) {
-
-            return;
-
-        }
-
-
-        button.classList.toggle(
-            "active"
+            }
         );
 
     }
-);
+
+
+    render();
+
+}
+
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
+    );
+
+} else {
+
+    init();
+
+}
+
+})();
