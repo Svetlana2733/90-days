@@ -1750,3 +1750,89 @@ h1 {
     }
 
 }
+/* ========================================
+   ИНТЕРАКТИВНЫЕ ЗАДАЧИ В КАЛЕНДАРЕ
+   ======================================== */
+
+.calendar-task {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 0;
+
+    border: none;
+    border-bottom: 1px solid rgba(229, 216, 220, 0.7);
+
+    background: transparent;
+
+    color: var(--graphite);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    transition: 0.2s ease;
+}
+
+.calendar-task:hover {
+    padding-left: 5px;
+}
+
+.calendar-task-dot {
+    flex-shrink: 0;
+
+    width: 10px;
+    height: 10px;
+
+    border: 1px solid var(--graphite);
+
+    border-radius: 50%;
+
+    transition: 0.2s ease;
+}
+
+.calendar-task.completed
+.calendar-task-dot {
+    background: var(--sage);
+
+    border-color: var(--sage);
+}
+
+.calendar-task-title {
+    flex: 1;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+.calendar-task.completed
+.calendar-task-title {
+    color: var(--soft-gray);
+
+    text-decoration: line-through;
+
+    text-decoration-thickness: 1px;
+}
+
+.calendar-task-hint {
+    color: var(--soft-gray);
+
+    font-size: 9px;
+
+    opacity: 0;
+
+    transition: 0.2s ease;
+}
+
+.calendar-task:hover
+.calendar-task-hint {
+    opacity: 1;
+}
