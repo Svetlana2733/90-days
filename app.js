@@ -9,6 +9,7 @@
 // ========================================
 
 const CHALLENGE_START = "2026-10-01";
+
 const CHALLENGE_LENGTH = 90;
 
 const CHALLENGE_END = "2026-12-29";
@@ -32,7 +33,9 @@ const CATEGORIES = [
 
 let tasks =
     JSON.parse(
-        localStorage.getItem("90days_tasks")
+        localStorage.getItem(
+            "90days_tasks"
+        )
     ) || [];
 
 
@@ -56,7 +59,8 @@ function saveTasks() {
 
 function getToday() {
 
-    const now = new Date();
+    const now =
+        new Date();
 
     const year =
         now.getFullYear();
@@ -64,12 +68,18 @@ function getToday() {
     const month =
         String(
             now.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
     const day =
         String(
             now.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
     return `${year}-${month}-${day}`;
 
@@ -85,7 +95,8 @@ function getDateObject(
 ) {
 
     return new Date(
-        dateString + "T00:00:00"
+        dateString +
+        "T00:00:00"
     );
 
 }
@@ -107,6 +118,49 @@ function getWeekDay(
 
 
 // ========================================
+// ДОБАВИТЬ ДНИ К ДАТЕ
+// ========================================
+
+function addDays(
+    dateString,
+    amount
+) {
+
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    date.setDate(
+        date.getDate() +
+        amount
+    );
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+    const day =
+        String(
+            date.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+// ========================================
 // ДЕНЬ ЧЕЛЛЕНДЖА
 // ========================================
 
@@ -123,12 +177,18 @@ function getChallengeDay() {
         );
 
     const difference =
-        today - start;
+        today -
+        start;
 
     return (
         Math.floor(
             difference /
-            (1000 * 60 * 60 * 24)
+            (
+                1000 *
+                60 *
+                60 *
+                24
+            )
         ) + 1
     );
 
@@ -144,14 +204,17 @@ function getChallengeProgress() {
     const day =
         getChallengeDay();
 
-    if (day < 1) {
+    if (
+        day < 1
+    ) {
 
         return 0;
 
     }
 
     if (
-        day > CHALLENGE_LENGTH
+        day >
+        CHALLENGE_LENGTH
     ) {
 
         return 100;
@@ -193,7 +256,58 @@ function formatDate(
 
 
 // ========================================
-// ПРОВЕРКА ПЕРИОДА
+// КОРОТКАЯ ДАТА
+// ========================================
+
+function formatShortDate(
+    dateString
+) {
+
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date.toLocaleDateString(
+        "ru-RU",
+        {
+            day: "numeric",
+            month: "short"
+        }
+    )
+        .replace(
+            ".",
+            ""
+        );
+
+}
+
+
+// ========================================
+// НАЗВАНИЕ ДНЯ НЕДЕЛИ
+// ========================================
+
+function formatWeekDay(
+    dateString
+) {
+
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date.toLocaleDateString(
+        "ru-RU",
+        {
+            weekday: "long"
+        }
+    );
+
+}
+
+
+// ========================================
+// ПРОВЕРКА ПЕРИОДА ЗАДАЧИ
 // ========================================
 
 function isDateInsideTaskPeriod(
@@ -217,8 +331,6 @@ function isDateInsideTaskPeriod(
     }
 
 
-    // Если указан конец
-
     if (
         task.endDate &&
         dateString >
@@ -236,7 +348,7 @@ function isDateInsideTaskPeriod(
 
 
 // ========================================
-// ДОЛЖНА ЛИ ЗАДАЧА ПОКАЗЫВАТЬСЯ
+// ДОЛЖНА ЛИ ЗАДАЧА БЫТЬ В ЭТОТ ДЕНЬ
 // ========================================
 
 function isTaskForDate(
@@ -244,13 +356,12 @@ function isTaskForDate(
     dateString
 ) {
 
-    // ------------------------------------
     // Одноразовая
-    // ------------------------------------
 
     if (
         !task.repeat ||
-        task.repeat === "once"
+        task.repeat ===
+        "once"
     ) {
 
         return (
@@ -261,9 +372,7 @@ function isTaskForDate(
     }
 
 
-    // ------------------------------------
-    // Проверяем период
-    // ------------------------------------
+    // Период
 
     if (
         !isDateInsideTaskPeriod(
@@ -277,12 +386,11 @@ function isTaskForDate(
     }
 
 
-    // ------------------------------------
     // Каждый день
-    // ------------------------------------
 
     if (
-        task.repeat === "daily"
+        task.repeat ===
+        "daily"
     ) {
 
         return true;
@@ -290,19 +398,17 @@ function isTaskForDate(
     }
 
 
-    // ------------------------------------
     // Выбранные дни
-    // ------------------------------------
 
     if (
-        task.repeat === "weekly"
+        task.repeat ===
+        "weekly"
     ) {
 
         const weekDay =
             getWeekDay(
                 dateString
             );
-
 
         return (
             task.weekDays &&
@@ -340,8 +446,6 @@ function isTaskCompleted(
 
     }
 
-
-    // Поддержка старых задач
 
     if (
         task.date ===
@@ -393,6 +497,10 @@ document.addEventListener(
 
         setupFirstTaskButton();
 
+        setupNavigation();
+
+        renderCalendar();
+
     }
 );
 
@@ -416,7 +524,9 @@ function updateChallengeInfo() {
         );
 
 
-    if (dayElement) {
+    if (
+        dayElement
+    ) {
 
         if (
             day < 1
@@ -449,7 +559,9 @@ function updateChallengeInfo() {
         );
 
 
-    if (progressText) {
+    if (
+        progressText
+    ) {
 
         progressText.textContent =
             `${progress}%`;
@@ -463,7 +575,9 @@ function updateChallengeInfo() {
         );
 
 
-    if (progressFill) {
+    if (
+        progressFill
+    ) {
 
         progressFill.style.width =
             `${progress}%`;
@@ -477,7 +591,9 @@ function updateChallengeInfo() {
         );
 
 
-    if (dateElement) {
+    if (
+        dateElement
+    ) {
 
         dateElement.textContent =
             formatDate();
@@ -488,7 +604,122 @@ function updateChallengeInfo() {
 
 
 // ========================================
-// ФОРМА
+// НАВИГАЦИЯ
+// ========================================
+
+function setupNavigation() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".nav-item"
+        );
+
+
+    buttons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const pageId =
+                        button.dataset.page;
+
+
+                    if (
+                        !pageId
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    showPage(
+                        pageId
+                    );
+
+
+                    buttons.forEach(
+                        item => {
+
+                            item.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    if (
+                        pageId ===
+                        "calendar-page"
+                    ) {
+
+                        renderCalendar();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// ========================================
+// ПОКАЗАТЬ СТРАНИЦУ
+// ========================================
+
+function showPage(
+    pageId
+) {
+
+    const pages =
+        document.querySelectorAll(
+            ".page"
+        );
+
+
+    pages.forEach(
+        page => {
+
+            page.classList.remove(
+                "active-page"
+            );
+
+        }
+    );
+
+
+    const page =
+        document.getElementById(
+            pageId
+        );
+
+
+    if (
+        page
+    ) {
+
+        page.classList.add(
+            "active-page"
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ФОРМА ЗАДАЧИ
 // ========================================
 
 function openTaskForm(
@@ -501,7 +732,9 @@ function openTaskForm(
         );
 
 
-    if (oldForm) {
+    if (
+        oldForm
+    ) {
 
         oldForm.remove();
 
@@ -526,10 +759,14 @@ function openTaskForm(
 
     form.innerHTML = `
 
-        <div class="form-overlay"></div>
+        <div
+            class="form-overlay"
+        ></div>
 
 
-        <div class="form-window">
+        <div
+            class="form-window"
+        >
 
 
             <button
@@ -540,7 +777,9 @@ function openTaskForm(
             </button>
 
 
-            <p class="eyebrow">
+            <p
+                class="eyebrow"
+            >
 
                 ${
                     isEditing
@@ -561,8 +800,6 @@ function openTaskForm(
 
             </h2>
 
-
-            <!-- ЗАДАЧА -->
 
             <label
                 for="task-title"
@@ -586,8 +823,6 @@ function openTaskForm(
             >
 
 
-            <!-- СФЕРА -->
-
             <label
                 for="task-category"
             >
@@ -599,29 +834,29 @@ function openTaskForm(
                 id="task-category"
             >
 
-                ${CATEGORIES.map(
-                    category => `
+                ${CATEGORIES
+                    .map(
+                        category => `
 
-                        <option
-                            value="${category}"
-                            ${
-                                isEditing &&
-                                taskToEdit.category ===
-                                category
-                                    ? "selected"
-                                    : ""
-                            }
-                        >
-                            ${category}
-                        </option>
+                            <option
+                                value="${category}"
+                                ${
+                                    isEditing &&
+                                    taskToEdit.category ===
+                                    category
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                ${category}
+                            </option>
 
-                    `
-                ).join("")}
+                        `
+                    )
+                    .join("")}
 
             </select>
 
-
-            <!-- ПОВТОРЕНИЕ -->
 
             <label
                 for="task-repeat"
@@ -677,8 +912,6 @@ function openTaskForm(
 
             </select>
 
-
-            <!-- ПЕРИОД -->
 
             <div
                 id="period-container"
@@ -751,8 +984,6 @@ function openTaskForm(
             </div>
 
 
-            <!-- ДНИ НЕДЕЛИ -->
-
             <div
                 id="weekdays-container"
                 style="${
@@ -805,17 +1036,14 @@ function openTaskForm(
     );
 
 
-    // ====================================
-    // ЗАКРЫТИЕ
-    // ====================================
-
     form
         .querySelector(
             ".close-form"
         )
         .addEventListener(
             "click",
-            () => form.remove()
+            () =>
+                form.remove()
         );
 
 
@@ -825,13 +1053,10 @@ function openTaskForm(
         )
         .addEventListener(
             "click",
-            () => form.remove()
+            () =>
+                form.remove()
         );
 
-
-    // ====================================
-    // ПОВТОРЕНИЕ
-    // ====================================
 
     const repeatSelect =
         form.querySelector(
@@ -844,35 +1069,6 @@ function openTaskForm(
             "#weekdays-container"
         );
 
-
-    repeatSelect.addEventListener(
-        "change",
-        () => {
-
-            if (
-                repeatSelect.value ===
-                "weekly"
-            ) {
-
-                weekdaysContainer.style.display =
-                    "block";
-
-            } else {
-
-                weekdaysContainer.style.display =
-                    "none";
-
-            }
-
-            updatePeriodVisibility();
-
-        }
-    );
-
-
-    // ====================================
-    // ПЕРИОД
-    // ====================================
 
     const periodSelect =
         form.querySelector(
@@ -888,9 +1084,6 @@ function openTaskForm(
 
     function updatePeriodVisibility() {
 
-        // Для одноразовой задачи
-        // период не нужен
-
         if (
             repeatSelect.value ===
             "once"
@@ -902,7 +1095,26 @@ function openTaskForm(
             endDateInput.style.display =
                 "none";
 
+            weekdaysContainer.style.display =
+                "none";
+
             return;
+
+        }
+
+
+        if (
+            repeatSelect.value ===
+            "weekly"
+        ) {
+
+            weekdaysContainer.style.display =
+                "block";
+
+        } else {
+
+            weekdaysContainer.style.display =
+                "none";
 
         }
 
@@ -925,6 +1137,12 @@ function openTaskForm(
     }
 
 
+    repeatSelect.addEventListener(
+        "change",
+        updatePeriodVisibility
+    );
+
+
     periodSelect.addEventListener(
         "change",
         updatePeriodVisibility
@@ -933,10 +1151,6 @@ function openTaskForm(
 
     updatePeriodVisibility();
 
-
-    // ====================================
-    // СОХРАНЕНИЕ
-    // ====================================
 
     form
         .querySelector(
@@ -964,10 +1178,6 @@ function openTaskForm(
         );
 
 
-    // ====================================
-    // ENTER
-    // ====================================
-
     form
         .querySelector(
             "#task-title"
@@ -977,33 +1187,32 @@ function openTaskForm(
             event => {
 
                 if (
-                    event.key ===
+                    event.key !==
                     "Enter"
                 ) {
 
-                    if (
-                        isEditing
-                    ) {
+                    return;
 
-                        saveEditedTask(
-                            taskToEdit.id
-                        );
+                }
 
-                    } else {
 
-                        addTask();
+                if (
+                    isEditing
+                ) {
 
-                    }
+                    saveEditedTask(
+                        taskToEdit.id
+                    );
+
+                } else {
+
+                    addTask();
 
                 }
 
             }
         );
 
-
-    // ====================================
-    // ФОКУС
-    // ====================================
 
     setTimeout(
         () => {
@@ -1014,7 +1223,9 @@ function openTaskForm(
                 );
 
 
-            if (input) {
+            if (
+                input
+            ) {
 
                 input.focus();
 
@@ -1109,11 +1320,14 @@ function setupFirstTaskButton() {
         );
 
 
-    if (button) {
+    if (
+        button
+    ) {
 
         button.addEventListener(
             "click",
-            () => openTaskForm()
+            () =>
+                openTaskForm()
         );
 
     }
@@ -1122,7 +1336,7 @@ function setupFirstTaskButton() {
 
 
 // ========================================
-// ПОЛУЧИТЬ ДНИ НЕДЕЛИ
+// ДНИ НЕДЕЛИ
 // ========================================
 
 function getSelectedWeekDays(
@@ -1143,25 +1357,24 @@ function getSelectedWeekDays(
         document.querySelectorAll(
             "#weekdays-container input:checked"
         )
-    ).map(
-        input =>
-            Number(
-                input.value
-            )
-    );
+    )
+        .map(
+            input =>
+                Number(
+                    input.value
+                )
+        );
 
 }
 
 
 // ========================================
-// ПОЛУЧИТЬ КОНЕЧНУЮ ДАТУ
+// КОНЕЧНАЯ ДАТА
 // ========================================
 
 function getSelectedEndDate(
     repeat
 ) {
-
-    // Одноразовая задача
 
     if (
         repeat ===
@@ -1200,16 +1413,10 @@ function getSelectedEndDate(
         "until-date"
     ) {
 
-        if (
-            !endDate.value
-        ) {
-
-            return null;
-
-        }
-
-
-        return endDate.value;
+        return (
+            endDate.value ||
+            null
+        );
 
     }
 
@@ -1220,7 +1427,7 @@ function getSelectedEndDate(
 
 
 // ========================================
-// ДОБАВЛЕНИЕ ЗАДАЧИ
+// ДОБАВЛЕНИЕ
 // ========================================
 
 function addTask() {
@@ -1266,10 +1473,6 @@ function addTask() {
         repeatInput.value;
 
 
-    // ====================================
-    // ПРОВЕРКА НАЗВАНИЯ
-    // ====================================
-
     if (
         !title
     ) {
@@ -1278,18 +1481,14 @@ function addTask() {
             "input-error"
         );
 
-
         titleInput.focus();
 
 
         setTimeout(
-            () => {
-
+            () =>
                 titleInput.classList.remove(
                     "input-error"
-                );
-
-            },
+                ),
             700
         );
 
@@ -1298,10 +1497,6 @@ function addTask() {
 
     }
 
-
-    // ====================================
-    // ДНИ НЕДЕЛИ
-    // ====================================
 
     const weekDays =
         getSelectedWeekDays(
@@ -1312,7 +1507,8 @@ function addTask() {
     if (
         repeat ===
         "weekly" &&
-        weekDays.length === 0
+        weekDays.length ===
+        0
     ) {
 
         alert(
@@ -1324,10 +1520,6 @@ function addTask() {
     }
 
 
-    // ====================================
-    // КОНЕЧНАЯ ДАТА
-    // ====================================
-
     const endDate =
         getSelectedEndDate(
             repeat
@@ -1335,7 +1527,8 @@ function addTask() {
 
 
     if (
-        repeat !== "once" &&
+        repeat !==
+        "once" &&
         !endDate
     ) {
 
@@ -1363,34 +1556,37 @@ function addTask() {
     }
 
 
-    // ====================================
-    // НОВАЯ ЗАДАЧА
-    // ====================================
-
     const newTask = {
 
-        id: Date.now(),
+        id:
+            Date.now(),
 
-        title: title,
+        title:
+            title,
 
-        category: category,
+        category:
+            category,
 
-        repeat: repeat,
+        repeat:
+            repeat,
 
-        startDate: getToday(),
+        startDate:
+            getToday(),
 
-        date: getToday(),
+        date:
+            getToday(),
 
-        endDate: endDate,
+        endDate:
+            endDate,
 
-        weekDays: weekDays,
+        weekDays:
+            weekDays,
 
-        completions: {}
+        completions:
+            {}
 
     };
 
-
-    // Для одноразовой
 
     if (
         repeat ===
@@ -1411,10 +1607,11 @@ function addTask() {
 
     saveTasks();
 
-
     closeTaskForm();
 
     renderTasks();
+
+    renderCalendar();
 
 }
 
@@ -1435,7 +1632,9 @@ function saveEditedTask(
         );
 
 
-    if (!task) {
+    if (
+        !task
+    ) {
 
         return;
 
@@ -1460,17 +1659,6 @@ function saveEditedTask(
         );
 
 
-    if (
-        !titleInput ||
-        !categoryInput ||
-        !repeatInput
-    ) {
-
-        return;
-
-    }
-
-
     const title =
         titleInput.value.trim();
 
@@ -1483,10 +1671,6 @@ function saveEditedTask(
         repeatInput.value;
 
 
-    // ====================================
-    // ПРОВЕРКА НАЗВАНИЯ
-    // ====================================
-
     if (
         !title
     ) {
@@ -1495,18 +1679,12 @@ function saveEditedTask(
             "input-error"
         );
 
-
         titleInput.focus();
-
 
         return;
 
     }
 
-
-    // ====================================
-    // ДНИ
-    // ====================================
 
     const weekDays =
         getSelectedWeekDays(
@@ -1517,7 +1695,8 @@ function saveEditedTask(
     if (
         repeat ===
         "weekly" &&
-        weekDays.length === 0
+        weekDays.length ===
+        0
     ) {
 
         alert(
@@ -1529,10 +1708,6 @@ function saveEditedTask(
     }
 
 
-    // ====================================
-    // КОНЕЧНАЯ ДАТА
-    // ====================================
-
     const endDate =
         getSelectedEndDate(
             repeat
@@ -1540,7 +1715,8 @@ function saveEditedTask(
 
 
     if (
-        repeat !== "once" &&
+        repeat !==
+        "once" &&
         !endDate
     ) {
 
@@ -1568,86 +1744,39 @@ function saveEditedTask(
     }
 
 
-    // ====================================
-    // СОХРАНЯЕМ
-    // ====================================
-    
-    const oldStartDate =
-        task.startDate ||
-        task.date ||
-        getToday();
-
-
-    const oldDate =
-        task.date ||
-        getToday();
-
-
-    const oldCompletions =
-        task.completions ||
-        {};
-
-
     task.title =
         title;
-
 
     task.category =
         category;
 
-
     task.repeat =
         repeat;
-
 
     task.weekDays =
         weekDays;
 
+    task.endDate =
+        endDate;
 
-    task.completions =
-        oldCompletions;
-
-
-    // ====================================
-    // ДАТЫ
-    // ====================================
 
     if (
-        repeat ===
-        "once"
+        !task.completions
     ) {
 
-        task.date =
-            oldDate;
-
-        task.startDate =
-            oldStartDate;
-
-        task.endDate =
-            null;
-
-    } else {
-
-        task.startDate =
-            oldStartDate;
-
-
-        task.date =
-            oldDate;
-
-
-        task.endDate =
-            endDate;
+        task.completions =
+            {};
 
     }
 
 
     saveTasks();
 
-
     closeTaskForm();
 
     renderTasks();
+
+    renderCalendar();
 
 }
 
@@ -1664,7 +1793,9 @@ function closeTaskForm() {
         );
 
 
-    if (form) {
+    if (
+        form
+    ) {
 
         form.remove();
 
@@ -1674,7 +1805,7 @@ function closeTaskForm() {
 
 
 // ========================================
-// ОТОБРАЖЕНИЕ
+// ОТОБРАЖЕНИЕ ЗАДАЧ
 // ========================================
 
 function renderTasks() {
@@ -1711,10 +1842,6 @@ function renderTasks() {
         );
 
 
-    // ====================================
-    // НЕТ ЗАДАЧ
-    // ====================================
-
     if (
         todayTasks.length ===
         0
@@ -1723,9 +1850,11 @@ function renderTasks() {
         groupsContainer.innerHTML =
             "";
 
-
         emptyState.style.display =
             "block";
+
+
+        removeAddButton();
 
 
         updateDailyProgress(
@@ -1741,10 +1870,6 @@ function renderTasks() {
     emptyState.style.display =
         "none";
 
-
-    // ====================================
-    // ГРУППИРОВКА
-    // ====================================
 
     const groupedTasks = {};
 
@@ -1802,9 +1927,7 @@ function renderTasks() {
 
                 <div
                     class="task-group"
-                    data-category="${category}"
                 >
-
 
                     <div
                         class="task-group-header"
@@ -1813,18 +1936,13 @@ function renderTasks() {
                         <div
                             class="task-group-title"
                         >
-
                             ${category}
-
                         </div>
-
 
                         <div
                             class="task-group-count"
                         >
-
                             ${completed}/${categoryTasks.length}
-
                         </div>
 
                     </div>
@@ -1853,18 +1971,15 @@ function renderTasks() {
                                         data-id="${task.id}"
                                     >
 
-
                                         <button
                                             class="task-check"
                                             aria-label="Выполнить задачу"
                                         >
-
                                             ${
                                                 completed
                                                     ? "✓"
                                                     : ""
                                             }
-
                                         </button>
 
 
@@ -1875,13 +1990,11 @@ function renderTasks() {
                                             <div
                                                 class="task-title"
                                             >
-
                                                 ${
                                                     escapeHTML(
                                                         task.title
                                                     )
                                                 }
-
                                             </div>
 
                                         </div>
@@ -1891,9 +2004,7 @@ function renderTasks() {
                                             class="edit-task"
                                             aria-label="Изменить задачу"
                                         >
-
                                             ⋯
-
                                         </button>
 
 
@@ -1901,11 +2012,8 @@ function renderTasks() {
                                             class="delete-task"
                                             aria-label="Удалить задачу"
                                         >
-
                                             ×
-
                                         </button>
-
 
                                     </div>
 
@@ -1914,7 +2022,6 @@ function renderTasks() {
                             }
                         )
                         .join("")}
-
 
                 </div>
 
@@ -1928,69 +2035,44 @@ function renderTasks() {
         html;
 
 
-    // ====================================
-    // ВЫПОЛНЕНИЕ
-    // ====================================
-
     groupsContainer
         .querySelectorAll(
             ".task-check"
         )
         .forEach(
-            button => {
-
+            button =>
                 button.addEventListener(
                     "click",
                     toggleTask
-                );
-
-            }
+                )
         );
 
-
-    // ====================================
-    // РЕДАКТИРОВАНИЕ
-    // ====================================
 
     groupsContainer
         .querySelectorAll(
             ".edit-task"
         )
         .forEach(
-            button => {
-
+            button =>
                 button.addEventListener(
                     "click",
                     editTask
-                );
-
-            }
+                )
         );
 
-
-    // ====================================
-    // УДАЛЕНИЕ
-    // ====================================
 
     groupsContainer
         .querySelectorAll(
             ".delete-task"
         )
         .forEach(
-            button => {
-
+            button =>
                 button.addEventListener(
                     "click",
                     deleteTask
-                );
-
-            }
+                )
         );
 
-
-    // ====================================
-    // ДОБАВИТЬ ШАГ
-    // ====================================
 
     let addButton =
         document.querySelector(
@@ -1998,7 +2080,9 @@ function renderTasks() {
         );
 
 
-    if (!addButton) {
+    if (
+        !addButton
+    ) {
 
         addButton =
             document.createElement(
@@ -2026,16 +2110,36 @@ function renderTasks() {
 
 
     addButton.onclick =
-        () => openTaskForm();
+        () =>
+            openTaskForm();
 
-
-    // ====================================
-    // ПРОГРЕСС
-    // ====================================
 
     updateDailyProgress(
         todayTasks
     );
+
+}
+
+
+// ========================================
+// УДАЛИТЬ КНОПКУ ДОБАВЛЕНИЯ
+// ========================================
+
+function removeAddButton() {
+
+    const button =
+        document.querySelector(
+            ".add-task-button"
+        );
+
+
+    if (
+        button
+    ) {
+
+        button.remove();
+
+    }
 
 }
 
@@ -2068,7 +2172,9 @@ function editTask(
         );
 
 
-    if (!task) {
+    if (
+        !task
+    ) {
 
         return;
 
@@ -2109,7 +2215,8 @@ function updateDailyProgress(
 
 
     const percent =
-        total === 0
+        total ===
+        0
             ? 0
             : Math.round(
                 (
@@ -2131,7 +2238,9 @@ function updateDailyProgress(
         );
 
 
-    if (text) {
+    if (
+        text
+    ) {
 
         text.textContent =
             `${completed} из ${total}`;
@@ -2139,7 +2248,9 @@ function updateDailyProgress(
     }
 
 
-    if (fill) {
+    if (
+        fill
+    ) {
 
         fill.style.width =
             `${percent}%`;
@@ -2177,7 +2288,9 @@ function toggleTask(
         );
 
 
-    if (!task) {
+    if (
+        !task
+    ) {
 
         return;
 
@@ -2213,8 +2326,9 @@ function toggleTask(
 
     saveTasks();
 
-
     renderTasks();
+
+    renderCalendar();
 
 }
 
@@ -2247,7 +2361,9 @@ function deleteTask(
         );
 
 
-    if (!task) {
+    if (
+        !task
+    ) {
 
         return;
 
@@ -2260,7 +2376,9 @@ function deleteTask(
         );
 
 
-    if (!confirmed) {
+    if (
+        !confirmed
+    ) {
 
         return;
 
@@ -2277,8 +2395,394 @@ function deleteTask(
 
     saveTasks();
 
-
     renderTasks();
+
+    renderCalendar();
+
+}
+
+
+// ========================================
+// КАЛЕНДАРЬ 90 ДНЕЙ
+// ========================================
+
+function renderCalendar() {
+
+    const calendar =
+        document.querySelector(
+            "#challenge-calendar"
+        );
+
+
+    if (
+        !calendar
+    ) {
+
+        return;
+
+    }
+
+
+    calendar.innerHTML =
+        "";
+
+
+    const today =
+        getToday();
+
+
+    for (
+        let i = 0;
+        i < CHALLENGE_LENGTH;
+        i++
+    ) {
+
+        const date =
+            addDays(
+                CHALLENGE_START,
+                i
+            );
+
+
+        const dayTasks =
+            getTasksForDate(
+                date
+            );
+
+
+        const completed =
+            dayTasks.filter(
+                task =>
+                    isTaskCompleted(
+                        task,
+                        date
+                    )
+            ).length;
+
+
+        let status =
+            "empty";
+
+
+        if (
+            dayTasks.length > 0 &&
+            completed ===
+            dayTasks.length
+        ) {
+
+            status =
+                "complete";
+
+        } else if (
+            completed > 0
+        ) {
+
+            status =
+                "partial";
+
+        }
+
+
+        const isToday =
+            date ===
+            today;
+
+
+        const isFuture =
+            date >
+            today;
+
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.className =
+            `calendar-day
+            ${status}
+            ${isToday ? "today" : ""}
+            ${isFuture ? "future" : ""}`;
+
+
+        button.dataset.date =
+            date;
+
+
+        button.innerHTML = `
+
+            <span
+                class="calendar-day-number"
+            >
+                ${String(i + 1).padStart(2, "0")}
+            </span>
+
+
+            <span
+                class="calendar-day-date"
+            >
+                ${formatShortDate(date)}
+            </span>
+
+
+            <span
+                class="calendar-day-status"
+            ></span>
+
+        `;
+
+
+        button.addEventListener(
+            "click",
+            () =>
+                selectCalendarDay(
+                    date
+                )
+        );
+
+
+        calendar.appendChild(
+            button
+        );
+
+    }
+
+
+    selectCalendarDay(
+        today
+    );
+
+}
+
+
+// ========================================
+// ВЫБОР ДНЯ КАЛЕНДАРЯ
+// ========================================
+
+function selectCalendarDay(
+    dateString
+) {
+
+    const buttons =
+        document.querySelectorAll(
+            ".calendar-day"
+        );
+
+
+    buttons.forEach(
+        button => {
+
+            button.classList.toggle(
+                "selected",
+                button.dataset.date ===
+                dateString
+            );
+
+        }
+    );
+
+
+    renderSelectedDay(
+        dateString
+    );
+
+}
+
+
+// ========================================
+// ИНФОРМАЦИЯ О ВЫБРАННОМ ДНЕ
+// ========================================
+
+function renderSelectedDay(
+    dateString
+) {
+
+    const container =
+        document.querySelector(
+            "#selected-day"
+        );
+
+
+    if (
+        !container
+    ) {
+
+        return;
+
+    }
+
+
+    const dayTasks =
+        getTasksForDate(
+            dateString
+        );
+
+
+    const completed =
+        dayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        ).length;
+
+
+    const challengeDay =
+        Math.floor(
+            (
+                getDateObject(
+                    dateString
+                ) -
+                getDateObject(
+                    CHALLENGE_START
+                )
+            ) /
+            (
+                1000 *
+                60 *
+                60 *
+                24
+            )
+        ) + 1;
+
+
+    const isToday =
+        dateString ===
+        getToday();
+
+
+    let tasksHTML =
+        "";
+
+
+    if (
+        dayTasks.length ===
+        0
+    ) {
+
+        tasksHTML = `
+
+            <div
+                class="selected-day-empty"
+            >
+
+                ${
+                    isToday
+                        ? "На сегодня пока нет задач. Добавь первый шаг."
+                        : "На этот день пока нет запланированных задач."
+                }
+
+            </div>
+
+        `;
+
+    } else {
+
+        tasksHTML =
+            dayTasks
+                .map(
+                    task => {
+
+                        const done =
+                            isTaskCompleted(
+                                task,
+                                dateString
+                            );
+
+
+                        return `
+
+                            <div
+                                class="selected-task
+                                ${
+                                    done
+                                        ? "completed"
+                                        : ""
+                                }"
+                            >
+
+                                <span
+                                    class="selected-task-check"
+                                >
+                                    ${
+                                        done
+                                            ? "✓"
+                                            : ""
+                                    }
+                                </span>
+
+
+                                <span
+                                    class="selected-task-title"
+                                >
+                                    ${
+                                        escapeHTML(
+                                            task.title
+                                        )
+                                    }
+                                </span>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    container.innerHTML = `
+
+        <div
+            class="selected-day-heading"
+        >
+
+            <div>
+
+                <div
+                    class="selected-day-number"
+                >
+                    ДЕНЬ ${challengeDay}
+                </div>
+
+
+                <div
+                    class="selected-day-title"
+                >
+                    ${
+                        formatDate(
+                            dateString
+                        )
+                    }
+                </div>
+
+            </div>
+
+
+            <div
+                class="selected-day-progress"
+            >
+                ${
+                    dayTasks.length > 0
+                        ? `${completed} из ${dayTasks.length}`
+                        : ""
+                }
+            </div>
+
+        </div>
+
+
+        <div
+            class="selected-day-tasks"
+        >
+            ${tasksHTML}
+        </div>
+
+    `;
 
 }
 
