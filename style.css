@@ -66,7 +66,20 @@ button {
 
 
 /* ========================================
-   ВЕРХНЯЯ ЧАСТЬ
+   СТРАНИЦЫ
+   ======================================== */
+
+.page {
+    display: none;
+}
+
+.page.active-page {
+    display: block;
+}
+
+
+/* ========================================
+   ВЕРХ
    ======================================== */
 
 .top {
@@ -117,6 +130,7 @@ button {
 
 .settings-button:hover {
     background: var(--surface);
+
     border-color: var(--rose);
 }
 
@@ -220,7 +234,7 @@ h1 {
 
 
 /* ========================================
-   СЕГОДНЯ
+   ЗАГОЛОВКИ РАЗДЕЛОВ
    ======================================== */
 
 .section-heading {
@@ -249,7 +263,7 @@ h1 {
 
 
 /* ========================================
-   ПРОГРЕСС СЕГОДНЯ
+   ПРОГРЕСС ДНЯ
    ======================================== */
 
 .daily-progress {
@@ -344,7 +358,7 @@ h1 {
 
     align-items: center;
 
-    gap: 14px;
+    gap: 10px;
 
     padding: 15px 0;
 
@@ -406,10 +420,6 @@ h1 {
     transition: 0.25s ease;
 }
 
-.task-category {
-    display: none;
-}
-
 .task-item.completed .task-title {
     color: var(--soft-gray);
 
@@ -420,11 +430,18 @@ h1 {
 
 
 /* ========================================
-   УДАЛЕНИЕ
+   КНОПКИ ЗАДАЧИ
    ======================================== */
 
+.edit-task,
 .delete-task {
     flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
 
     width: 28px;
     height: 28px;
@@ -433,19 +450,20 @@ h1 {
 
     color: #aaa0a3;
 
-    font-size: 18px;
-
-    font-weight: 300;
-
-    opacity: 0;
-
     transition: 0.2s ease;
 }
 
-.task-item:hover .delete-task {
-    opacity: 1;
+.edit-task {
+    font-size: 17px;
 }
 
+.delete-task {
+    font-size: 18px;
+
+    font-weight: 300;
+}
+
+.edit-task:hover,
 .delete-task:hover {
     color: var(--rose-dark);
 }
@@ -591,6 +609,10 @@ h1 {
 
     max-width: 560px;
 
+    max-height: 90vh;
+
+    overflow-y: auto;
+
     padding: 34px 26px 30px;
 
     background: var(--surface);
@@ -607,11 +629,13 @@ h1 {
 
     from {
         transform: translateY(30px);
+
         opacity: 0;
     }
 
     to {
         transform: translateY(0);
+
         opacity: 1;
     }
 }
@@ -754,6 +778,385 @@ h1 {
 
 
 /* ========================================
+   ДНИ НЕДЕЛИ
+   ======================================== */
+
+.weekdays {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+    gap: 5px;
+
+    margin-bottom: 18px;
+}
+
+.weekday {
+    display: flex !important;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 8px 2px;
+
+    border: 1px solid var(--line);
+
+    background: var(--background);
+
+    color: var(--soft-gray) !important;
+
+    font-size: 10px !important;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.weekday input {
+    width: auto !important;
+
+    margin: 0 !important;
+}
+
+.weekday:has(input:checked) {
+    border-color: var(--rose);
+
+    background: var(--rose-light);
+
+    color: var(--graphite) !important;
+}
+
+
+/* ========================================
+   СТРАНИЦА 90 ДНЕЙ
+   ======================================== */
+
+.calendar-section {
+    padding-bottom: 30px;
+}
+
+.page-heading {
+    margin-bottom: 34px;
+}
+
+.page-title {
+    margin-bottom: 18px;
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 48px;
+
+    font-weight: 400;
+
+    line-height: 1.05;
+
+    letter-spacing: -1.5px;
+}
+
+.page-description {
+    max-width: 400px;
+
+    color: var(--soft-gray);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+
+/* ========================================
+   ЛЕГЕНДА
+   ======================================== */
+
+.calendar-legend {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    padding: 16px 0;
+
+    margin-bottom: 22px;
+
+    border-top: 1px solid var(--line);
+
+    border-bottom: 1px solid var(--line);
+}
+
+.legend-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--soft-gray);
+
+    font-size: 10px;
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+}
+
+.legend-empty {
+    border: 1px solid var(--line);
+
+    background: transparent;
+}
+
+.legend-partial {
+    background: var(--rose-light);
+
+    border: 1px solid var(--rose);
+}
+
+.legend-complete {
+    background: var(--sage);
+}
+
+
+/* ========================================
+   КАЛЕНДАРЬ
+   ======================================== */
+
+.challenge-calendar {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 8px;
+}
+
+.calendar-day {
+    position: relative;
+
+    min-height: 72px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    padding: 10px;
+
+    border: 1px solid var(--line);
+
+    background: rgba(253, 249, 250, 0.65);
+
+    text-align: left;
+
+    transition: 0.25s ease;
+}
+
+.calendar-day:hover {
+    border-color: var(--rose);
+
+    background: var(--surface);
+
+    transform: translateY(-1px);
+}
+
+.calendar-day-number {
+    font-family: "Playfair Display", serif;
+
+    font-size: 20px;
+
+    line-height: 1;
+}
+
+.calendar-day-date {
+    color: var(--soft-gray);
+
+    font-size: 9px;
+}
+
+.calendar-day-status {
+    width: 7px;
+    height: 7px;
+
+    margin-top: auto;
+
+    border-radius: 50%;
+}
+
+.calendar-day.future {
+    opacity: 0.65;
+}
+
+.calendar-day.partial {
+    background: rgba(234, 217, 221, 0.5);
+
+    border-color: var(--rose);
+}
+
+.calendar-day.complete {
+    background: rgba(165, 170, 157, 0.14);
+
+    border-color: var(--sage);
+}
+
+.calendar-day.partial
+.calendar-day-status {
+    background: var(--rose);
+}
+
+.calendar-day.complete
+.calendar-day-status {
+    background: var(--sage);
+}
+
+.calendar-day.today {
+    border: 1.5px solid var(--rose-dark);
+
+    box-shadow:
+        0 4px 18px rgba(173, 127, 139, 0.12);
+}
+
+.calendar-day.selected {
+    background: var(--graphite);
+
+    border-color: var(--graphite);
+
+    color: var(--white);
+}
+
+.calendar-day.selected
+.calendar-day-date {
+    color: #d7cdcf;
+}
+
+
+/* ========================================
+   ВЫБРАННЫЙ ДЕНЬ
+   ======================================== */
+
+.selected-day {
+    margin-top: 36px;
+
+    padding-top: 28px;
+
+    border-top: 1px solid var(--line);
+}
+
+.selected-day-heading {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+}
+
+.selected-day-number {
+    color: var(--rose-dark);
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 13px;
+}
+
+.selected-day-title {
+    margin-top: 5px;
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 28px;
+
+    font-weight: 400;
+}
+
+.selected-day-progress {
+    color: var(--soft-gray);
+
+    font-size: 11px;
+}
+
+.selected-day-empty {
+    padding: 28px 0;
+
+    color: var(--soft-gray);
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+.selected-task {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid var(--line);
+
+    font-size: 13px;
+}
+
+.selected-task-check {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    border: 1px solid var(--graphite);
+
+    border-radius: 50%;
+
+    font-size: 10px;
+}
+
+.selected-task.completed
+.selected-task-check {
+    border-color: var(--sage);
+
+    background: var(--sage);
+
+    color: var(--white);
+}
+
+.selected-task.completed
+.selected-task-title {
+    color: var(--soft-gray);
+
+    text-decoration: line-through;
+}
+
+
+/* ========================================
+   БУДУЩИЕ СТРАНИЦЫ
+   ======================================== */
+
+.future-page {
+    padding-bottom: 50px;
+}
+
+
+/* ========================================
    НИЖНЯЯ НАВИГАЦИЯ
    ======================================== */
 
@@ -767,7 +1170,8 @@ h1 {
 
     display: grid;
 
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns:
+        repeat(4, 1fr);
 
     width: calc(100% - 32px);
 
@@ -777,16 +1181,19 @@ h1 {
 
     transform: translateX(-50%);
 
-    border: 1px solid rgba(229, 216, 220, 0.9);
+    border: 1px solid
+        rgba(229, 216, 220, 0.9);
 
-    background: rgba(253, 249, 250, 0.94);
+    background:
+        rgba(253, 249, 250, 0.94);
 
     backdrop-filter: blur(18px);
 
     -webkit-backdrop-filter: blur(18px);
 
     box-shadow:
-        0 8px 30px rgba(41, 37, 39, 0.06);
+        0 8px 30px
+        rgba(41, 37, 39, 0.06);
 }
 
 .nav-item {
@@ -836,6 +1243,7 @@ h1 {
 
     body {
         display: flex;
+
         justify-content: center;
     }
 
@@ -846,18 +1254,42 @@ h1 {
     .bottom-navigation {
         bottom: 24px;
     }
+
 }
 
 
 @media (max-width: 560px) {
 
-    .delete-task {
-        opacity: 1;
-    }
-
     .form-window {
         padding-bottom: 28px;
     }
+
+}
+
+
+@media (max-width: 430px) {
+
+    .challenge-calendar {
+        grid-template-columns:
+            repeat(4, 1fr);
+
+        gap: 7px;
+    }
+
+    .calendar-day {
+        min-height: 68px;
+
+        padding: 8px;
+    }
+
+    .calendar-day-number {
+        font-size: 18px;
+    }
+
+    .calendar-day-date {
+        font-size: 8px;
+    }
+
 }
 
 
@@ -865,11 +1297,16 @@ h1 {
 
     #app {
         padding-left: 18px;
+
         padding-right: 18px;
     }
 
     h1 {
         font-size: 36px;
+    }
+
+    .page-title {
+        font-size: 42px;
     }
 
     .section-heading h2 {
@@ -879,4 +1316,10 @@ h1 {
     .nav-item small {
         font-size: 8px;
     }
+
+    .challenge-calendar {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
 }
