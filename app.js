@@ -3,11 +3,6 @@
 // ОСНОВНАЯ ЛОГИКА
 // ========================================
 
-
-// ========================================
-// НАСТРОЙКИ
-// ========================================
-
 const CHALLENGE_START = "2026-10-01";
 const CHALLENGE_LENGTH = 90;
 
@@ -75,7 +70,7 @@ function getToday() {
 
 
 // ========================================
-// ДАТА В ФОРМАТЕ DATE
+// DATE
 // ========================================
 
 function getDateObject(dateString) {
@@ -89,8 +84,6 @@ function getDateObject(dateString) {
 
 // ========================================
 // ДЕНЬ НЕДЕЛИ
-// 0 = воскресенье
-// 1 = понедельник
 // ========================================
 
 function getWeekDay(dateString) {
@@ -182,8 +175,7 @@ function formatDate(
 
 
 // ========================================
-// ПРОВЕРКА:
-// ДОЛЖНА ЛИ ЗАДАЧА ПОКАЗЫВАТЬСЯ СЕГОДНЯ
+// ПОКАЗЫВАТЬ ЛИ ЗАДАЧУ В ЭТОТ ДЕНЬ
 // ========================================
 
 function isTaskForDate(
@@ -206,7 +198,7 @@ function isTaskForDate(
     }
 
 
-    // Ежедневная
+    // Каждый день
 
     if (
         task.repeat === "daily"
@@ -220,7 +212,7 @@ function isTaskForDate(
     }
 
 
-    // Выбранные дни недели
+    // Выбранные дни
 
     if (
         task.repeat === "weekly"
@@ -256,29 +248,13 @@ function isTaskForDate(
 
 
 // ========================================
-// СОЗДАНИЕ УНИКАЛЬНОГО ID ВЫПОЛНЕНИЯ
-// ========================================
-
-function getCompletionKey(
-    task,
-    dateString
-) {
-
-    return `${task.id}_${dateString}`;
-
-}
-
-
-// ========================================
-// ПРОВЕРКА ВЫПОЛНЕНИЯ
+// ВЫПОЛНЕНА ЛИ ЗАДАЧА
 // ========================================
 
 function isTaskCompleted(
     task,
     dateString
 ) {
-
-    // Новая система
 
     if (
         task.completions
@@ -312,7 +288,7 @@ function isTaskCompleted(
 
 
 // ========================================
-// ПОЛУЧЕНИЕ ЗАДАЧ НА ДЕНЬ
+// ЗАДАЧИ НА ДЕНЬ
 // ========================================
 
 function getTasksForDate(
@@ -366,7 +342,6 @@ function updateChallengeInfo() {
             "#challenge-day"
         );
 
-
     if (dayElement) {
 
         if (day < 1) {
@@ -396,7 +371,6 @@ function updateChallengeInfo() {
             "#challenge-progress"
         );
 
-
     if (progressText) {
 
         progressText.textContent =
@@ -410,7 +384,6 @@ function updateChallengeInfo() {
             "#challenge-progress-fill"
         );
 
-
     if (progressFill) {
 
         progressFill.style.width =
@@ -423,7 +396,6 @@ function updateChallengeInfo() {
         document.querySelector(
             "#today-date"
         );
-
 
     if (dateElement) {
 
@@ -439,21 +411,24 @@ function updateChallengeInfo() {
 // ФОРМА
 // ========================================
 
-function openTaskForm() {
+function openTaskForm(
+    taskToEdit = null
+) {
 
     const oldForm =
         document.querySelector(
             ".task-form"
         );
 
-
     if (oldForm) {
 
         oldForm.remove();
 
-        return;
-
     }
+
+
+    const isEditing =
+        Boolean(taskToEdit);
 
 
     const form =
@@ -483,12 +458,16 @@ function openTaskForm() {
 
 
             <p class="eyebrow">
-                НОВЫЙ ШАГ
+                ${isEditing
+                    ? "РЕДАКТИРОВАНИЕ"
+                    : "НОВЫЙ ШАГ"}
             </p>
 
 
             <h2>
-                Что ты хочешь делать?
+                ${isEditing
+                    ? "Измени свой шаг"
+                    : "Что ты хочешь делать?"}
             </h2>
 
 
@@ -502,6 +481,13 @@ function openTaskForm() {
                 id="task-title"
                 placeholder="Например: пройти 6 000 шагов"
                 autocomplete="off"
+                value="${
+                    isEditing
+                        ? escapeAttribute(
+                            taskToEdit.title
+                        )
+                        : ""
+                }"
             >
 
 
@@ -515,7 +501,16 @@ function openTaskForm() {
                 ${CATEGORIES.map(
                     category =>
                         `
-                        <option value="${category}">
+                        <option
+                            value="${category}"
+                            ${
+                                isEditing &&
+                                taskToEdit.category ===
+                                category
+                                    ? "selected"
+                                    : ""
+                            }
+                        >
                             ${category}
                         </option>
                         `
@@ -531,15 +526,44 @@ function openTaskForm() {
 
             <select id="task-repeat">
 
-                <option value="once">
+                <option
+                    value="once"
+                    ${
+                        !isEditing ||
+                        taskToEdit.repeat ===
+                        "once"
+                            ? "selected"
+                            : ""
+                    }
+                >
                     Только сегодня
                 </option>
 
-                <option value="daily">
+
+                <option
+                    value="daily"
+                    ${
+                        isEditing &&
+                        taskToEdit.repeat ===
+                        "daily"
+                            ? "selected"
+                            : ""
+                    }
+                >
                     Каждый день
                 </option>
 
-                <option value="weekly">
+
+                <option
+                    value="weekly"
+                    ${
+                        isEditing &&
+                        taskToEdit.repeat ===
+                        "weekly"
+                            ? "selected"
+                            : ""
+                    }
+                >
                     По выбранным дням
                 </option>
 
@@ -548,7 +572,13 @@ function openTaskForm() {
 
             <div
                 id="weekdays-container"
-                style="display:none;"
+                style="${
+                    isEditing &&
+                    taskToEdit.repeat ===
+                    "weekly"
+                        ? "display:block;"
+                        : "display:none;"
+                }"
             >
 
                 <label>
@@ -556,65 +586,11 @@ function openTaskForm() {
                 </label>
 
 
-                <div
-                    class="weekdays"
-                >
+                <div class="weekdays">
 
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="1"
-                        >
-                        Пн
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="2"
-                        >
-                        Вт
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="3"
-                        >
-                        Ср
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="4"
-                        >
-                        Чт
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="5"
-                        >
-                        Пт
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="6"
-                        >
-                        Сб
-                    </label>
-
-                    <label class="weekday">
-                        <input
-                            type="checkbox"
-                            value="0"
-                        >
-                        Вс
-                    </label>
+                    ${createWeekdayInputs(
+                        taskToEdit
+                    )}
 
                 </div>
 
@@ -624,7 +600,11 @@ function openTaskForm() {
             <button
                 class="save-task"
             >
-                Добавить шаг
+                ${
+                    isEditing
+                        ? "Сохранить изменения"
+                        : "Добавить шаг"
+                }
             </button>
 
 
@@ -638,7 +618,9 @@ function openTaskForm() {
     );
 
 
-    // Закрытие
+    // ====================================
+    // ЗАКРЫТИЕ
+    // ====================================
 
     form
         .querySelector(
@@ -660,7 +642,9 @@ function openTaskForm() {
         );
 
 
-    // Переключение повторения
+    // ====================================
+    // ПОВТОРЕНИЕ
+    // ====================================
 
     const repeatSelect =
         form.querySelector(
@@ -697,7 +681,9 @@ function openTaskForm() {
     );
 
 
-    // Сохранение
+    // ====================================
+    // СОХРАНЕНИЕ
+    // ====================================
 
     form
         .querySelector(
@@ -705,11 +691,27 @@ function openTaskForm() {
         )
         .addEventListener(
             "click",
-            addTask
+            () => {
+
+                if (isEditing) {
+
+                    saveEditedTask(
+                        taskToEdit.id
+                    );
+
+                } else {
+
+                    addTask();
+
+                }
+
+            }
         );
 
 
-    // Enter
+    // ====================================
+    // ENTER
+    // ====================================
 
     form
         .querySelector(
@@ -724,7 +726,17 @@ function openTaskForm() {
                     "Enter"
                 ) {
 
-                    addTask();
+                    if (isEditing) {
+
+                        saveEditedTask(
+                            taskToEdit.id
+                        );
+
+                    } else {
+
+                        addTask();
+
+                    }
 
                 }
 
@@ -744,11 +756,71 @@ function openTaskForm() {
 
                 input.focus();
 
+                input.select();
+
             }
 
         },
         100
     );
+
+}
+
+
+// ========================================
+// ДНИ НЕДЕЛИ В ФОРМЕ
+// ========================================
+
+function createWeekdayInputs(
+    task
+) {
+
+    const days = [
+        [1, "Пн"],
+        [2, "Вт"],
+        [3, "Ср"],
+        [4, "Чт"],
+        [5, "Пт"],
+        [6, "Сб"],
+        [0, "Вс"]
+    ];
+
+
+    return days
+        .map(
+            ([value, name]) => {
+
+                const checked =
+                    task &&
+                    task.weekDays &&
+                    task.weekDays.includes(
+                        value
+                    );
+
+
+                return `
+
+                    <label class="weekday">
+
+                        <input
+                            type="checkbox"
+                            value="${value}"
+                            ${
+                                checked
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+
+                        ${name}
+
+                    </label>
+
+                `;
+
+            }
+        )
+        .join("");
 
 }
 
@@ -769,7 +841,7 @@ function setupFirstTaskButton() {
 
         button.addEventListener(
             "click",
-            openTaskForm
+            () => openTaskForm()
         );
 
     }
@@ -788,12 +860,10 @@ function addTask() {
             "#task-title"
         );
 
-
     const categoryInput =
         document.querySelector(
             "#task-category"
         );
-
 
     const repeatInput =
         document.querySelector(
@@ -850,49 +920,25 @@ function addTask() {
     }
 
 
-    // ====================================
-    // ВЫБРАННЫЕ ДНИ
-    // ====================================
-
-    let weekDays = [];
+    const weekDays =
+        getSelectedWeekDays(
+            repeat
+        );
 
 
     if (
-        repeat ===
-        "weekly"
+        repeat === "weekly" &&
+        weekDays.length === 0
     ) {
 
-        weekDays =
-            Array.from(
-                document.querySelectorAll(
-                    "#weekdays-container input:checked"
-                )
-            ).map(
-                input =>
-                    Number(
-                        input.value
-                    )
-            );
+        alert(
+            "Выбери хотя бы один день недели."
+        );
 
-
-        if (
-            weekDays.length === 0
-        ) {
-
-            alert(
-                "Выбери хотя бы один день недели."
-            );
-
-            return;
-
-        }
+        return;
 
     }
 
-
-    // ====================================
-    // НОВАЯ ЗАДАЧА
-    // ====================================
 
     const newTask = {
 
@@ -915,8 +961,6 @@ function addTask() {
     };
 
 
-    // Для одноразовой задачи
-
     if (
         repeat === "once"
     ) {
@@ -936,6 +980,208 @@ function addTask() {
     saveTasks();
 
 
+    closeTaskForm();
+
+    renderTasks();
+
+}
+
+
+// ========================================
+// ВЫБРАННЫЕ ДНИ
+// ========================================
+
+function getSelectedWeekDays(
+    repeat
+) {
+
+    if (
+        repeat !== "weekly"
+    ) {
+
+        return [];
+
+    }
+
+
+    return Array.from(
+        document.querySelectorAll(
+            "#weekdays-container input:checked"
+        )
+    ).map(
+        input =>
+            Number(
+                input.value
+            )
+    );
+
+}
+
+
+// ========================================
+// РЕДАКТИРОВАНИЕ
+// ========================================
+
+function saveEditedTask(
+    taskId
+) {
+
+    const task =
+        tasks.find(
+            item =>
+                item.id === taskId
+        );
+
+
+    if (!task) {
+
+        return;
+
+    }
+
+
+    const titleInput =
+        document.querySelector(
+            "#task-title"
+        );
+
+    const categoryInput =
+        document.querySelector(
+            "#task-category"
+        );
+
+    const repeatInput =
+        document.querySelector(
+            "#task-repeat"
+        );
+
+
+    if (
+        !titleInput ||
+        !categoryInput ||
+        !repeatInput
+    ) {
+
+        return;
+
+    }
+
+
+    const title =
+        titleInput.value.trim();
+
+
+    const category =
+        categoryInput.value;
+
+
+    const repeat =
+        repeatInput.value;
+
+
+    if (!title) {
+
+        titleInput.classList.add(
+            "input-error"
+        );
+
+        titleInput.focus();
+
+        return;
+
+    }
+
+
+    const weekDays =
+        getSelectedWeekDays(
+            repeat
+        );
+
+
+    if (
+        repeat === "weekly" &&
+        weekDays.length === 0
+    ) {
+
+        alert(
+            "Выбери хотя бы один день недели."
+        );
+
+        return;
+
+    }
+
+
+    // ====================================
+    // Сохраняем старые выполнения
+    // ====================================
+
+    const oldCompletions =
+        task.completions || {};
+
+
+    task.title =
+        title;
+
+
+    task.category =
+        category;
+
+
+    task.repeat =
+        repeat;
+
+
+    task.weekDays =
+        weekDays;
+
+
+    task.completions =
+        oldCompletions;
+
+
+    // Если меняем на одноразовую
+
+    if (
+        repeat === "once"
+    ) {
+
+        task.date =
+            task.date || getToday();
+
+    }
+
+
+    // Если меняем на повторяющуюся
+
+    if (
+        repeat === "daily" ||
+        repeat === "weekly"
+    ) {
+
+        task.startDate =
+            task.startDate ||
+            getToday();
+
+    }
+
+
+    saveTasks();
+
+
+    closeTaskForm();
+
+    renderTasks();
+
+}
+
+
+// ========================================
+// ЗАКРЫТЬ ФОРМУ
+// ========================================
+
+function closeTaskForm() {
+
     const form =
         document.querySelector(
             ".task-form"
@@ -948,14 +1194,11 @@ function addTask() {
 
     }
 
-
-    renderTasks();
-
 }
 
 
 // ========================================
-// ОТОБРАЖЕНИЕ
+// ОТОБРАЖЕНИЕ ЗАДАЧ
 // ========================================
 
 function renderTasks() {
@@ -1017,10 +1260,6 @@ function renderTasks() {
     }
 
 
-    // ====================================
-    // ЕСТЬ ЗАДАЧИ
-    // ====================================
-
     emptyState.style.display =
         "none";
 
@@ -1081,7 +1320,6 @@ function renderTasks() {
                     class="task-group"
                     data-category="${category}"
                 >
-
 
                     <div
                         class="task-group-header"
@@ -1151,6 +1389,14 @@ function renderTasks() {
 
 
                                         <button
+                                            class="edit-task"
+                                            aria-label="Изменить задачу"
+                                        >
+                                            ⋯
+                                        </button>
+
+
+                                        <button
                                             class="delete-task"
                                             aria-label="Удалить задачу"
                                         >
@@ -1193,6 +1439,26 @@ function renderTasks() {
                 button.addEventListener(
                     "click",
                     toggleTask
+                );
+
+            }
+        );
+
+
+    // ====================================
+    // РЕДАКТИРОВАНИЕ
+    // ====================================
+
+    groupsContainer
+        .querySelectorAll(
+            ".edit-task"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    editTask
                 );
 
             }
@@ -1255,15 +1521,50 @@ function renderTasks() {
 
 
     addButton.onclick =
-        openTaskForm;
+        () => openTaskForm();
 
-
-    // ====================================
-    // ПРОГРЕСС
-    // ====================================
 
     updateDailyProgress(
         todayTasks
+    );
+
+}
+
+
+// ========================================
+// ОТКРЫТЬ РЕДАКТИРОВАНИЕ
+// ========================================
+
+function editTask(event) {
+
+    const element =
+        event.currentTarget.closest(
+            ".task-item"
+        );
+
+
+    const taskId =
+        Number(
+            element.dataset.id
+        );
+
+
+    const task =
+        tasks.find(
+            item =>
+                item.id === taskId
+        );
+
+
+    if (!task) {
+
+        return;
+
+    }
+
+
+    openTaskForm(
+        task
     );
 
 }
@@ -1355,9 +1656,8 @@ function toggleTask(event) {
 
     const task =
         tasks.find(
-            task =>
-                task.id ===
-                taskId
+            item =>
+                item.id === taskId
         );
 
 
@@ -1372,11 +1672,7 @@ function toggleTask(event) {
         getToday();
 
 
-    // Создаём хранилище выполнений
-
-    if (
-        !task.completions
-    ) {
+    if (!task.completions) {
 
         task.completions = {};
 
@@ -1422,11 +1718,37 @@ function deleteTask(event) {
         );
 
 
+    const task =
+        tasks.find(
+            item =>
+                item.id === taskId
+        );
+
+
+    if (!task) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Удалить задачу «${task.title}»?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
     tasks =
         tasks.filter(
-            task =>
-                task.id !==
-                taskId
+            item =>
+                item.id !== taskId
         );
 
 
@@ -1439,7 +1761,7 @@ function deleteTask(event) {
 
 
 // ========================================
-// ЗАЩИТА ТЕКСТА
+// ЗАЩИТА HTML
 // ========================================
 
 function escapeHTML(text) {
@@ -1455,5 +1777,32 @@ function escapeHTML(text) {
 
 
     return div.innerHTML;
+
+}
+
+
+// ========================================
+// ЗАЩИТА АТРИБУТА
+// ========================================
+
+function escapeAttribute(text) {
+
+    return String(text)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        );
 
 }
