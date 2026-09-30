@@ -499,8 +499,6 @@ document.addEventListener(
 
         setupNavigation();
 
-        renderCalendar();
-
     }
 );
 
