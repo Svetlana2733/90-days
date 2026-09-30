@@ -315,3 +315,322 @@ h1 {
         font-size: 8px;
     }
 }
+/* ========================================
+   ФОРМА ДОБАВЛЕНИЯ ЗАДАЧИ
+   ======================================== */
+
+.task-form {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.form-overlay {
+    position: absolute;
+    inset: 0;
+
+    background: rgba(36, 35, 32, 0.28);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.form-window {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 560px;
+
+    padding: 34px 26px 30px;
+
+    background: var(--paper);
+
+    border-top: 1px solid var(--line);
+
+    box-shadow:
+        0 -15px 50px rgba(36, 35, 32, 0.12);
+
+    animation: formAppear 0.25s ease;
+}
+
+@keyframes formAppear {
+
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-form {
+    position: absolute;
+
+    top: 20px;
+    right: 22px;
+
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid var(--line);
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--soft-gray);
+
+    font-size: 20px;
+    font-weight: 300;
+
+    transition: 0.2s ease;
+}
+
+.close-form:hover {
+    color: var(--graphite);
+    background: var(--milk);
+}
+
+.form-window h2 {
+    max-width: 360px;
+
+    margin-bottom: 28px;
+
+    font-family: "Playfair Display", serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.form-window input,
+.form-window select {
+    width: 100%;
+
+    padding: 15px 14px;
+
+    margin-bottom: 18px;
+
+    border: 1px solid var(--line);
+
+    background: var(--milk);
+
+    color: var(--graphite);
+
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+.form-window input:focus,
+.form-window select:focus {
+    border-color: var(--gold);
+    background: var(--paper);
+}
+
+.form-window input::placeholder {
+    color: #aaa59c;
+}
+
+.form-window label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--soft-gray);
+
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+.save-task {
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 5px;
+
+    background: var(--graphite);
+    color: var(--white);
+
+    font-size: 12px;
+    letter-spacing: 0.5px;
+
+    transition: 0.25s ease;
+}
+
+.save-task:hover {
+    background: #3a3833;
+}
+
+.input-error {
+    border-color: #b98272 !important;
+
+    animation: shake 0.25s ease;
+}
+
+@keyframes shake {
+
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+
+/* ========================================
+   СПИСОК ЗАДАЧ
+   ======================================== */
+
+.task-list {
+    margin-top: 8px;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 18px 0;
+
+    border-bottom: 1px solid var(--line);
+
+    transition: 0.25s ease;
+}
+
+.task-check {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    border: 1px solid var(--graphite);
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--white);
+
+    font-size: 13px;
+
+    transition: 0.25s ease;
+}
+
+.task-item.completed .task-check {
+    border-color: var(--sage);
+    background: var(--sage);
+}
+
+.task-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-title {
+    color: var(--graphite);
+
+    font-size: 14px;
+    line-height: 1.4;
+
+    transition: 0.25s ease;
+}
+
+.task-category {
+    margin-top: 5px;
+
+    color: var(--soft-gray);
+
+    font-size: 10px;
+    letter-spacing: 0.4px;
+}
+
+.task-item.completed .task-title {
+    color: var(--soft-gray);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+}
+
+.delete-task {
+    flex-shrink: 0;
+
+    width: 28px;
+    height: 28px;
+
+    background: transparent;
+
+    color: #aaa59c;
+
+    font-size: 18px;
+    font-weight: 300;
+
+    opacity: 0;
+
+    transition: 0.2s ease;
+}
+
+.task-item:hover .delete-task {
+    opacity: 1;
+}
+
+.delete-task:hover {
+    color: #8f675c;
+}
+
+.add-task-button {
+    width: 100%;
+
+    margin-top: 22px;
+    padding: 14px;
+
+    border: 1px dashed var(--line);
+
+    background: transparent;
+
+    color: var(--soft-gray);
+
+    font-size: 12px;
+
+    transition: 0.25s ease;
+}
+
+.add-task-button:hover {
+    border-color: var(--gold);
+    color: var(--graphite);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+
+/* ========================================
+   МОБИЛЬНАЯ ВЕРСИЯ
+   ======================================== */
+
+@media (max-width: 560px) {
+
+    .form-window {
+        padding-bottom: 28px;
+    }
+
+    .delete-task {
+        opacity: 1;
+    }
+}
