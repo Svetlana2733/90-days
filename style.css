@@ -1,6 +1,7 @@
 :root {
     --background: #f8f0f2;
     --surface: #fdf9fa;
+
     --graphite: #292527;
     --soft-gray: #91878a;
 
@@ -116,7 +117,6 @@ button {
 
 .settings-button:hover {
     background: var(--surface);
-
     border-color: var(--rose);
 }
 
@@ -167,7 +167,7 @@ h1 {
 
 
 /* ========================================
-   ПРОГРЕСС
+   ПРОГРЕСС 90 ДНЕЙ
    ======================================== */
 
 .progress-section {
@@ -249,6 +249,240 @@ h1 {
 
 
 /* ========================================
+   ПРОГРЕСС СЕГОДНЯ
+   ======================================== */
+
+.daily-progress {
+    padding: 20px 0 24px;
+}
+
+.daily-progress-top {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 9px;
+
+    color: var(--soft-gray);
+
+    font-size: 11px;
+}
+
+.daily-progress-top span:last-child {
+    color: var(--rose-dark);
+
+    font-weight: 500;
+}
+
+.daily-progress-line {
+    width: 100%;
+    height: 2px;
+
+    background: var(--line);
+
+    overflow: hidden;
+}
+
+.daily-progress-fill {
+    width: 0%;
+    height: 100%;
+
+    background: var(--rose);
+
+    transition: width 0.4s ease;
+}
+
+
+/* ========================================
+   ГРУППЫ ЗАДАЧ
+   ======================================== */
+
+.task-groups {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 30px;
+}
+
+.task-group {
+    border-top: 1px solid var(--line);
+}
+
+.task-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 16px 0 8px;
+}
+
+.task-group-title {
+    color: var(--graphite);
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    letter-spacing: 1.2px;
+
+    text-transform: uppercase;
+}
+
+.task-group-count {
+    color: var(--soft-gray);
+
+    font-size: 10px;
+}
+
+
+/* ========================================
+   ЗАДАЧА
+   ======================================== */
+
+.task-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid rgba(229, 216, 220, 0.7);
+
+    transition: 0.25s ease;
+}
+
+.task-check {
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 23px;
+    height: 23px;
+
+    border: 1px solid var(--graphite);
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--white);
+
+    font-size: 12px;
+
+    transition: 0.25s ease;
+}
+
+.task-check:hover {
+    border-color: var(--rose-dark);
+
+    background: var(--rose-light);
+}
+
+.task-item.completed .task-check {
+    border-color: var(--sage);
+
+    background: var(--sage);
+}
+
+.task-content {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.task-title {
+    color: var(--graphite);
+
+    font-size: 14px;
+
+    line-height: 1.4;
+
+    transition: 0.25s ease;
+}
+
+.task-category {
+    display: none;
+}
+
+.task-item.completed .task-title {
+    color: var(--soft-gray);
+
+    text-decoration: line-through;
+
+    text-decoration-thickness: 1px;
+}
+
+
+/* ========================================
+   УДАЛЕНИЕ
+   ======================================== */
+
+.delete-task {
+    flex-shrink: 0;
+
+    width: 28px;
+    height: 28px;
+
+    background: transparent;
+
+    color: #aaa0a3;
+
+    font-size: 18px;
+
+    font-weight: 300;
+
+    opacity: 0;
+
+    transition: 0.2s ease;
+}
+
+.task-item:hover .delete-task {
+    opacity: 1;
+}
+
+.delete-task:hover {
+    color: var(--rose-dark);
+}
+
+
+/* ========================================
+   ДОБАВИТЬ ШАГ
+   ======================================== */
+
+.add-task-button {
+    width: 100%;
+
+    margin-top: 28px;
+
+    padding: 14px;
+
+    border: 1px dashed var(--line);
+
+    background: transparent;
+
+    color: var(--soft-gray);
+
+    font-size: 12px;
+
+    transition: 0.25s ease;
+}
+
+.add-task-button:hover {
+    border-color: var(--rose);
+
+    color: var(--graphite);
+
+    background: rgba(255, 255, 255, 0.35);
+}
+
+
+/* ========================================
    ПУСТОЕ СОСТОЯНИЕ
    ======================================== */
 
@@ -315,6 +549,207 @@ h1 {
     background: #403b3d;
 
     border-color: #403b3d;
+}
+
+
+/* ========================================
+   ФОРМА
+   ======================================== */
+
+.task-form {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+.form-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(41, 37, 39, 0.28);
+
+    backdrop-filter: blur(5px);
+
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.form-window {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+    max-width: 560px;
+
+    padding: 34px 26px 30px;
+
+    background: var(--surface);
+
+    border-top: 1px solid var(--line);
+
+    box-shadow:
+        0 -15px 50px rgba(41, 37, 39, 0.12);
+
+    animation: formAppear 0.25s ease;
+}
+
+@keyframes formAppear {
+
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-form {
+    position: absolute;
+
+    top: 20px;
+    right: 22px;
+
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid var(--line);
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--soft-gray);
+
+    font-size: 20px;
+
+    font-weight: 300;
+
+    transition: 0.2s ease;
+}
+
+.close-form:hover {
+    color: var(--graphite);
+
+    background: var(--background);
+
+    border-color: var(--rose);
+}
+
+.form-window h2 {
+    max-width: 360px;
+
+    margin-bottom: 28px;
+
+    font-family: "Playfair Display", serif;
+
+    font-size: 28px;
+
+    font-weight: 400;
+
+    line-height: 1.2;
+}
+
+.form-window input,
+.form-window select {
+    width: 100%;
+
+    padding: 15px 14px;
+
+    margin-bottom: 18px;
+
+    border: 1px solid var(--line);
+
+    border-radius: 0;
+
+    background: var(--background);
+
+    color: var(--graphite);
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+.form-window input:focus,
+.form-window select:focus {
+    border-color: var(--rose);
+
+    background: var(--surface);
+}
+
+.form-window input::placeholder {
+    color: #aaa0a3;
+}
+
+.form-window label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--soft-gray);
+
+    font-size: 11px;
+
+    letter-spacing: 0.5px;
+}
+
+.save-task {
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 5px;
+
+    background: var(--graphite);
+
+    color: var(--white);
+
+    font-size: 12px;
+
+    letter-spacing: 0.5px;
+
+    transition: 0.25s ease;
+}
+
+.save-task:hover {
+    background: var(--rose-dark);
+}
+
+.input-error {
+    border-color: var(--rose-dark) !important;
+
+    animation: shake 0.25s ease;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 
@@ -394,360 +829,13 @@ h1 {
 
 
 /* ========================================
-   ФОРМА ДОБАВЛЕНИЯ ЗАДАЧИ
-   ======================================== */
-
-.task-form {
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 100;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: center;
-}
-
-.form-overlay {
-    position: absolute;
-
-    inset: 0;
-
-    background: rgba(41, 37, 39, 0.28);
-
-    backdrop-filter: blur(5px);
-
-    -webkit-backdrop-filter: blur(5px);
-}
-
-.form-window {
-    position: relative;
-
-    z-index: 2;
-
-    width: 100%;
-
-    max-width: 560px;
-
-    padding: 34px 26px 30px;
-
-    background: var(--surface);
-
-    border-top: 1px solid var(--line);
-
-    box-shadow:
-        0 -15px 50px rgba(41, 37, 39, 0.12);
-
-    animation: formAppear 0.25s ease;
-}
-
-@keyframes formAppear {
-
-    from {
-        transform: translateY(30px);
-
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-
-        opacity: 1;
-    }
-}
-
-.close-form {
-    position: absolute;
-
-    top: 20px;
-    right: 22px;
-
-    width: 34px;
-    height: 34px;
-
-    border: 1px solid var(--line);
-
-    border-radius: 50%;
-
-    background: transparent;
-
-    color: var(--soft-gray);
-
-    font-size: 20px;
-
-    font-weight: 300;
-
-    transition: 0.2s ease;
-}
-
-.close-form:hover {
-    color: var(--graphite);
-
-    background: var(--background);
-
-    border-color: var(--rose);
-}
-
-.form-window h2 {
-    max-width: 360px;
-
-    margin-bottom: 28px;
-
-    font-family: "Playfair Display", serif;
-
-    font-size: 28px;
-
-    font-weight: 400;
-
-    line-height: 1.2;
-}
-
-.form-window input,
-.form-window select {
-    width: 100%;
-
-    padding: 15px 14px;
-
-    margin-bottom: 18px;
-
-    border: 1px solid var(--line);
-
-    border-radius: 0;
-
-    background: var(--background);
-
-    color: var(--graphite);
-
-    font-family: "DM Sans", sans-serif;
-
-    font-size: 14px;
-
-    outline: none;
-
-    transition: 0.2s ease;
-}
-
-.form-window input:focus,
-.form-window select:focus {
-    border-color: var(--rose);
-
-    background: var(--surface);
-}
-
-.form-window input::placeholder {
-    color: #aaa0a3;
-}
-
-.form-window label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: var(--soft-gray);
-
-    font-size: 11px;
-
-    letter-spacing: 0.5px;
-}
-
-.save-task {
-    width: 100%;
-
-    padding: 15px;
-
-    margin-top: 5px;
-
-    background: var(--graphite);
-
-    color: var(--white);
-
-    font-size: 12px;
-
-    letter-spacing: 0.5px;
-
-    transition: 0.25s ease;
-}
-
-.save-task:hover {
-    background: var(--rose-dark);
-}
-
-.input-error {
-    border-color: var(--rose-dark) !important;
-
-    animation: shake 0.25s ease;
-}
-
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    25% {
-        transform: translateX(-5px);
-    }
-
-    75% {
-        transform: translateX(5px);
-    }
-}
-
-
-/* ========================================
-   СПИСОК ЗАДАЧ
-   ======================================== */
-
-.task-list {
-    margin-top: 8px;
-}
-
-.task-item {
-    display: flex;
-
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 18px 0;
-
-    border-bottom: 1px solid var(--line);
-
-    transition: 0.25s ease;
-}
-
-.task-check {
-    flex-shrink: 0;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 24px;
-    height: 24px;
-
-    border: 1px solid var(--graphite);
-
-    border-radius: 50%;
-
-    background: transparent;
-
-    color: var(--white);
-
-    font-size: 13px;
-
-    transition: 0.25s ease;
-}
-
-.task-item.completed .task-check {
-    border-color: var(--sage);
-
-    background: var(--sage);
-}
-
-.task-content {
-    flex: 1;
-
-    min-width: 0;
-}
-
-.task-title {
-    color: var(--graphite);
-
-    font-size: 14px;
-
-    line-height: 1.4;
-
-    transition: 0.25s ease;
-}
-
-.task-category {
-    margin-top: 5px;
-
-    color: var(--soft-gray);
-
-    font-size: 10px;
-
-    letter-spacing: 0.4px;
-}
-
-.task-item.completed .task-title {
-    color: var(--soft-gray);
-
-    text-decoration: line-through;
-
-    text-decoration-thickness: 1px;
-}
-
-.delete-task {
-    flex-shrink: 0;
-
-    width: 28px;
-    height: 28px;
-
-    background: transparent;
-
-    color: #aaa0a3;
-
-    font-size: 18px;
-
-    font-weight: 300;
-
-    opacity: 0;
-
-    transition: 0.2s ease;
-}
-
-.task-item:hover .delete-task {
-    opacity: 1;
-}
-
-.delete-task:hover {
-    color: var(--rose-dark);
-}
-
-.add-task-button {
-    width: 100%;
-
-    margin-top: 22px;
-
-    padding: 14px;
-
-    border: 1px dashed var(--line);
-
-    background: transparent;
-
-    color: var(--soft-gray);
-
-    font-size: 12px;
-
-    transition: 0.25s ease;
-}
-
-.add-task-button:hover {
-    border-color: var(--rose);
-
-    color: var(--graphite);
-
-    background: rgba(255, 255, 255, 0.35);
-}
-
-
-/* ========================================
-   АДАПТАЦИЯ ПОД БОЛЬШИЕ ЭКРАНЫ
+   АДАПТАЦИЯ
    ======================================== */
 
 @media (min-width: 700px) {
 
     body {
         display: flex;
-
         justify-content: center;
     }
 
@@ -761,26 +849,22 @@ h1 {
 }
 
 
-/* ========================================
-   АДАПТАЦИЯ ПОД МАЛЕНЬКИЕ ТЕЛЕФОНЫ
-   ======================================== */
-
 @media (max-width: 560px) {
-
-    .form-window {
-        padding-bottom: 28px;
-    }
 
     .delete-task {
         opacity: 1;
     }
+
+    .form-window {
+        padding-bottom: 28px;
+    }
 }
+
 
 @media (max-width: 380px) {
 
     #app {
         padding-left: 18px;
-
         padding-right: 18px;
     }
 
