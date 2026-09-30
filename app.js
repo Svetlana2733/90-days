@@ -35,6 +35,10 @@ let tasks =
     ) || [];
 
 
+// Какая дата сейчас открыта в календаре
+let selectedCalendarDate = null;
+
+
 // ========================================
 // СОХРАНЕНИЕ
 // ========================================
@@ -89,6 +93,19 @@ function getDateObject(dateString) {
 
 
 // ========================================
+// ДЕНЬ НЕДЕЛИ
+// ========================================
+
+function getWeekDay(dateString) {
+
+    return getDateObject(
+        dateString
+    ).getDay();
+
+}
+
+
+// ========================================
 // ДОБАВИТЬ ДНИ
 // ========================================
 
@@ -125,36 +142,25 @@ function addDays(
 
 
 // ========================================
-// ДЕНЬ НЕДЕЛИ
-// ========================================
-
-function getWeekDay(dateString) {
-
-    return getDateObject(
-        dateString
-    ).getDay();
-
-}
-
-
-// ========================================
 // ДЕНЬ ЧЕЛЛЕНДЖА
 // ========================================
 
-function getChallengeDay() {
+function getChallengeDay(
+    dateString = getToday()
+) {
 
     const start =
         getDateObject(
             CHALLENGE_START
         );
 
-    const today =
+    const date =
         getDateObject(
-            getToday()
+            dateString
         );
 
     const difference =
-        today - start;
+        date - start;
 
     return (
         Math.floor(
@@ -184,7 +190,10 @@ function getChallengeProgress() {
         return 0;
     }
 
-    if (day > CHALLENGE_LENGTH) {
+    if (
+        day >
+        CHALLENGE_LENGTH
+    ) {
         return 100;
     }
 
@@ -206,9 +215,12 @@ function formatDate(
     dateString = getToday()
 ) {
 
-    return getDateObject(
-        dateString
-    ).toLocaleDateString(
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date.toLocaleDateString(
         "ru-RU",
         {
             day: "numeric",
@@ -227,22 +239,46 @@ function formatShortDate(
     dateString
 ) {
 
-    return getDateObject(
-        dateString
-    ).toLocaleDateString(
-        "ru-RU",
-        {
-            day: "numeric",
-            month: "short"
-        }
-    )
+    const date =
+        getDateObject(
+            dateString
+        );
+
+    return date
+        .toLocaleDateString(
+            "ru-RU",
+            {
+                day: "numeric",
+                month: "short"
+            }
+        )
         .replace(".", "");
 
 }
 
 
 // ========================================
-// ПЕРИОД ЗАДАЧИ
+// ДЕНЬ НЕДЕЛИ
+// ========================================
+
+function formatWeekDay(
+    dateString
+) {
+
+    return getDateObject(
+        dateString
+    ).toLocaleDateString(
+        "ru-RU",
+        {
+            weekday: "long"
+        }
+    );
+
+}
+
+
+// ========================================
+// ПРОВЕРКА ПЕРИОДА
 // ========================================
 
 function isDateInsideTaskPeriod(
@@ -259,9 +295,7 @@ function isDateInsideTaskPeriod(
         dateString <
         startDate
     ) {
-
         return false;
-
     }
 
     if (
@@ -269,9 +303,7 @@ function isDateInsideTaskPeriod(
         dateString >
         task.endDate
     ) {
-
         return false;
-
     }
 
     return true;
@@ -288,6 +320,8 @@ function isTaskForDate(
     dateString
 ) {
 
+    // Одноразовая задача
+
     if (
         !task.repeat ||
         task.repeat === "once"
@@ -300,6 +334,9 @@ function isTaskForDate(
 
     }
 
+
+    // Проверяем период
+
     if (
         !isDateInsideTaskPeriod(
             task,
@@ -311,16 +348,24 @@ function isTaskForDate(
 
     }
 
+
+    // Каждый день
+
     if (
-        task.repeat === "daily"
+        task.repeat ===
+        "daily"
     ) {
 
         return true;
 
     }
 
+
+    // Выбранные дни
+
     if (
-        task.repeat === "weekly"
+        task.repeat ===
+        "weekly"
     ) {
 
         const weekDay =
@@ -328,7 +373,7 @@ function isTaskForDate(
                 dateString
             );
 
-        return (
+        return Boolean(
             task.weekDays &&
             task.weekDays.includes(
                 weekDay
@@ -362,6 +407,9 @@ function isTaskCompleted(
         );
 
     }
+
+
+    // Совместимость со старыми задачами
 
     if (
         task.date ===
@@ -399,7 +447,7 @@ function getTasksForDate(
 
 
 // ========================================
-// ЗАПУСК
+// ЭКРАН ЗАПУСКА
 // ========================================
 
 document.addEventListener(
@@ -444,7 +492,8 @@ function updateChallengeInfo() {
                 "Старт 1 октября";
 
         } else if (
-            day > CHALLENGE_LENGTH
+            day >
+            CHALLENGE_LENGTH
         ) {
 
             dayElement.textContent =
@@ -507,12 +556,12 @@ function updateChallengeInfo() {
 
 function setupNavigation() {
 
-    const navItems =
+    const buttons =
         document.querySelectorAll(
             ".nav-item"
         );
 
-    navItems.forEach(
+    buttons.forEach(
         button => {
 
             button.addEventListener(
@@ -526,8 +575,11 @@ function setupNavigation() {
                         return;
                     }
 
+                    showPage(
+                        pageId
+                    );
 
-                    navItems.forEach(
+                    buttons.forEach(
                         item => {
 
                             item.classList.remove(
@@ -537,39 +589,9 @@ function setupNavigation() {
                         }
                     );
 
-
                     button.classList.add(
                         "active"
                     );
-
-
-                    document
-                        .querySelectorAll(
-                            ".page"
-                        )
-                        .forEach(
-                            page => {
-
-                                page.classList.remove(
-                                    "active-page"
-                                );
-
-                            }
-                        );
-
-
-                    const selectedPage =
-                        document.getElementById(
-                            pageId
-                        );
-
-                    if (selectedPage) {
-
-                        selectedPage.classList.add(
-                            "active-page"
-                        );
-
-                    }
 
 
                     if (
@@ -581,19 +603,51 @@ function setupNavigation() {
 
                     }
 
-
-                    window.scrollTo(
-                        {
-                            top: 0,
-                            behavior: "smooth"
-                        }
-                    );
-
                 }
             );
 
         }
     );
+
+}
+
+
+// ========================================
+// ПОКАЗАТЬ СТРАНИЦУ
+// ========================================
+
+function showPage(
+    pageId
+) {
+
+    const pages =
+        document.querySelectorAll(
+            ".page"
+        );
+
+    pages.forEach(
+        page => {
+
+            page.classList.remove(
+                "active-page"
+            );
+
+        }
+    );
+
+
+    const page =
+        document.getElementById(
+            pageId
+        );
+
+    if (page) {
+
+        page.classList.add(
+            "active-page"
+        );
+
+    }
 
 }
 
@@ -631,14 +685,9 @@ function openTaskForm(
 
     form.innerHTML = `
 
-        <div
-            class="form-overlay"
-        ></div>
+        <div class="form-overlay"></div>
 
-
-        <div
-            class="form-window"
-        >
+        <div class="form-window">
 
             <button
                 class="close-form"
@@ -647,17 +696,13 @@ function openTaskForm(
                 ×
             </button>
 
-
-            <p
-                class="eyebrow"
-            >
+            <p class="eyebrow">
                 ${
                     isEditing
                         ? "РЕДАКТИРОВАНИЕ"
                         : "НОВЫЙ ШАГ"
                 }
             </p>
-
 
             <h2>
                 ${
@@ -667,13 +712,9 @@ function openTaskForm(
                 }
             </h2>
 
-
-            <label
-                for="task-title"
-            >
+            <label for="task-title">
                 Задача
             </label>
-
 
             <input
                 type="text"
@@ -689,17 +730,11 @@ function openTaskForm(
                 }"
             >
 
-
-            <label
-                for="task-category"
-            >
+            <label for="task-category">
                 Сфера
             </label>
 
-
-            <select
-                id="task-category"
-            >
+            <select id="task-category">
 
                 ${
                     CATEGORIES
@@ -726,17 +761,11 @@ function openTaskForm(
 
             </select>
 
-
-            <label
-                for="task-repeat"
-            >
+            <label for="task-repeat">
                 Повторение
             </label>
 
-
-            <select
-                id="task-repeat"
-            >
+            <select id="task-repeat">
 
                 <option
                     value="once"
@@ -751,7 +780,6 @@ function openTaskForm(
                     Только сегодня
                 </option>
 
-
                 <option
                     value="daily"
                     ${
@@ -764,7 +792,6 @@ function openTaskForm(
                 >
                     Каждый день
                 </option>
-
 
                 <option
                     value="weekly"
@@ -781,21 +808,13 @@ function openTaskForm(
 
             </select>
 
+            <div id="period-container">
 
-            <div
-                id="period-container"
-            >
-
-                <label
-                    for="task-period"
-                >
+                <label for="task-period">
                     Период
                 </label>
 
-
-                <select
-                    id="task-period"
-                >
+                <select id="task-period">
 
                     <option
                         value="challenge"
@@ -810,7 +829,6 @@ function openTaskForm(
                     >
                         Все 90 дней
                     </option>
-
 
                     <option
                         value="until-date"
@@ -827,7 +845,6 @@ function openTaskForm(
                     </option>
 
                 </select>
-
 
                 <input
                     type="date"
@@ -852,7 +869,6 @@ function openTaskForm(
 
             </div>
 
-
             <div
                 id="weekdays-container"
                 style="${
@@ -868,29 +884,1625 @@ function openTaskForm(
                     Дни недели
                 </label>
 
+                <div class="weekdays">
 
-                <div
-                    class="weekdays"
-                >
-
-                    ${createWeekdayInputs(
-                        taskToEdit
+                    ${createWeekdayButtons(
+                        isEditing
+                            ? taskToEdit.weekDays
+                            : []
                     )}
 
                 </div>
 
             </div>
 
+            <div class="form-actions">
 
-            <button
-                class="save-task"
-            >
                 ${
                     isEditing
-                        ? "Сохранить изменения"
-                        : "Добавить шаг"
+                        ? `
+                            <button
+                                class="delete-task-button"
+                                id="delete-task-button"
+                            >
+                                Удалить
+                            </button>
+                        `
+                        : ""
                 }
+
+                <button
+                    class="primary-button"
+                    id="save-task-button"
+                >
+                    ${
+                        isEditing
+                            ? "Сохранить"
+                            : "Добавить"
+                    }
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+
+    document.body.appendChild(
+        form
+    );
+
+
+    const closeButton =
+        form.querySelector(
+            ".close-form"
+        );
+
+    const overlay =
+        form.querySelector(
+            ".form-overlay"
+        );
+
+
+    closeButton.addEventListener(
+        "click",
+        () => form.remove()
+    );
+
+    overlay.addEventListener(
+        "click",
+        () => form.remove()
+    );
+
+
+    const repeatSelect =
+        form.querySelector(
+            "#task-repeat"
+        );
+
+    const periodSelect =
+        form.querySelector(
+            "#task-period"
+        );
+
+    const periodDate =
+        form.querySelector(
+            "#task-end-date"
+        );
+
+    const weekdaysContainer =
+        form.querySelector(
+            "#weekdays-container"
+        );
+
+
+    function updateFormVisibility() {
+
+        if (
+            periodSelect.value ===
+            "until-date"
+        ) {
+
+            periodDate.style.display =
+                "block";
+
+        } else {
+
+            periodDate.style.display =
+                "none";
+
+        }
+
+
+        if (
+            repeatSelect.value ===
+            "weekly"
+        ) {
+
+            weekdaysContainer.style.display =
+                "block";
+
+        } else {
+
+            weekdaysContainer.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    repeatSelect.addEventListener(
+        "change",
+        updateFormVisibility
+    );
+
+    periodSelect.addEventListener(
+        "change",
+        updateFormVisibility
+    );
+
+
+    const saveButton =
+        form.querySelector(
+            "#save-task-button"
+        );
+
+
+    saveButton.addEventListener(
+        "click",
+        () => {
+
+            const title =
+                form.querySelector(
+                    "#task-title"
+                ).value.trim();
+
+            const category =
+                form.querySelector(
+                    "#task-category"
+                ).value;
+
+            const repeat =
+                repeatSelect.value;
+
+            const period =
+                periodSelect.value;
+
+            const endDate =
+                period === "until-date"
+                    ? periodDate.value
+                    : CHALLENGE_END;
+
+
+            if (!title) {
+
+                alert(
+                    "Напиши название задачи"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                period === "until-date" &&
+                !endDate
+            ) {
+
+                alert(
+                    "Выбери дату окончания"
+                );
+
+                return;
+
+            }
+
+
+            let weekDays = [];
+
+
+            if (
+                repeat ===
+                "weekly"
+            ) {
+
+                weekDays =
+                    Array
+                        .from(
+                            form.querySelectorAll(
+                                ".weekday-button.active"
+                            )
+                        )
+                        .map(
+                            button =>
+                                Number(
+                                    button.dataset.day
+                                )
+                        );
+
+
+                if (
+                    weekDays.length === 0
+                ) {
+
+                    alert(
+                        "Выбери хотя бы один день недели"
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            if (isEditing) {
+
+                taskToEdit.title =
+                    title;
+
+                taskToEdit.category =
+                    category;
+
+                taskToEdit.repeat =
+                    repeat;
+
+                taskToEdit.endDate =
+                    endDate;
+
+                taskToEdit.weekDays =
+                    weekDays;
+
+
+                if (
+                    !taskToEdit.completions
+                ) {
+
+                    taskToEdit.completions =
+                        {};
+
+                }
+
+            } else {
+
+                const today =
+                    getToday();
+
+                const newTask = {
+
+                    id:
+                        Date.now()
+                        .toString(),
+
+                    title:
+                        title,
+
+                    category:
+                        category,
+
+                    repeat:
+                        repeat,
+
+                    date:
+                        today,
+
+                    startDate:
+                        today,
+
+                    endDate:
+                        endDate,
+
+                    weekDays:
+                        weekDays,
+
+                    completions:
+                        {}
+
+                };
+
+
+                tasks.push(
+                    newTask
+                );
+
+            }
+
+
+            saveTasks();
+
+            form.remove();
+
+            renderTasks();
+
+            renderCalendar();
+
+        }
+    );
+
+
+    if (isEditing) {
+
+        const deleteButton =
+            form.querySelector(
+                "#delete-task-button"
+            );
+
+        deleteButton.addEventListener(
+            "click",
+            () => {
+
+                const confirmed =
+                    confirm(
+                        "Удалить эту задачу?"
+                    );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                tasks =
+                    tasks.filter(
+                        task =>
+                            task.id !==
+                            taskToEdit.id
+                    );
+
+                saveTasks();
+
+                form.remove();
+
+                renderTasks();
+
+                renderCalendar();
+
+            }
+        );
+
+    }
+
+}
+
+
+// ========================================
+// КНОПКИ ДНЕЙ НЕДЕЛИ
+// ========================================
+
+function createWeekdayButtons(
+    selectedDays = []
+) {
+
+    const days = [
+
+        {
+            number: 1,
+            name: "Пн"
+        },
+
+        {
+            number: 2,
+            name: "Вт"
+        },
+
+        {
+            number: 3,
+            name: "Ср"
+        },
+
+        {
+            number: 4,
+            name: "Чт"
+        },
+
+        {
+            number: 5,
+            name: "Пт"
+        },
+
+        {
+            number: 6,
+            name: "Сб"
+        },
+
+        {
+            number: 0,
+            name: "Вс"
+        }
+
+    ];
+
+
+    return days
+        .map(
+            day => `
+
+                <button
+                    type="button"
+                    class="weekday-button ${
+                        selectedDays.includes(
+                            day.number
+                        )
+                            ? "active"
+                            : ""
+                    }"
+                    data-day="${day.number}"
+                >
+                    ${day.name}
+                </button>
+
+            `
+        )
+        .join("");
+
+}
+
+
+// ========================================
+// РЕНДЕР ЗАДАЧ СЕГОДНЯ
+// ========================================
+
+function renderTasks() {
+
+    const container =
+        document.querySelector(
+            "#task-groups"
+        );
+
+    const emptyState =
+        document.querySelector(
+            "#empty-state"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const today =
+        getToday();
+
+    const todayTasks =
+        getTasksForDate(
+            today
+        );
+
+
+    container.innerHTML = "";
+
+
+    if (
+        todayTasks.length === 0
+    ) {
+
+        container.style.display =
+            "none";
+
+        if (emptyState) {
+
+            emptyState.style.display =
+                "block";
+
+        }
+
+        updateDailyProgress(
+            []
+        );
+
+        return;
+
+    }
+
+
+    container.style.display =
+        "block";
+
+    if (emptyState) {
+
+        emptyState.style.display =
+            "none";
+
+    }
+
+
+    CATEGORIES.forEach(
+        category => {
+
+            const categoryTasks =
+                todayTasks.filter(
+                    task =>
+                        task.category ===
+                        category
+                );
+
+
+            if (
+                categoryTasks.length ===
+                0
+            ) {
+
+                return;
+
+            }
+
+
+            const group =
+                document.createElement(
+                    "div"
+                );
+
+            group.className =
+                "task-group";
+
+
+            group.innerHTML = `
+
+                <div class="task-group-title">
+                    ${category}
+                </div>
+
+                <div class="task-list"></div>
+
+            `;
+
+
+            const list =
+                group.querySelector(
+                    ".task-list"
+                );
+
+
+            categoryTasks.forEach(
+                task => {
+
+                    const completed =
+                        isTaskCompleted(
+                            task,
+                            today
+                        );
+
+
+                    const taskElement =
+                        document.createElement(
+                            "div"
+                        );
+
+                    taskElement.className =
+                        `task ${
+                            completed
+                                ? "completed"
+                                : ""
+                        }`;
+
+
+                    taskElement.innerHTML = `
+
+                        <button
+                            class="task-check"
+                            aria-label="Выполнить"
+                        >
+                            <span></span>
+                        </button>
+
+                        <div class="task-content">
+
+                            <div class="task-title">
+                                ${escapeHTML(
+                                    task.title
+                                )}
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="task-edit"
+                            aria-label="Редактировать"
+                        >
+                            ⋯
+                        </button>
+
+                    `;
+
+
+                    const checkButton =
+                        taskElement.querySelector(
+                            ".task-check"
+                        );
+
+                    const editButton =
+                        taskElement.querySelector(
+                            ".task-edit"
+                        );
+
+
+                    checkButton.addEventListener(
+                        "click",
+                        () => {
+
+                            toggleTask(
+                                task.id,
+                                today
+                            );
+
+                        }
+                    );
+
+
+                    editButton.addEventListener(
+                        "click",
+                        () => {
+
+                            openTaskForm(
+                                task
+                            );
+
+                        }
+                    );
+
+
+                    list.appendChild(
+                        taskElement
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                group
+            );
+
+        }
+    );
+
+
+    updateDailyProgress(
+        todayTasks
+    );
+
+}
+
+
+// ========================================
+// ПРОГРЕСС СЕГОДНЯ
+// ========================================
+
+function updateDailyProgress(
+    dayTasks
+) {
+
+    const text =
+        document.querySelector(
+            "#daily-progress-text"
+        );
+
+    const fill =
+        document.querySelector(
+            "#daily-progress-fill"
+        );
+
+
+    const total =
+        dayTasks.length;
+
+
+    const completed =
+        dayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    getToday()
+                )
+        ).length;
+
+
+    if (text) {
+
+        text.textContent =
+            `${completed} из ${total}`;
+
+    }
+
+
+    if (fill) {
+
+        const percent =
+            total > 0
+                ? (
+                    completed /
+                    total
+                ) * 100
+                : 0;
+
+        fill.style.width =
+            `${percent}%`;
+
+    }
+
+}
+
+
+// ========================================
+// ОТМЕТИТЬ ЗАДАЧУ
+// ========================================
+
+function toggleTask(
+    taskId,
+    dateString = getToday()
+) {
+
+    const task =
+        tasks.find(
+            item =>
+                item.id ===
+                taskId
+        );
+
+
+    if (!task) {
+        return;
+    }
+
+
+    if (
+        !task.completions
+    ) {
+
+        task.completions =
+            {};
+
+    }
+
+
+    task.completions[
+        dateString
+    ] =
+        !Boolean(
+            task.completions[
+                dateString
+            ]
+        );
+
+
+    saveTasks();
+
+
+    // Обновляем Сегодня
+
+    renderTasks();
+
+
+    // Обновляем календарь
+
+    renderCalendar();
+
+}
+
+
+// ========================================
+// ПЕРВАЯ КНОПКА
+// ========================================
+
+function setupFirstTaskButton() {
+
+    const button =
+        document.querySelector(
+            "#first-task-button"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            openTaskForm();
+
+        }
+    );
+
+}
+
+
+// ========================================
+// КАЛЕНДАРЬ
+// ========================================
+
+function getInitialCalendarDate() {
+
+    const today =
+        getToday();
+
+
+    if (
+        today <
+        CHALLENGE_START
+    ) {
+
+        return CHALLENGE_START;
+
+    }
+
+
+    if (
+        today >
+        CHALLENGE_END
+    ) {
+
+        return CHALLENGE_END;
+
+    }
+
+
+    return today;
+
+}
+
+
+// ========================================
+// РЕНДЕР КАЛЕНДАРЯ
+// ========================================
+
+function renderCalendar() {
+
+    const container =
+        document.querySelector(
+            "#challenge-calendar"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const monthBlock =
+        document.createElement(
+            "div"
+        );
+
+    monthBlock.className =
+        "calendar-month";
+
+
+    const title =
+        document.createElement(
+            "h3"
+        );
+
+    title.textContent =
+        "Октябрь — декабрь 2026";
+
+
+    monthBlock.appendChild(
+        title
+    );
+
+
+    const weekdays =
+        document.createElement(
+            "div"
+        );
+
+    weekdays.className =
+        "calendar-weekdays";
+
+
+    [
+        "Пн",
+        "Вт",
+        "Ср",
+        "Чт",
+        "Пт",
+        "Сб",
+        "Вс"
+    ].forEach(
+        name => {
+
+            const element =
+                document.createElement(
+                    "div"
+                );
+
+            element.textContent =
+                name;
+
+            weekdays.appendChild(
+                element
+            );
+
+        }
+    );
+
+
+    monthBlock.appendChild(
+        weekdays
+    );
+
+
+    const grid =
+        document.createElement(
+            "div"
+        );
+
+    grid.className =
+        "calendar-grid";
+
+
+    let currentDate =
+        CHALLENGE_START;
+
+
+    for (
+        let i = 0;
+        i < CHALLENGE_LENGTH;
+        i++
+    ) {
+
+        const dateString =
+            addDays(
+                currentDate,
+                i
+            );
+
+
+        const dayElement =
+            createCalendarDay(
+                dateString
+            );
+
+
+        grid.appendChild(
+            dayElement
+        );
+
+    }
+
+
+    monthBlock.appendChild(
+        grid
+    );
+
+    container.appendChild(
+        monthBlock
+    );
+
+
+    if (
+        !selectedCalendarDate
+    ) {
+
+        selectedCalendarDate =
+            getInitialCalendarDate();
+
+    }
+
+
+    if (
+        selectedCalendarDate <
+        CHALLENGE_START ||
+        selectedCalendarDate >
+        CHALLENGE_END
+    ) {
+
+        selectedCalendarDate =
+            getInitialCalendarDate();
+
+    }
+
+
+    renderSelectedDay(
+        selectedCalendarDate
+    );
+
+}
+
+
+// ========================================
+// СОЗДАТЬ ДЕНЬ КАЛЕНДАРЯ
+// ========================================
+
+function createCalendarDay(
+    dateString
+) {
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+    button.className =
+        "calendar-day";
+
+
+    const dayNumber =
+        getChallengeDay(
+            dateString
+        );
+
+
+    const dayTasks =
+        getTasksForDate(
+            dateString
+        );
+
+
+    const completedTasks =
+        dayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        );
+
+
+    let status =
+        "empty";
+
+
+    if (
+        dayTasks.length > 0 &&
+        completedTasks.length ===
+        dayTasks.length
+    ) {
+
+        status =
+            "complete";
+
+    } else if (
+        completedTasks.length > 0
+    ) {
+
+        status =
+            "partial";
+
+    }
+
+
+    button.classList.add(
+        `status-${status}`
+    );
+
+
+    if (
+        dateString ===
+        getToday()
+    ) {
+
+        button.classList.add(
+            "today"
+        );
+
+    }
+
+
+    if (
+        dateString ===
+        selectedCalendarDate
+    ) {
+
+        button.classList.add(
+            "selected"
+        );
+
+    }
+
+
+    button.innerHTML = `
+
+        <span class="calendar-day-number">
+            ${getDateObject(
+                dateString
+            ).getDate()}
+        </span>
+
+        <span class="calendar-day-label">
+            ${dayNumber}
+        </span>
+
+    `;
+
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            selectCalendarDay(
+                dateString
+            );
+
+        }
+    );
+
+
+    return button;
+
+}
+
+
+// ========================================
+// ВЫБРАТЬ ДЕНЬ
+// ========================================
+
+function selectCalendarDay(
+    dateString
+) {
+
+    selectedCalendarDate =
+        dateString;
+
+
+    document
+        .querySelectorAll(
+            ".calendar-day"
+        )
+        .forEach(
+            day => {
+
+                day.classList.remove(
+                    "selected"
+                );
+
+            }
+        );
+
+
+    renderSelectedDay(
+        dateString
+    );
+
+
+    const selected =
+        Array.from(
+            document.querySelectorAll(
+                ".calendar-day"
+            )
+        ).find(
+            day =>
+                day.querySelector(
+                    ".calendar-day-number"
+                ) &&
+                getDayFromCalendarElement(
+                    day
+                ) ===
+                dateString
+        );
+
+
+    if (selected) {
+
+        selected.classList.add(
+            "selected"
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ПОЛУЧИТЬ ДАТУ ИЗ КНОПКИ
+// ========================================
+
+function getDayFromCalendarElement(
+    element
+) {
+
+    const number =
+        element.querySelector(
+            ".calendar-day-number"
+        );
+
+    if (!number) {
+        return null;
+    }
+
+
+    const allDays =
+        document.querySelectorAll(
+            ".calendar-day"
+        );
+
+
+    const index =
+        Array.from(
+            allDays
+        ).indexOf(
+            element
+        );
+
+
+    if (
+        index < 0 ||
+        index >= CHALLENGE_LENGTH
+    ) {
+
+        return null;
+
+    }
+
+
+    return addDays(
+        CHALLENGE_START,
+        index
+    );
+
+}
+
+
+// ========================================
+// ВЫБРАННЫЙ ДЕНЬ
+// ========================================
+
+function renderSelectedDay(
+    dateString
+) {
+
+    const container =
+        document.querySelector(
+            "#selected-day"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const dayTasks =
+        getTasksForDate(
+            dateString
+        );
+
+
+    const completed =
+        dayTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        ).length;
+
+
+    const challengeDay =
+        getChallengeDay(
+            dateString
+        );
+
+
+    const weekDay =
+        formatWeekDay(
+            dateString
+        );
+
+
+    let tasksHTML = "";
+
+
+    if (
+        dayTasks.length === 0
+    ) {
+
+        tasksHTML = `
+
+            <div class="calendar-empty">
+                На этот день пока нет шагов.
+            </div>
+
+        `;
+
+    } else {
+
+        tasksHTML =
+            dayTasks
+                .map(
+                    task => {
+
+                        const isCompleted =
+                            isTaskCompleted(
+                                task,
+                                dateString
+                            );
+
+
+                        return `
+
+                            <button
+                                class="
+                                    calendar-task
+                                    ${
+                                        isCompleted
+                                            ? "completed"
+                                            : ""
+                                    }
+                                "
+                                data-task-id="${task.id}"
+                                data-date="${dateString}"
+                            >
+
+                                <span
+                                    class="calendar-task-dot"
+                                ></span>
+
+                                <span
+                                    class="calendar-task-title"
+                                >
+                                    ${escapeHTML(
+                                        task.title
+                                    )}
+                                </span>
+
+                                <span
+                                    class="calendar-task-hint"
+                                >
+                                    нажми
+                                </span>
+
+                            </button>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="selected-day-header">
+
+            <div>
+
+                <div class="selected-day-label">
+                    ДЕНЬ ${challengeDay}
+                </div>
+
+                <div class="selected-day-title">
+                    ${formatDate(
+                        dateString
+                    )}
+                </div>
+
+                <div class="selected-day-week">
+                    ${capitalizeFirst(
+                        weekDay
+                    )}
+                </div>
+
+            </div>
+
+            <div class="selected-day-count">
+                ${completed} из ${dayTasks.length}
+            </div>
+
+        </div>
+
+
+        <div class="selected-day-tasks">
+
+            ${tasksHTML}
+
+        </div>
+
+
+        <button
+            class="calendar-add-task"
+            id="calendar-add-task-button"
+        >
+            + Добавить шаг на этот день
+        </button>
+
+    `;
+
+
+    // Отметить задачу
+
+    container
+        .querySelectorAll(
+            ".calendar-task"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const taskId =
+                            button.dataset.taskId;
+
+                        const date =
+                            button.dataset.date;
+
+
+                        toggleCalendarTask(
+                            taskId,
+                            date
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    // Добавить задачу
+
+    const addButton =
+        container.querySelector(
+            "#calendar-add-task-button"
+        );
+
+
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            () => {
+
+                openCalendarTaskForm(
+                    dateString
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ОТМЕТИТЬ ЗАДАЧУ В КАЛЕНДАРЕ
+// ========================================
+
+function toggleCalendarTask(
+    taskId,
+    dateString
+) {
+
+    const task =
+        tasks.find(
+            item =>
+                item.id ===
+                taskId
+        );
+
+
+    if (!task) {
+        return;
+    }
+
+
+    if (
+        !task.completions
+    ) {
+
+        task.completions =
+            {};
+
+    }
+
+
+    task.completions[
+        dateString
+    ] =
+        !Boolean(
+            task.completions[
+                dateString
+            ]
+        );
+
+
+    saveTasks();
+
+
+    // Обновляем календарь
+
+    renderCalendar();
+
+
+    // Если это сегодня —
+    // обновляем и Сегодня
+
+    if (
+        dateString ===
+        getToday()
+    ) {
+
+        renderTasks();
+
+    }
+
+}
+
+
+// ========================================
+// ДОБАВИТЬ ЗАДАЧУ НА КОНКРЕТНЫЙ ДЕНЬ
+// ========================================
+
+function openCalendarTaskForm(
+    dateString
+) {
+
+    const oldForm =
+        document.querySelector(
+            ".task-form"
+        );
+
+    if (oldForm) {
+        oldForm.remove();
+    }
+
+
+    const form =
+        document.createElement(
+            "div"
+        );
+
+    form.className =
+        "task-form";
+
+
+    form.innerHTML = `
+
+        <div class="form-overlay"></div>
+
+        <div class="form-window">
+
+            <button
+                class="close-form"
+                aria-label="Закрыть"
+            >
+                ×
             </button>
+
+            <p class="eyebrow">
+                НОВЫЙ ШАГ
+            </p>
+
+            <h2>
+                ${formatDate(
+                    dateString
+                )}
+            </h2>
+
+            <label for="calendar-task-title">
+                Задача
+            </label>
+
+            <input
+                type="text"
+                id="calendar-task-title"
+                placeholder="Например: написать пост"
+                autocomplete="off"
+            >
+
+            <label for="calendar-task-category">
+                Сфера
+            </label>
+
+            <select
+                id="calendar-task-category"
+            >
+
+                ${CATEGORIES
+                    .map(
+                        category => `
+
+                            <option
+                                value="${category}"
+                            >
+                                ${category}
+                            </option>
+
+                        `
+                    )
+                    .join("")}
+
+            </select>
+
+
+            <div class="form-actions">
+
+                <button
+                    class="primary-button"
+                    id="save-calendar-task"
+                >
+                    Добавить
+                </button>
+
+            </div>
 
         </div>
 
@@ -922,1860 +2534,108 @@ function openTaskForm(
         );
 
 
-    const repeatSelect =
-        form.querySelector(
-            "#task-repeat"
-        );
-
-    const weekdaysContainer =
-        form.querySelector(
-            "#weekdays-container"
-        );
-
-    const periodSelect =
-        form.querySelector(
-            "#task-period"
-        );
-
-    const endDateInput =
-        form.querySelector(
-            "#task-end-date"
-        );
-
-
-    function updatePeriodVisibility() {
-
-        if (
-            repeatSelect.value ===
-            "once"
-        ) {
-
-            periodSelect.value =
-                "challenge";
-
-            endDateInput.style.display =
-                "none";
-
-            weekdaysContainer.style.display =
-                "none";
-
-            return;
-
-        }
-
-
-        weekdaysContainer.style.display =
-            repeatSelect.value ===
-            "weekly"
-                ? "block"
-                : "none";
-
-
-        endDateInput.style.display =
-            periodSelect.value ===
-            "until-date"
-                ? "block"
-                : "none";
-
-    }
-
-
-    repeatSelect.addEventListener(
-        "change",
-        updatePeriodVisibility
-    );
-
-    periodSelect.addEventListener(
-        "change",
-        updatePeriodVisibility
-    );
-
-
-    updatePeriodVisibility();
-
-
     form
         .querySelector(
-            ".save-task"
+            "#save-calendar-task"
         )
         .addEventListener(
             "click",
             () => {
 
-                if (isEditing) {
+                const title =
+                    form
+                        .querySelector(
+                            "#calendar-task-title"
+                        )
+                        .value
+                        .trim();
 
-                    saveEditedTask(
-                        taskToEdit.id
+
+                const category =
+                    form
+                        .querySelector(
+                            "#calendar-task-category"
+                        )
+                        .value;
+
+
+                if (!title) {
+
+                    alert(
+                        "Напиши название задачи"
                     );
 
-                } else {
-
-                    addTask();
-
-                }
-
-            }
-        );
-
-
-    form
-        .querySelector(
-            "#task-title"
-        )
-        .addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !==
-                    "Enter"
-                ) {
                     return;
-                }
-
-                if (isEditing) {
-
-                    saveEditedTask(
-                        taskToEdit.id
-                    );
-
-                } else {
-
-                    addTask();
 
                 }
 
-            }
-        );
 
+                const newTask = {
 
-    setTimeout(
-        () => {
+                    id:
+                        Date.now()
+                        .toString(),
 
-            const input =
-                document.querySelector(
-                    "#task-title"
-                );
+                    title:
+                        title,
 
-            if (input) {
+                    category:
+                        category,
 
-                input.focus();
-                input.select();
+                    repeat:
+                        "once",
 
-            }
+                    date:
+                        dateString,
 
-        },
-        100
-    );
+                    startDate:
+                        dateString,
 
-}
+                    endDate:
+                        dateString,
 
+                    weekDays:
+                        [],
 
-// ========================================
-// ДНИ НЕДЕЛИ
-// ========================================
+                    completions:
+                        {}
 
-function createWeekdayInputs(
-    task
-) {
+                };
 
-    const days = [
 
-        [1, "Пн"],
-        [2, "Вт"],
-        [3, "Ср"],
-        [4, "Чт"],
-        [5, "Пт"],
-        [6, "Сб"],
-        [0, "Вс"]
-
-    ];
-
-
-    return days
-        .map(
-            ([value, name]) => {
-
-                const checked =
-                    task &&
-                    task.weekDays &&
-                    task.weekDays.includes(
-                        value
-                    );
-
-
-                return `
-
-                    <label
-                        class="weekday"
-                    >
-
-                        <input
-                            type="checkbox"
-                            value="${value}"
-                            ${
-                                checked
-                                    ? "checked"
-                                    : ""
-                            }
-                        >
-
-                        ${name}
-
-                    </label>
-
-                `;
-
-            }
-        )
-        .join("");
-
-}
-
-
-// ========================================
-// ПЕРВАЯ КНОПКА
-// ========================================
-
-function setupFirstTaskButton() {
-
-    const button =
-        document.querySelector(
-            "#first-task-button"
-        );
-
-    if (button) {
-
-        button.addEventListener(
-            "click",
-            () =>
-                openTaskForm()
-        );
-
-    }
-
-}
-
-
-// ========================================
-// ВЫБРАННЫЕ ДНИ
-// ========================================
-
-function getSelectedWeekDays(
-    repeat
-) {
-
-    if (
-        repeat !==
-        "weekly"
-    ) {
-
-        return [];
-
-    }
-
-
-    return Array.from(
-        document.querySelectorAll(
-            "#weekdays-container input:checked"
-        )
-    )
-        .map(
-            input =>
-                Number(
-                    input.value
-                )
-        );
-
-}
-
-
-// ========================================
-// КОНЕЧНАЯ ДАТА
-// ========================================
-
-function getSelectedEndDate(
-    repeat
-) {
-
-    if (
-        repeat ===
-        "once"
-    ) {
-
-        return null;
-
-    }
-
-
-    const period =
-        document.querySelector(
-            "#task-period"
-        );
-
-    const endDate =
-        document.querySelector(
-            "#task-end-date"
-        );
-
-
-    if (
-        !period ||
-        !endDate
-    ) {
-
-        return CHALLENGE_END;
-
-    }
-
-
-    if (
-        period.value ===
-        "until-date"
-    ) {
-
-        return (
-            endDate.value ||
-            null
-        );
-
-    }
-
-
-    return CHALLENGE_END;
-
-}
-
-
-// ========================================
-// ДОБАВЛЕНИЕ
-// ========================================
-
-function addTask() {
-
-    const titleInput =
-        document.querySelector(
-            "#task-title"
-        );
-
-    const categoryInput =
-        document.querySelector(
-            "#task-category"
-        );
-
-    const repeatInput =
-        document.querySelector(
-            "#task-repeat"
-        );
-
-
-    if (
-        !titleInput ||
-        !categoryInput ||
-        !repeatInput
-    ) {
-        return;
-    }
-
-
-    const title =
-        titleInput.value.trim();
-
-    const category =
-        categoryInput.value;
-
-    const repeat =
-        repeatInput.value;
-
-
-    if (!title) {
-
-        titleInput.classList.add(
-            "input-error"
-        );
-
-        titleInput.focus();
-
-        return;
-
-    }
-
-
-    const weekDays =
-        getSelectedWeekDays(
-            repeat
-        );
-
-
-    if (
-        repeat === "weekly" &&
-        weekDays.length === 0
-    ) {
-
-        alert(
-            "Выбери хотя бы один день недели."
-        );
-
-        return;
-
-    }
-
-
-    const endDate =
-        getSelectedEndDate(
-            repeat
-        );
-
-
-    if (
-        repeat !== "once" &&
-        !endDate
-    ) {
-
-        alert(
-            "Выбери дату окончания задачи."
-        );
-
-        return;
-
-    }
-
-
-    const newTask = {
-
-        id:
-            Date.now(),
-
-        title:
-            title,
-
-        category:
-            category,
-
-        repeat:
-            repeat,
-
-        startDate:
-            getToday(),
-
-        date:
-            getToday(),
-
-        endDate:
-            endDate,
-
-        weekDays:
-            weekDays,
-
-        completions:
-            {}
-
-    };
-
-
-    tasks.push(
-        newTask
-    );
-
-
-    saveTasks();
-
-    closeTaskForm();
-
-    renderTasks();
-
-    renderCalendar();
-
-}
-
-
-// ========================================
-// РЕДАКТИРОВАНИЕ
-// ========================================
-
-function saveEditedTask(
-    taskId
-) {
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (!task) {
-        return;
-    }
-
-
-    const titleInput =
-        document.querySelector(
-            "#task-title"
-        );
-
-    const categoryInput =
-        document.querySelector(
-            "#task-category"
-        );
-
-    const repeatInput =
-        document.querySelector(
-            "#task-repeat"
-        );
-
-
-    const title =
-        titleInput.value.trim();
-
-    const category =
-        categoryInput.value;
-
-    const repeat =
-        repeatInput.value;
-
-
-    if (!title) {
-
-        titleInput.classList.add(
-            "input-error"
-        );
-
-        titleInput.focus();
-
-        return;
-
-    }
-
-
-    const weekDays =
-        getSelectedWeekDays(
-            repeat
-        );
-
-
-    if (
-        repeat === "weekly" &&
-        weekDays.length === 0
-    ) {
-
-        alert(
-            "Выбери хотя бы один день недели."
-        );
-
-        return;
-
-    }
-
-
-    const endDate =
-        getSelectedEndDate(
-            repeat
-        );
-
-
-    if (
-        repeat !== "once" &&
-        !endDate
-    ) {
-
-        alert(
-            "Выбери дату окончания задачи."
-        );
-
-        return;
-
-    }
-
-
-    task.title =
-        title;
-
-    task.category =
-        category;
-
-    task.repeat =
-        repeat;
-
-    task.weekDays =
-        weekDays;
-
-    task.endDate =
-        endDate;
-
-
-    if (!task.completions) {
-
-        task.completions = {};
-
-    }
-
-
-    saveTasks();
-
-    closeTaskForm();
-
-    renderTasks();
-
-    renderCalendar();
-
-}
-
-
-// ========================================
-// ЗАКРЫТЬ ФОРМУ
-// ========================================
-
-function closeTaskForm() {
-
-    const form =
-        document.querySelector(
-            ".task-form"
-        );
-
-    if (form) {
-        form.remove();
-    }
-
-}
-
-
-// ========================================
-// ОТОБРАЖЕНИЕ ЗАДАЧ
-// ========================================
-
-function renderTasks() {
-
-    const groupsContainer =
-        document.querySelector(
-            "#task-groups"
-        );
-
-    const emptyState =
-        document.querySelector(
-            "#empty-state"
-        );
-
-
-    if (
-        !groupsContainer ||
-        !emptyState
-    ) {
-        return;
-    }
-
-
-    const today =
-        getToday();
-
-    const todayTasks =
-        getTasksForDate(
-            today
-        );
-
-
-    if (
-        todayTasks.length === 0
-    ) {
-
-        groupsContainer.innerHTML =
-            "";
-
-        emptyState.style.display =
-            "block";
-
-        removeAddButton();
-
-        updateDailyProgress(
-            []
-        );
-
-        return;
-
-    }
-
-
-    emptyState.style.display =
-        "none";
-
-
-    const groupedTasks = {};
-
-
-    CATEGORIES.forEach(
-        category => {
-
-            groupedTasks[
-                category
-            ] =
-                todayTasks.filter(
-                    task =>
-                        task.category ===
-                        category
-                );
-
-        }
-    );
-
-
-    let html = "";
-
-
-    CATEGORIES.forEach(
-        category => {
-
-            const categoryTasks =
-                groupedTasks[
-                    category
-                ];
-
-
-            if (
-                categoryTasks.length === 0
-            ) {
-                return;
-            }
-
-
-            const completed =
-                categoryTasks.filter(
-                    task =>
-                        isTaskCompleted(
-                            task,
-                            today
-                        )
-                ).length;
-
-
-            html += `
-
-                <div
-                    class="task-group"
-                >
-
-                    <div
-                        class="task-group-header"
-                    >
-
-                        <div
-                            class="task-group-title"
-                        >
-                            ${category}
-                        </div>
-
-                        <div
-                            class="task-group-count"
-                        >
-                            ${completed}/${categoryTasks.length}
-                        </div>
-
-                    </div>
-
-
-                    ${categoryTasks
-                        .map(
-                            task => {
-
-                                const done =
-                                    isTaskCompleted(
-                                        task,
-                                        today
-                                    );
-
-
-                                return `
-
-                                    <div
-                                        class="
-                                            task-item
-                                            ${
-                                                done
-                                                    ? "completed"
-                                                    : ""
-                                            }
-                                        "
-                                        data-id="${task.id}"
-                                    >
-
-                                        <button
-                                            class="task-check"
-                                            aria-label="Выполнить задачу"
-                                        >
-                                            ${
-                                                done
-                                                    ? "✓"
-                                                    : ""
-                                            }
-                                        </button>
-
-
-                                        <div
-                                            class="task-content"
-                                        >
-
-                                            <div
-                                                class="task-title"
-                                            >
-                                                ${
-                                                    escapeHTML(
-                                                        task.title
-                                                    )
-                                                }
-                                            </div>
-
-                                        </div>
-
-
-                                        <button
-                                            class="edit-task"
-                                            aria-label="Изменить задачу"
-                                        >
-                                            ⋯
-                                        </button>
-
-
-                                        <button
-                                            class="delete-task"
-                                            aria-label="Удалить задачу"
-                                        >
-                                            ×
-                                        </button>
-
-                                    </div>
-
-                                `;
-
-                            }
-                        )
-                        .join("")}
-
-                </div>
-
-            `;
-
-        }
-    );
-
-
-    groupsContainer.innerHTML =
-        html;
-
-
-    groupsContainer
-        .querySelectorAll(
-            ".task-check"
-        )
-        .forEach(
-            button =>
-                button.addEventListener(
-                    "click",
-                    toggleTask
-                )
-        );
-
-
-    groupsContainer
-        .querySelectorAll(
-            ".edit-task"
-        )
-        .forEach(
-            button =>
-                button.addEventListener(
-                    "click",
-                    editTask
-                )
-        );
-
-
-    groupsContainer
-        .querySelectorAll(
-            ".delete-task"
-        )
-        .forEach(
-            button =>
-                button.addEventListener(
-                    "click",
-                    deleteTask
-                )
-        );
-
-
-    let addButton =
-        document.querySelector(
-            ".add-task-button"
-        );
-
-
-    if (!addButton) {
-
-        addButton =
-            document.createElement(
-                "button"
-            );
-
-        addButton.className =
-            "add-task-button";
-
-        addButton.textContent =
-            "+ Добавить шаг";
-
-
-        const todaySection =
-            document.querySelector(
-                ".today"
-            );
-
-        if (todaySection) {
-
-            todaySection.appendChild(
-                addButton
-            );
-
-        }
-
-    }
-
-
-    addButton.onclick =
-        () =>
-            openTaskForm();
-
-
-    updateDailyProgress(
-        todayTasks
-    );
-
-}
-
-
-// ========================================
-// УДАЛИТЬ КНОПКУ ДОБАВЛЕНИЯ
-// ========================================
-
-function removeAddButton() {
-
-    const button =
-        document.querySelector(
-            ".add-task-button"
-        );
-
-    if (button) {
-        button.remove();
-    }
-
-}
-
-
-// ========================================
-// РЕДАКТИРОВАНИЕ ЗАДАЧИ
-// ========================================
-
-function editTask(event) {
-
-    const element =
-        event.currentTarget.closest(
-            ".task-item"
-        );
-
-    if (!element) {
-        return;
-    }
-
-
-    const taskId =
-        Number(
-            element.dataset.id
-        );
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (!task) {
-        return;
-    }
-
-
-    openTaskForm(
-        task
-    );
-
-}
-
-
-// ========================================
-// ПРОГРЕСС ДНЯ
-// ========================================
-
-function updateDailyProgress(
-    todayTasks
-) {
-
-    const today =
-        getToday();
-
-    const total =
-        todayTasks.length;
-
-    const completed =
-        todayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    today
-                )
-        ).length;
-
-
-    const percent =
-        total === 0
-            ? 0
-            : Math.round(
-                (
-                    completed /
-                    total
-                ) * 100
-            );
-
-
-    const text =
-        document.querySelector(
-            "#daily-progress-text"
-        );
-
-    const fill =
-        document.querySelector(
-            "#daily-progress-fill"
-        );
-
-
-    if (text) {
-
-        text.textContent =
-            `${completed} из ${total}`;
-
-    }
-
-
-    if (fill) {
-
-        fill.style.width =
-            `${percent}%`;
-
-    }
-
-}
-
-
-// ========================================
-// ВЫПОЛНЕНИЕ ЗАДАЧИ СЕГОДНЯ
-// ========================================
-
-function toggleTask(event) {
-
-    const element =
-        event.currentTarget.closest(
-            ".task-item"
-        );
-
-
-    const taskId =
-        Number(
-            element.dataset.id
-        );
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (!task) {
-        return;
-    }
-
-
-    const today =
-        getToday();
-
-
-    if (!task.completions) {
-
-        task.completions = {};
-
-    }
-
-
-    task.completions[
-        today
-    ] =
-        !isTaskCompleted(
-            task,
-            today
-        );
-
-
-    saveTasks();
-
-    renderTasks();
-
-    renderCalendar();
-
-}
-
-
-// ========================================
-// УДАЛЕНИЕ
-// ========================================
-
-function deleteTask(event) {
-
-    const element =
-        event.currentTarget.closest(
-            ".task-item"
-        );
-
-
-    const taskId =
-        Number(
-            element.dataset.id
-        );
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (!task) {
-        return;
-    }
-
-
-    const confirmed =
-        confirm(
-            `Удалить задачу «${task.title}»?`
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    tasks =
-        tasks.filter(
-            item =>
-                item.id !==
-                taskId
-        );
-
-
-    saveTasks();
-
-    renderTasks();
-
-    renderCalendar();
-
-}
-
-
-// ========================================
-// КАЛЕНДАРЬ 90 ДНЕЙ
-// ========================================
-
-function renderCalendar() {
-
-    const calendar =
-        document.querySelector(
-            "#challenge-calendar"
-        );
-
-
-    if (!calendar) {
-        return;
-    }
-
-
-    calendar.innerHTML = "";
-
-
-    const months = {};
-
-
-    for (
-        let i = 0;
-        i < CHALLENGE_LENGTH;
-        i++
-    ) {
-
-        const date =
-            addDays(
-                CHALLENGE_START,
-                i
-            );
-
-
-        const dateObject =
-            getDateObject(
-                date
-            );
-
-
-        const monthKey =
-            `${dateObject.getFullYear()}-${dateObject.getMonth()}`;
-
-
-        if (!months[monthKey]) {
-
-            months[monthKey] = [];
-
-        }
-
-
-        months[monthKey].push({
-            date: date,
-            index: i + 1
-        });
-
-    }
-
-
-    Object.values(months)
-        .forEach(
-            monthDays => {
-
-                const firstDate =
-                    getDateObject(
-                        monthDays[0].date
-                    );
-
-
-                const monthName =
-                    firstDate.toLocaleDateString(
-                        "ru-RU",
-                        {
-                            month: "long"
-                        }
-                    );
-
-
-                const monthTitle =
-                    monthName
-                        .charAt(0)
-                        .toUpperCase() +
-                    monthName.slice(1);
-
-
-                const monthHTML =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                monthHTML.className =
-                    "calendar-month";
-
-
-                monthHTML.innerHTML = `
-
-                    <div
-                        class="calendar-month-title"
-                    >
-
-                        <div
-                            class="calendar-month-name"
-                        >
-                            ${monthTitle}
-                        </div>
-
-                        <div
-                            class="calendar-month-count"
-                        >
-                            ${monthDays.length} дней
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="calendar-weekdays"
-                    >
-
-                        <div class="calendar-weekday">
-                            Пн
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Вт
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Ср
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Чт
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Пт
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Сб
-                        </div>
-
-                        <div class="calendar-weekday">
-                            Вс
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="calendar-grid"
-                    ></div>
-
-                `;
-
-
-                const grid =
-                    monthHTML.querySelector(
-                        ".calendar-grid"
-                    );
-
-
-                const firstDay =
-                    firstDate.getDay();
-
-
-                let offset =
-                    firstDay - 1;
-
-
-                if (offset < 0) {
-                    offset = 6;
-                }
-
-
-                for (
-                    let i = 0;
-                    i < offset;
-                    i++
-                ) {
-
-                    const empty =
-                        document.createElement(
-                            "div"
-                        );
-
-                    grid.appendChild(
-                        empty
-                    );
-
-                }
-
-
-                monthDays.forEach(
-                    day => {
-
-                        const dayButton =
-                            createCalendarDay(
-                                day
-                            );
-
-                        grid.appendChild(
-                            dayButton
-                        );
-
-                    }
+                tasks.push(
+                    newTask
                 );
 
 
-                calendar.appendChild(
-                    monthHTML
-                );
+                saveTasks();
+
+                form.remove();
+
+                renderTasks();
+
+                renderCalendar();
 
             }
         );
 
-
-    selectCalendarDay(
-        getToday()
-    );
-
 }
 
 
 // ========================================
-// СОЗДАТЬ ДЕНЬ КАЛЕНДАРЯ
-// ========================================
-
-function createCalendarDay(
-    day
-) {
-
-    const button =
-        document.createElement(
-            "button"
-        );
-
-
-    const date =
-        day.date;
-
-
-    const dayTasks =
-        getTasksForDate(
-            date
-        );
-
-
-    const completed =
-        dayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    date
-                )
-        ).length;
-
-
-    let status =
-        "empty";
-
-
-    if (
-        dayTasks.length > 0 &&
-        completed ===
-        dayTasks.length
-    ) {
-
-        status =
-            "complete";
-
-    } else if (
-        completed > 0
-    ) {
-
-        status =
-            "partial";
-
-    }
-
-
-    const isToday =
-        date ===
-        getToday();
-
-
-    button.type =
-        "button";
-
-
-    button.className =
-        `calendar-day status-${status}` +
-        (
-            isToday
-                ? " today"
-                : ""
-        );
-
-
-    button.dataset.date =
-        date;
-
-
-    button.innerHTML = `
-
-        <span
-            class="calendar-day-number"
-        >
-            ${getDateObject(date).getDate()}
-        </span>
-
-        <span
-            class="calendar-day-index"
-        >
-            день ${day.index}
-        </span>
-
-    `;
-
-
-    button.addEventListener(
-        "click",
-        () =>
-            selectCalendarDay(
-                date
-            )
-    );
-
-
-    return button;
-
-}
-
-
-// ========================================
-// ВЫБОР ДНЯ
-// ========================================
-
-function selectCalendarDay(
-    dateString
-) {
-
-    document
-        .querySelectorAll(
-            ".calendar-day"
-        )
-        .forEach(
-            button => {
-
-                button.classList.toggle(
-                    "selected",
-                    button.dataset.date ===
-                    dateString
-                );
-
-            }
-        );
-
-
-    renderSelectedDay(
-        dateString
-    );
-
-}
-
-
-// ========================================
-// ИНФОРМАЦИЯ О ВЫБРАННОМ ДНЕ
-// ========================================
-
-function renderSelectedDay(
-    dateString
-) {
-
-    const container =
-        document.querySelector(
-            "#selected-day"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const dayTasks =
-        getTasksForDate(
-            dateString
-        );
-
-
-    const completed =
-        dayTasks.filter(
-            task =>
-                isTaskCompleted(
-                    task,
-                    dateString
-                )
-        ).length;
-
-
-    const challengeDay =
-        Math.floor(
-            (
-                getDateObject(
-                    dateString
-                ) -
-                getDateObject(
-                    CHALLENGE_START
-                )
-            ) /
-            (
-                1000 *
-                60 *
-                60 *
-                24
-            )
-        ) + 1;
-
-
-    let tasksHTML = "";
-
-
-    if (
-        dayTasks.length === 0
-    ) {
-
-        tasksHTML = `
-
-            <div
-                class="calendar-empty"
-            >
-                На этот день пока нет задач.
-            </div>
-
-        `;
-
-    } else {
-
-        tasksHTML =
-            dayTasks
-                .map(
-                    task => {
-
-                        const done =
-                            isTaskCompleted(
-                                task,
-                                dateString
-                            );
-
-
-                        return `
-
-                            <button
-                                type="button"
-                                class="
-                                    calendar-task
-                                    ${
-                                        done
-                                            ? "completed"
-                                            : ""
-                                    }
-                                "
-                                data-task-id="${task.id}"
-                                data-date="${dateString}"
-                            >
-
-                                <span
-                                    class="calendar-task-dot"
-                                ></span>
-
-
-                                <span
-                                    class="calendar-task-title"
-                                >
-                                    ${
-                                        escapeHTML(
-                                            task.title
-                                        )
-                                    }
-                                </span>
-
-
-                                <span
-                                    class="calendar-task-hint"
-                                >
-                                    ${
-                                        done
-                                            ? "отменить"
-                                            : "выполнить"
-                                    }
-                                </span>
-
-                            </button>
-
-                        `;
-
-                    }
-                )
-                .join("");
-
-    }
-
-
-    container.innerHTML = `
-
-        <div
-            class="selected-day-header"
-        >
-
-            <div>
-
-                <div
-                    class="selected-day-label"
-                >
-                    ДЕНЬ ${challengeDay}
-                </div>
-
-
-                <div
-                    class="selected-day-title"
-                >
-                    ${
-                        formatDate(
-                            dateString
-                        )
-                    }
-                </div>
-
-            </div>
-
-
-            <div
-                class="selected-day-count"
-            >
-                ${
-                    dayTasks.length > 0
-                        ? `${completed} из ${dayTasks.length}`
-                        : ""
-                }
-            </div>
-
-        </div>
-
-
-        <div
-            class="selected-day-tasks"
-        >
-            ${tasksHTML}
-        </div>
-
-    `;
-
-
-    container.classList.add(
-        "visible"
-    );
-
-
-    container
-        .querySelectorAll(
-            ".calendar-task"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        toggleCalendarTask(
-                            Number(
-                                button.dataset.taskId
-                            ),
-                            button.dataset.date
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-}
-
-
-// ========================================
-// ВЫПОЛНЕНИЕ ЗАДАЧИ В КАЛЕНДАРЕ
-// ========================================
-
-function toggleCalendarTask(
-    taskId,
-    dateString
-) {
-
-    const task =
-        tasks.find(
-            item =>
-                item.id ===
-                taskId
-        );
-
-
-    if (!task) {
-        return;
-    }
-
-
-    if (!task.completions) {
-
-        task.completions = {};
-
-    }
-
-
-    task.completions[
-        dateString
-    ] =
-        !isTaskCompleted(
-            task,
-            dateString
-        );
-
-
-    saveTasks();
-
-
-    // Обновляем календарь
-
-    renderCalendar();
-
-
-    // Снова открываем тот же день
-
-    selectCalendarDay(
-        dateString
-    );
-
-}
-
-
-// ========================================
-// ЗАЩИТА HTML
+// ESCAPE HTML
 // ========================================
 
 function escapeHTML(
-    text
+    value
 ) {
 
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        text;
-
-
-    return div.innerHTML;
-
-}
-
-
-// ========================================
-// ЗАЩИТА АТРИБУТА
-// ========================================
-
-function escapeAttribute(
-    text
-) {
-
-    return String(text)
+    return String(
+        value
+    )
         .replace(
             /&/g,
             "&amp;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
         )
         .replace(
             /</g,
@@ -2784,6 +2644,76 @@ function escapeAttribute(
         .replace(
             />/g,
             "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
         );
 
 }
+
+
+// ========================================
+// ESCAPE ATTRIBUTE
+// ========================================
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHTML(
+        value
+    );
+
+}
+
+
+// ========================================
+// ПЕРВАЯ БУКВА ЗАГЛАВНАЯ
+// ========================================
+
+function capitalizeFirst(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+    return (
+        value.charAt(0)
+        .toUpperCase() +
+        value.slice(1)
+    );
+
+}
+
+
+// ========================================
+// ОБРАБОТКА КНОПОК ДНЕЙ НЕДЕЛИ
+// ========================================
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const button =
+            event.target.closest(
+                ".weekday-button"
+            );
+
+        if (!button) {
+            return;
+        }
+
+
+        button.classList.toggle(
+            "active"
+        );
+
+    }
+);
