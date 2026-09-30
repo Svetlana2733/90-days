@@ -2841,3 +2841,120 @@ function escapeAttribute(
         );
 
 }
+// ========================================
+// НАВИГАЦИЯ ПО РАЗДЕЛАМ
+// ========================================
+
+function setupNavigation() {
+
+    const navItems =
+        document.querySelectorAll(
+            ".nav-item"
+        );
+
+    const pages =
+        document.querySelectorAll(
+            ".page"
+        );
+
+    navItems.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const pageId =
+                        button.dataset.page;
+
+                    if (
+                        !pageId
+                    ) {
+
+                        return;
+
+                    }
+
+                    // Убираем активность
+                    // со всех кнопок
+
+                    navItems.forEach(
+                        item => {
+
+                            item.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+                    // Делаем выбранную кнопку активной
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    // Скрываем все страницы
+
+                    pages.forEach(
+                        page => {
+
+                            page.classList.remove(
+                                "active-page"
+                            );
+
+                        }
+                    );
+
+                    // Показываем выбранную страницу
+
+                    const selectedPage =
+                        document.getElementById(
+                            pageId
+                        );
+
+                    if (
+                        selectedPage
+                    ) {
+
+                        selectedPage.classList.add(
+                            "active-page"
+                        );
+
+                    }
+
+                    // Если открыли календарь —
+                    // обновляем его
+
+                    if (
+                        pageId ===
+                        "calendar-page"
+                    ) {
+
+                        if (
+                            typeof renderChallengeCalendar ===
+                            "function"
+                        ) {
+
+                            renderChallengeCalendar();
+
+                        }
+
+                    }
+
+                    // Прокручиваем страницу наверх
+
+                    window.scrollTo(
+                        {
+                            top: 0,
+                            behavior: "smooth"
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
