@@ -1,680 +1,1329 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
+    <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>90 дней</title>
 
-<title>90 дней</title>
+    <!-- Шрифты -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
 
-<meta name="theme-color" content="#f8f0f2">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="style.css">
-
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
+    <!-- ========================================= -->
+    <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
+    <!-- ========================================= -->
 
-<div id="app">
+    <div id="app">
+
+        <!-- ===================================== -->
+        <!-- СТРАНИЦА: СЕГОДНЯ -->
+        <!-- ===================================== -->
+
+        <section
+            class="page active"
+            id="today-page"
+        >
+
+            <header class="page-header">
+
+                <div>
+                    <p class="eyebrow">
+                        90 дней
+                    </p>
+
+                    <h1>
+                        Сегодня
+                    </h1>
+
+                    <p
+                        class="current-date"
+                        id="current-date"
+                    >
+                        —
+                    </p>
+                </div>
+
+                <div class="header-progress">
+                    <span id="today-progress">
+                        0%
+                    </span>
+                </div>
+
+            </header>
 
 
-<header class="top">
+            <!-- Общий прогресс -->
 
-    <div>
+            <div class="progress-card">
 
-        <div class="logo">
-            90 дней
-        </div>
+                <div class="progress-card-top">
 
-        <div class="subtitle">
-            Мой личный путь
+                    <div>
+                        <span class="card-label">
+                            Прогресс дня
+                        </span>
+
+                        <strong id="today-progress-text">
+                            0 из 0
+                        </strong>
+                    </div>
+
+                    <span id="today-progress-percent">
+                        0%
+                    </span>
+
+                </div>
+
+                <div class="progress-line">
+                    <div
+                        class="progress-line-fill"
+                        id="today-progress-bar"
+                    ></div>
+                </div>
+
+            </div>
+
+
+            <!-- Задачи -->
+
+            <div class="tasks-container">
+
+                <!-- Духовный рост -->
+
+                <section
+                    class="sphere-section"
+                    data-sphere="spiritual"
+                >
+
+                    <div class="sphere-header">
+
+                        <div class="sphere-title">
+
+                            <span class="sphere-dot spiritual-dot"></span>
+
+                            <div>
+                                <h2>
+                                    Духовный рост
+                                </h2>
+
+                                <p>
+                                    Внутреннее состояние и осознанность
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="add-task-button"
+                            data-sphere="spiritual"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                    <div
+                        class="task-list"
+                        id="tasks-spiritual"
+                    ></div>
+
+                </section>
+
+
+                <!-- Здоровье -->
+
+                <section
+                    class="sphere-section"
+                    data-sphere="health"
+                >
+
+                    <div class="sphere-header">
+
+                        <div class="sphere-title">
+
+                            <span class="sphere-dot health-dot"></span>
+
+                            <div>
+                                <h2>
+                                    Здоровье
+                                </h2>
+
+                                <p>
+                                    Тело, питание и движение
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="add-task-button"
+                            data-sphere="health"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                    <div
+                        class="task-list"
+                        id="tasks-health"
+                    ></div>
+
+                </section>
+
+
+                <!-- Развитие блога -->
+
+                <section
+                    class="sphere-section"
+                    data-sphere="blog"
+                >
+
+                    <div class="sphere-header">
+
+                        <div class="sphere-title">
+
+                            <span class="sphere-dot blog-dot"></span>
+
+                            <div>
+                                <h2>
+                                    Развитие блога
+                                </h2>
+
+                                <p>
+                                    Творчество и проявленность
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="add-task-button"
+                            data-sphere="blog"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                    <div
+                        class="task-list"
+                        id="tasks-blog"
+                    ></div>
+
+                </section>
+
+
+                <!-- Финансы -->
+
+                <section
+                    class="sphere-section"
+                    data-sphere="finance"
+                >
+
+                    <div class="sphere-header">
+
+                        <div class="sphere-title">
+
+                            <span class="sphere-dot finance-dot"></span>
+
+                            <div>
+                                <h2>
+                                    Финансы
+                                </h2>
+
+                                <p>
+                                    Доход, расходы и финансовые цели
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="add-task-button"
+                            data-sphere="finance"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                    <div
+                        class="task-list"
+                        id="tasks-finance"
+                    ></div>
+
+                </section>
+
+            </div>
+
+
+            <!-- Кнопка добавления задачи -->
+
+            <button
+                class="main-add-task"
+                id="main-add-task"
+                type="button"
+            >
+                <span>+</span>
+                Добавить задачу
+            </button>
+
+        </section>
+
+
+        <!-- ===================================== -->
+        <!-- СТРАНИЦА: 90 ДНЕЙ -->
+        <!-- ===================================== -->
+
+        <section
+            class="page"
+            id="calendar-page"
+        >
+
+            <header class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Мой путь
+                    </p>
+
+                    <h1>
+                        90 дней
+                    </h1>
+
+                    <p class="page-description">
+                        Каждый день — маленький шаг
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- Общий прогресс 90 дней -->
+
+            <div class="ninety-progress-card">
+
+                <div class="ninety-progress-number">
+                    <strong id="ninety-progress-percent">
+                        0%
+                    </strong>
+
+                    <span>
+                        пути пройдено
+                    </span>
+                </div>
+
+                <div class="progress-line">
+                    <div
+                        class="progress-line-fill"
+                        id="ninety-progress-bar"
+                    ></div>
+                </div>
+
+                <div class="ninety-progress-info">
+
+                    <span id="days-completed">
+                        0 дней
+                    </span>
+
+                    <span>
+                        из 90
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Календарь -->
+
+            <div class="calendar-card">
+
+                <div class="calendar-header">
+
+                    <button
+                        class="calendar-arrow"
+                        id="calendar-prev"
+                        type="button"
+                    >
+                        ‹
+                    </button>
+
+                    <h2 id="calendar-month">
+                        Октябрь 2026
+                    </h2>
+
+                    <button
+                        class="calendar-arrow"
+                        id="calendar-next"
+                        type="button"
+                    >
+                        ›
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="calendar-weekdays"
+                    id="calendar-weekdays"
+                >
+                    <span>Пн</span>
+                    <span>Вт</span>
+                    <span>Ср</span>
+                    <span>Чт</span>
+                    <span>Пт</span>
+                    <span>Сб</span>
+                    <span>Вс</span>
+                </div>
+
+
+                <div
+                    class="calendar-grid"
+                    id="calendar-grid"
+                ></div>
+
+            </div>
+
+
+            <!-- Выбранный день -->
+
+            <div
+                class="selected-day-card"
+                id="selected-day-card"
+            >
+
+                <div class="selected-day-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            Выбранный день
+                        </span>
+
+                        <h2 id="selected-day-title">
+                            —
+                        </h2>
+
+                    </div>
+
+                    <button
+                        class="outline-button"
+                        id="open-selected-day"
+                        type="button"
+                    >
+                        Открыть
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================== -->
+        <!-- СТРАНИЦА: ДО → ПОСЛЕ -->
+        <!-- ===================================== -->
+
+        <section
+            class="page"
+            id="before-after-page"
+        >
+
+            <header class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Точка отсчёта
+                    </p>
+
+                    <h1>
+                        До → После
+                    </h1>
+
+                    <p class="page-description">
+                        Посмотри, с чего ты начинаешь
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- Точка А -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            Точка А
+                        </span>
+
+                        <h2>
+                            Какая я сейчас?
+                        </h2>
+                    </div>
+
+                    <span class="day-badge">
+                        День 1
+                    </span>
+
+                </div>
+
+
+                <div class="photo-fields">
+
+                    <div class="photo-placeholder">
+
+                        <div class="photo-icon">
+                            +
+                        </div>
+
+                        <span>
+                            Добавить фото
+                        </span>
+
+                        <input
+                            type="file"
+                            id="before-photo"
+                            accept="image/*"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="reflection-fields">
+
+                    <label>
+                        Как я себя сейчас чувствую?
+                        <textarea
+                            id="before-feeling"
+                            placeholder="Напиши несколько слов о себе..."
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Что я хочу изменить?
+                        <textarea
+                            id="before-change"
+                            placeholder="Что хочется изменить за эти 90 дней?"
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Какой я хочу стать?
+                        <textarea
+                            id="before-want"
+                            placeholder="Опиши своё состояние..."
+                        ></textarea>
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- Колесо баланса -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            Колесо жизни
+                        </span>
+
+                        <h2>
+                            Мои сферы жизни
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p class="section-hint">
+                    Оцени каждую выбранную сферу от 1 до 10.
+                </p>
+
+
+                <div
+                    class="wheel-wrapper"
+                    id="before-wheel"
+                >
+                    <!-- Колесо будет создано через JavaScript -->
+                </div>
+
+
+                <div
+                    class="wheel-fields"
+                    id="before-wheel-fields"
+                >
+                    <!-- Оценки появятся через JavaScript -->
+                </div>
+
+            </div>
+
+
+            <!-- Точка Б -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            Точка Б
+                        </span>
+
+                        <h2>
+                            Какой я хочу себя увидеть?
+                        </h2>
+                    </div>
+
+                    <span class="day-badge muted">
+                        День 90
+                    </span>
+
+                </div>
+
+
+                <div class="photo-fields">
+
+                    <div class="photo-placeholder locked">
+
+                        <div class="photo-icon">
+                            +
+                        </div>
+
+                        <span>
+                            Фото в День 90
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="reflection-fields">
+
+                    <label>
+                        Как я себя чувствую?
+                        <textarea
+                            id="after-feeling"
+                            placeholder="Это поле будет заполнено в конце пути..."
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Что изменилось?
+                        <textarea
+                            id="after-change"
+                            placeholder="Сравни себя с началом пути..."
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Какой я стала?
+                        <textarea
+                            id="after-want"
+                            placeholder="Опиши себя после 90 дней..."
+                        ></textarea>
+                    </label>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================== -->
+        <!-- СТРАНИЦА: ИТОГИ -->
+        <!-- ===================================== -->
+
+        <section
+            class="page"
+            id="results-page"
+        >
+
+            <header class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Мой путь
+                    </p>
+
+                    <h1>
+                        Итоги
+                    </h1>
+
+                    <p class="page-description">
+                        Что изменилось за 90 дней
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- Общая статистика -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span class="card-label">
+                        Пройдено дней
+                    </span>
+
+                    <strong id="result-days">
+                        0
+                    </strong>
+
+                    <span>
+                        из 90
+                    </span>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="card-label">
+                        Выполнено задач
+                    </span>
+
+                    <strong id="result-tasks">
+                        0
+                    </strong>
+
+                    <span>
+                        всего
+                    </span>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="card-label">
+                        Средний прогресс
+                    </span>
+
+                    <strong id="result-progress">
+                        0%
+                    </strong>
+
+                    <span>
+                        за весь путь
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Статистика сфер -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            Мои сферы
+                        </span>
+
+                        <h2>
+                            Как я двигалась
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="sphere-stat-list"
+                    id="sphere-stat-list"
+                ></div>
+
+            </div>
+
+
+            <!-- Колесо итогов -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            Колесо жизни
+                        </span>
+
+                        <h2>
+                            До → После
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="comparison-wheels">
+
+                    <div>
+
+                        <span class="wheel-caption">
+                            Точка А
+                        </span>
+
+                        <div
+                            class="wheel-wrapper small"
+                            id="result-before-wheel"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="comparison-arrow">
+                        →
+                    </div>
+
+
+                    <div>
+
+                        <span class="wheel-caption">
+                            Точка Б
+                        </span>
+
+                        <div
+                            class="wheel-wrapper small"
+                            id="result-after-wheel"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Финальная рефлексия -->
+
+            <div class="section-card">
+
+                <div class="section-card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            Финальная точка
+                        </span>
+
+                        <h2>
+                            Мои выводы
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="reflection-fields">
+
+                    <label>
+                        Чем я горжусь?
+                        <textarea
+                            id="final-proud"
+                            placeholder="Запиши всё, чем ты можешь гордиться..."
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Что я поняла о себе?
+                        <textarea
+                            id="final-understood"
+                            placeholder="Какие открытия о себе я сделала?"
+                        ></textarea>
+                    </label>
+
+
+                    <label>
+                        Что я хочу взять с собой дальше?
+                        <textarea
+                            id="final-next"
+                            placeholder="Что продолжится после этих 90 дней?"
+                        ></textarea>
+                    </label>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================== -->
+        <!-- СТРАНИЦА: ЕЩЁ -->
+        <!-- ===================================== -->
+
+        <section
+            class="page"
+            id="more-page"
+        >
+
+            <header class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Настройки
+                    </p>
+
+                    <h1>
+                        Ещё
+                    </h1>
+
+                </div>
+
+            </header>
+
+
+            <div class="settings-list">
+
+                <button
+                    class="settings-item"
+                    id="export-data"
+                    type="button"
+                >
+                    <span>
+                        Экспортировать данные
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+                </button>
+
+
+                <button
+                    class="settings-item"
+                    id="import-data"
+                    type="button"
+                >
+                    <span>
+                        Импортировать данные
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+                </button>
+
+
+                <button
+                    class="settings-item danger"
+                    id="reset-data"
+                    type="button"
+                >
+                    <span>
+                        Сбросить данные
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+                </button>
+
+            </div>
+
+
+            <input
+                type="file"
+                id="import-file"
+                accept=".json"
+                hidden
+            >
+
+
+            <div class="about-card">
+
+                <span class="card-label">
+                    Мой проект
+                </span>
+
+                <h2>
+                    90 дней
+                </h2>
+
+                <p>
+                    Личный путь маленьких изменений,
+                    заботы о себе и движения вперёд.
+                </p>
+
+                <span class="about-date">
+                    01.10.2026 — 29.12.2026
+                </span>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <!-- ========================================= -->
+
+    <nav
+        class="bottom-navigation"
+        id="bottom-navigation"
+    >
+
+        <button
+            class="nav-item active"
+            data-page="today-page"
+            type="button"
+        >
+
+            <span class="nav-icon">
+                ◌
+            </span>
+
+            <span>
+                Сегодня
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="calendar-page"
+            type="button"
+        >
+
+            <span class="nav-icon">
+                □
+            </span>
+
+            <span>
+                90 дней
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="before-after-page"
+            type="button"
+        >
+
+            <span class="nav-icon">
+                ◇
+            </span>
+
+            <span>
+                До → После
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="results-page"
+            type="button"
+        >
+
+            <span class="nav-icon">
+                ◇
+            </span>
+
+            <span>
+                Итоги
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-page="more-page"
+            type="button"
+        >
+
+            <span class="nav-icon">
+                ···
+            </span>
+
+            <span>
+                Ещё
+            </span>
+
+        </button>
+
+    </nav>
+
+
+    <!-- ========================================= -->
+    <!-- МОДАЛЬНОЕ ОКНО ЗАДАЧИ -->
+    <!-- ========================================= -->
+
+    <div
+        class="modal-overlay"
+        id="task-modal"
+        aria-hidden="true"
+    >
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="card-label">
+                        Новая задача
+                    </span>
+
+                    <h2>
+                        Добавить задачу
+                    </h2>
+
+                </div>
+
+                <button
+                    class="modal-close"
+                    id="close-task-modal"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="task-form">
+
+                <label>
+                    Название задачи
+
+                    <input
+                        type="text"
+                        id="task-title"
+                        placeholder="Например: выпить 2 л воды"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+                    Сфера
+
+                    <select id="task-sphere">
+
+                        <option value="spiritual">
+                            Духовный рост
+                        </option>
+
+                        <option value="health">
+                            Здоровье
+                        </option>
+
+                        <option value="blog">
+                            Развитие блога
+                        </option>
+
+                        <option value="finance">
+                            Финансы
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <label>
+                    Повторение
+
+                    <select id="task-repeat">
+
+                        <option value="once">
+                            Только сегодня
+                        </option>
+
+                        <option value="daily">
+                            Каждый день
+                        </option>
+
+                        <option value="weekdays">
+                            Выбранные дни недели
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <div
+                    class="weekday-picker"
+                    id="weekday-picker"
+                >
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="1"
+                            checked
+                        >
+                        Пн
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="2"
+                        >
+                        Вт
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="3"
+                        >
+                        Ср
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="4"
+                        >
+                        Чт
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="5"
+                        >
+                        Пт
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="6"
+                        >
+                        Сб
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            value="0"
+                        >
+                        Вс
+                    </label>
+
+                </div>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancel-task"
+                    >
+                        Отмена
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Сохранить
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
 
     </div>
 
 
-    <button class="settings-button">
-        ⚙
-    </button>
-
-</header>
-
-
-
-<main>
-
-
-
-<section 
-id="today-page" 
-class="page active-page"
->
-
-
-<section class="welcome">
-
-<p class="eyebrow">
-ТВОЙ НОВЫЙ ЭТАП
-</p>
-
-
-<h1>
-Маленькие шаги.<br>
-Большие изменения.
-</h1>
-
-
-<p class="intro">
-90 дней, чтобы стать ближе
-к той жизни, которую ты
-хочешь прожить.
-</p>
-
-
-</section>
-
-
-
-
-<section class="progress-section">
-
-
-<div class="progress-header">
-
-<span>
-Путь за 90 дней
-</span>
-
-
-<span id="challenge-progress">
-0%
-</span>
-
-
-</div>
-
-
-
-<div class="progress-line">
-
-<div 
-class="progress-fill"
-id="challenge-progress-fill">
-</div>
-
-</div>
-
-
-
-<div class="days">
-
-<span id="challenge-day">
-День 1
-</span>
-
-
-<span>
-из 90
-</span>
-
-</div>
-
-
-</section>
-
-
-
-<section class="today">
-
-
-<div class="section-heading">
-
-
-<div>
-
-<p class="eyebrow">
-СЕГОДНЯ
-</p>
-
-
-<h2>
-Мои шаги
-</h2>
-
-</div>
-
-
-
-<span 
-class="date"
-id="today-date">
-1 октября
-</span>
-
-
-</div>
-
-
-
-<div class="daily-progress">
-
-
-<div class="daily-progress-top">
-
-<span>
-Сегодня выполнено
-</span>
-
-
-<span id="daily-progress-text">
-0 из 0
-</span>
-
-
-</div>
-
-
-
-<div class="daily-progress-line">
-
-<div 
-class="daily-progress-fill"
-id="daily-progress-fill">
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-<div 
-id="task-groups"
-class="task-groups">
-</div>
-
-
-
-<div 
-id="empty-state"
-class="empty-state"
->
-
-
-<div class="empty-number">
-01
-</div>
-
-
-<h3>
-Начало пути
-</h3>
-
-
-<p>
-Добавь первый шаг,
-с которого начнётся
-твой новый этап.
-</p>
-
-
-<button 
-class="primary-button"
-id="first-task-button">
-
-Добавить первый шаг
-
-</button>
-
-
-</div>
-
-
-</section>
-
-
-</section>
-<!-- =============================== -->
-<!-- СТРАНИЦА КАЛЕНДАРЯ -->
-<!-- =============================== -->
-
-
-<section 
-id="calendar-page"
-class="page"
->
-
-
-<section class="calendar-section">
-
-
-<div class="page-heading">
-
-
-<p class="eyebrow">
-МОЙ ПУТЬ
-</p>
-
-
-<h1 class="page-title">
-90 дней
-</h1>
-
-
-<p class="page-description">
-Каждый день — маленькая
-часть большой перемены.
-</p>
-
-
-</div>
-
-
-
-<div class="calendar-legend">
-
-
-<div class="legend-item">
-
-<span class="legend-dot legend-empty"></span>
-
-<span>
-Впереди
-</span>
-
-</div>
-
-
-
-<div class="legend-item">
-
-<span class="legend-dot legend-partial"></span>
-
-<span>
-В процессе
-</span>
-
-</div>
-
-
-
-<div class="legend-item">
-
-<span class="legend-dot legend-complete"></span>
-
-<span>
-Выполнено
-</span>
-
-</div>
-
-
-</div>
-
-
-
-<div 
-id="challenge-calendar"
-class="challenge-calendar">
-</div>
-
-
-
-<div 
-id="selected-day"
-class="selected-day">
-</div>
-
-
-
-</section>
-
-
-</section>
-
-
-
-
-
-<!-- =============================== -->
-<!-- ТОЧКА А → ТОЧКА Б -->
-<!-- =============================== -->
-
-
-<section
-id="before-after-page"
-class="page"
->
-
-
-<section class="ba-section">
-
-
-<div class="page-heading">
-
-
-<p class="eyebrow">
-МОЯ ТОЧКА А → ТОЧКА Б
-</p>
-
-
-<h1 class="page-title">
-До → После
-</h1>
-
-
-<p class="page-description">
-Зафиксируй начало пути и сравни
-с результатом через 90 дней.
-</p>
-
-
-</div>
-
-
-
-
-<div class="ba-card">
-
-
-<h2>
-Моя точка А
-</h2>
-
-
-<label>
-Что я хочу изменить
-за 90 дней?
-
-<textarea 
-id="ba-main-goal"
-placeholder="Мои цели...">
-</textarea>
-
-</label>
-
-
-
-<label>
-Почему это важно?
-
-<textarea 
-id="ba-why"
-placeholder="Моя мотивация...">
-</textarea>
-
-</label>
-
-
-
-<label>
-Что меня сейчас не устраивает?
-
-<textarea 
-id="ba-current-state"
-placeholder="Моё текущее состояние...">
-</textarea>
-
-</label>
-
-
-
-<label>
-Чем я уже могу гордиться?
-
-<textarea 
-id="ba-proud"
-placeholder="Мои достижения...">
-</textarea>
-
-</label>
-
-
-
-<label>
-Какая я через 90 дней?
-
-<textarea 
-id="ba-want-change"
-placeholder="Моя новая версия...">
-</textarea>
-
-</label>
-
-
-
-<button 
-id="save-point-a"
-class="primary-button">
-
-Сохранить точку А
-
-</button>
-
-
-<div 
-id="point-a-message">
-</div>
-
-
-</div>
-<!-- =============================== -->
-<!-- КОЛЕСО БАЛАНСА -->
-<!-- =============================== -->
-
-
-<div class="ba-card">
-
-
-<p class="eyebrow">
-МОЁ КОЛЕСО ЖИЗНИ
-</p>
-
-
-<h2>
-Как я оцениваю свою жизнь сейчас
-</h2>
-
-
-
-<p class="page-description">
-Оцени каждую сферу от 1 до 10.
-Это твоя честная точка А.
-</p>
-
-
-
-<div 
-id="wheel-visual"
-class="wheel-visual">
-</div>
-
-
-
-<div 
-id="wheel-average"
-class="wheel-average">
-</div>
-
-
-
-<div 
-id="wheel-editor"
-class="wheel-editor">
-</div>
-
-
-
-<button
-id="edit-wheel"
-class="secondary-button">
-
-Изменить сферы
-
-</button>
-
-
-</div>
-
-
-
-
-
-<!-- =============================== -->
-<!-- ТОЧКА Б -->
-<!-- =============================== -->
-
-
-<div class="ba-card ba-locked">
-
-
-<p class="eyebrow">
-ДЕНЬ 90
-</p>
-
-
-<h2>
-Моя точка Б
-</h2>
-
-
-<p>
-Здесь через 90 дней появится
-твоя новая точка.
-</p>
-
-
-
-<div class="point-b-fields">
-
-
-<label>
-Как я изменилась?
-
-<textarea
-id="point-b-result"
-placeholder="Мои результаты...">
-</textarea>
-
-</label>
-
-
-
-<label>
-Чем я горжусь после пути?
-
-<textarea
-id="point-b-proud"
-placeholder="Мои достижения...">
-</textarea>
-
-</label>
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-<div 
-id="ba-comparison"
-class="ba-comparison">
-</div>
-
-
-</section>
-
-
-</section>
-<!-- =============================== -->
-<!-- НИЖНЯЯ НАВИГАЦИЯ -->
-<!-- =============================== -->
-
-
-<nav class="bottom-navigation">
-
-
-<button
-class="nav-item active"
-data-page="today-page">
-
-<span>
-01
-</span>
-
-<small>
-Сегодня
-</small>
-
-</button>
-
-
-
-
-<button
-class="nav-item"
-data-page="calendar-page">
-
-<span>
-02
-</span>
-
-<small>
-90 дней
-</small>
-
-</button>
-
-
-
-
-<button
-class="nav-item"
-data-page="before-after-page">
-
-<span>
-03
-</span>
-
-<small>
-До → После
-</small>
-
-</button>
-
-
-
-</nav>
-
-
-
-</main>
-
-
-</div>
-
-
-
-<script src="app.js"></script>
-
+    <!-- ========================================= -->
+    <!-- УВЕДОМЛЕНИЕ -->
+    <!-- ========================================= -->
+
+    <div
+        class="toast"
+        id="toast"
+        aria-hidden="true"
+    >
+        <span id="toast-message"></span>
+    </div>
+
+
+    <!-- Основной JavaScript -->
+    <script src="app.js"></script>
 
 </body>
-
 </html>
