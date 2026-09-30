@@ -2956,3 +2956,498 @@ function setupNavigation() {
     );
 
 }
+// ========================================
+// КАЛЕНДАРЬ 90 ДНЕЙ
+// ========================================
+
+function renderChallengeCalendar() {
+
+    const container =
+        document.querySelector(
+            "#challenge-calendar"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const startDate =
+        CHALLENGE_START;
+
+    const endDate =
+        addDays(
+            CHALLENGE_START,
+            CHALLENGE_LENGTH - 1
+        );
+
+    const months = {};
+
+    for (
+        let i = 0;
+        i < CHALLENGE_LENGTH;
+        i++
+    ) {
+
+        const dateString =
+            addDays(
+                CHALLENGE_START,
+                i
+            );
+
+        const date =
+            getDateObject(
+                dateString
+            );
+
+        const monthKey =
+            `${date.getFullYear()}-${date.getMonth()}`;
+
+        if (
+            !months[monthKey]
+        ) {
+
+            months[monthKey] = [];
+
+        }
+
+        months[monthKey].push({
+            date: dateString,
+            index: i + 1
+        });
+
+    }
+
+
+    let html = "";
+
+
+    Object.values(months)
+        .forEach(
+            monthDays => {
+
+                const firstDate =
+                    getDateObject(
+                        monthDays[0].date
+                    );
+
+                const monthName =
+                    firstDate.toLocaleDateString(
+                        "ru-RU",
+                        {
+                            month: "long"
+                        }
+                    );
+
+                const capitalizedMonth =
+                    monthName
+                        .charAt(0)
+                        .toUpperCase() +
+                    monthName.slice(1);
+
+
+                html += `
+
+                    <div class="calendar-month">
+
+                        <div class="calendar-month-title">
+
+                            <div class="calendar-month-name">
+                                ${capitalizedMonth}
+                            </div>
+
+                            <div class="calendar-month-count">
+                                ${monthDays.length} дней
+                            </div>
+
+                        </div>
+
+
+                        <div class="calendar-weekdays">
+
+                            <div class="calendar-weekday">
+                                Пн
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Вт
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Ср
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Чт
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Пт
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Сб
+                            </div>
+
+                            <div class="calendar-weekday">
+                                Вс
+                            </div>
+
+                        </div>
+
+
+                        <div class="calendar-grid">
+
+                            ${createCalendarMonthDays(
+                                monthDays
+                            )}
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+    container.innerHTML =
+        html;
+
+
+    container
+        .querySelectorAll(
+            ".calendar-day"
+        )
+        .forEach(
+            day => {
+
+                day.addEventListener(
+                    "click",
+                    () => {
+
+                        const date =
+                            day.dataset.date;
+
+                        showSelectedCalendarDay(
+                            date
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+function createCalendarMonthDays(
+    monthDays
+) {
+
+    const firstDate =
+        getDateObject(
+            monthDays[0].date
+        );
+
+    let mondayIndex =
+        firstDate.getDay() - 1;
+
+    if (
+        mondayIndex < 0
+    ) {
+
+        mondayIndex = 6;
+
+    }
+
+
+    let html = "";
+
+
+    // Пустые ячейки перед первым днём
+
+    for (
+        let i = 0;
+        i < mondayIndex;
+        i++
+    ) {
+
+        html += `
+            <div></div>
+        `;
+
+    }
+
+
+    monthDays.forEach(
+        day => {
+
+            const dateString =
+                day.date;
+
+            const dateTasks =
+                getTasksForDate(
+                    dateString
+                );
+
+            const total =
+                dateTasks.length;
+
+            const completed =
+                dateTasks.filter(
+                    task =>
+                        isTaskCompleted(
+                            task,
+                            dateString
+                        )
+                ).length;
+
+
+            let status =
+                "empty";
+
+
+            if (
+                total > 0 &&
+                completed === total
+            ) {
+
+                status =
+                    "complete";
+
+            } else if (
+                completed > 0
+            ) {
+
+                status =
+                    "partial";
+
+            }
+
+
+            const today =
+                getToday();
+
+
+            const isToday =
+                dateString ===
+                today;
+
+
+            html += `
+
+                <button
+                    class="
+                        calendar-day
+                        status-${status}
+                        ${isToday ? "today" : ""}
+                    "
+                    data-date="${dateString}"
+                >
+
+                    <span
+                        class="calendar-day-number"
+                    >
+                        ${
+                            getDateObject(
+                                dateString
+                            ).getDate()
+                        }
+                    </span>
+
+                    <span
+                        class="calendar-day-index"
+                    >
+                        день ${day.index}
+                    </span>
+
+                </button>
+
+            `;
+
+        }
+    );
+
+
+    return html;
+
+}
+
+
+// ========================================
+// ВЫБРАННЫЙ ДЕНЬ
+// ========================================
+
+function showSelectedCalendarDay(
+    dateString
+) {
+
+    const container =
+        document.querySelector(
+            "#selected-day"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const dateTasks =
+        getTasksForDate(
+            dateString
+        );
+
+
+    const date =
+        getDateObject(
+            dateString
+        );
+
+
+    const formattedDate =
+        date.toLocaleDateString(
+            "ru-RU",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long"
+            }
+        );
+
+
+    const capitalizedDate =
+        formattedDate
+            .charAt(0)
+            .toUpperCase() +
+        formattedDate.slice(1);
+
+
+    let tasksHTML = "";
+
+
+    if (
+        dateTasks.length === 0
+    ) {
+
+        tasksHTML = `
+
+            <div class="calendar-empty">
+                На этот день пока нет задач.
+            </div>
+
+        `;
+
+    } else {
+
+        tasksHTML =
+            dateTasks
+                .map(
+                    task => {
+
+                        const completed =
+                            isTaskCompleted(
+                                task,
+                                dateString
+                            );
+
+                        return `
+
+                            <div
+                                class="
+                                    calendar-task
+                                    ${
+                                        completed
+                                            ? "completed"
+                                            : ""
+                                    }
+                                "
+                            >
+
+                                <span
+                                    class="calendar-task-dot"
+                                ></span>
+
+                                <span
+                                    class="calendar-task-title"
+                                >
+                                    ${
+                                        escapeHTML(
+                                            task.title
+                                        )
+                                    }
+                                </span>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    const completed =
+        dateTasks.filter(
+            task =>
+                isTaskCompleted(
+                    task,
+                    dateString
+                )
+        ).length;
+
+
+    container.innerHTML = `
+
+        <div
+            class="selected-day-header"
+        >
+
+            <div>
+
+                <div
+                    class="selected-day-label"
+                >
+                    ВЫБРАННЫЙ ДЕНЬ
+                </div>
+
+                <div
+                    class="selected-day-title"
+                >
+                    ${capitalizedDate}
+                </div>
+
+            </div>
+
+            <div
+                class="selected-day-count"
+            >
+                ${completed} из ${dateTasks.length}
+            </div>
+
+        </div>
+
+
+        <div
+            class="selected-day-tasks"
+        >
+            ${tasksHTML}
+        </div>
+
+    `;
+
+
+    container.classList.add(
+        "visible"
+    );
+
+
+    container.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+
+}
