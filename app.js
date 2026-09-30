@@ -75,21 +75,47 @@ function getToday() {
 
 
 // ========================================
+// ДАТА В ФОРМАТЕ DATE
+// ========================================
+
+function getDateObject(dateString) {
+
+    return new Date(
+        dateString + "T00:00:00"
+    );
+
+}
+
+
+// ========================================
+// ДЕНЬ НЕДЕЛИ
+// 0 = воскресенье
+// 1 = понедельник
+// ========================================
+
+function getWeekDay(dateString) {
+
+    return getDateObject(
+        dateString
+    ).getDay();
+
+}
+
+
+// ========================================
 // ДЕНЬ ЧЕЛЛЕНДЖА
 // ========================================
 
 function getChallengeDay() {
 
     const start =
-        new Date(
-            CHALLENGE_START +
-            "T00:00:00"
+        getDateObject(
+            CHALLENGE_START
         );
 
     const today =
-        new Date(
-            getToday() +
-            "T00:00:00"
+        getDateObject(
+            getToday()
         );
 
     const difference =
@@ -135,10 +161,14 @@ function getChallengeProgress() {
 // ФОРМАТ ДАТЫ
 // ========================================
 
-function formatDate() {
+function formatDate(
+    dateString = getToday()
+) {
 
     const date =
-        new Date();
+        getDateObject(
+            dateString
+        );
 
     return date.toLocaleDateString(
         "ru-RU",
@@ -146,6 +176,155 @@ function formatDate() {
             day: "numeric",
             month: "long"
         }
+    );
+
+}
+
+
+// ========================================
+// ПРОВЕРКА:
+// ДОЛЖНА ЛИ ЗАДАЧА ПОКАЗЫВАТЬСЯ СЕГОДНЯ
+// ========================================
+
+function isTaskForDate(
+    task,
+    dateString
+) {
+
+    // Одноразовая задача
+
+    if (
+        !task.repeat ||
+        task.repeat === "once"
+    ) {
+
+        return (
+            task.date ===
+            dateString
+        );
+
+    }
+
+
+    // Ежедневная
+
+    if (
+        task.repeat === "daily"
+    ) {
+
+        return (
+            dateString >=
+            task.startDate
+        );
+
+    }
+
+
+    // Выбранные дни недели
+
+    if (
+        task.repeat === "weekly"
+    ) {
+
+        if (
+            dateString <
+            task.startDate
+        ) {
+
+            return false;
+
+        }
+
+        const weekDay =
+            getWeekDay(
+                dateString
+            );
+
+        return (
+            task.weekDays &&
+            task.weekDays.includes(
+                weekDay
+            )
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+// ========================================
+// СОЗДАНИЕ УНИКАЛЬНОГО ID ВЫПОЛНЕНИЯ
+// ========================================
+
+function getCompletionKey(
+    task,
+    dateString
+) {
+
+    return `${task.id}_${dateString}`;
+
+}
+
+
+// ========================================
+// ПРОВЕРКА ВЫПОЛНЕНИЯ
+// ========================================
+
+function isTaskCompleted(
+    task,
+    dateString
+) {
+
+    // Новая система
+
+    if (
+        task.completions
+    ) {
+
+        return Boolean(
+            task.completions[
+                dateString
+            ]
+        );
+
+    }
+
+
+    // Поддержка старых задач
+
+    if (
+        task.date === dateString
+    ) {
+
+        return Boolean(
+            task.completed
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+// ========================================
+// ПОЛУЧЕНИЕ ЗАДАЧ НА ДЕНЬ
+// ========================================
+
+function getTasksForDate(
+    dateString
+) {
+
+    return tasks.filter(
+        task =>
+            isTaskForDate(
+                task,
+                dateString
+            )
     );
 
 }
@@ -182,12 +361,11 @@ function updateChallengeInfo() {
         getChallengeProgress();
 
 
-    // День
-
     const dayElement =
         document.querySelector(
             "#challenge-day"
         );
+
 
     if (dayElement) {
 
@@ -213,12 +391,11 @@ function updateChallengeInfo() {
     }
 
 
-    // Процент
-
     const progressText =
         document.querySelector(
             "#challenge-progress"
         );
+
 
     if (progressText) {
 
@@ -228,12 +405,11 @@ function updateChallengeInfo() {
     }
 
 
-    // Полоса
-
     const progressFill =
         document.querySelector(
             "#challenge-progress-fill"
         );
+
 
     if (progressFill) {
 
@@ -243,12 +419,11 @@ function updateChallengeInfo() {
     }
 
 
-    // Дата
-
     const dateElement =
         document.querySelector(
             "#today-date"
         );
+
 
     if (dateElement) {
 
@@ -261,7 +436,7 @@ function updateChallengeInfo() {
 
 
 // ========================================
-// ФОРМА ДОБАВЛЕНИЯ
+// ФОРМА
 // ========================================
 
 function openTaskForm() {
@@ -270,6 +445,7 @@ function openTaskForm() {
         document.querySelector(
             ".task-form"
         );
+
 
     if (oldForm) {
 
@@ -312,7 +488,7 @@ function openTaskForm() {
 
 
             <h2>
-                Что ты хочешь сделать сегодня?
+                Что ты хочешь делать?
             </h2>
 
 
@@ -348,7 +524,106 @@ function openTaskForm() {
             </select>
 
 
-            <button class="save-task">
+            <label for="task-repeat">
+                Повторение
+            </label>
+
+
+            <select id="task-repeat">
+
+                <option value="once">
+                    Только сегодня
+                </option>
+
+                <option value="daily">
+                    Каждый день
+                </option>
+
+                <option value="weekly">
+                    По выбранным дням
+                </option>
+
+            </select>
+
+
+            <div
+                id="weekdays-container"
+                style="display:none;"
+            >
+
+                <label>
+                    Дни недели
+                </label>
+
+
+                <div
+                    class="weekdays"
+                >
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="1"
+                        >
+                        Пн
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="2"
+                        >
+                        Вт
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="3"
+                        >
+                        Ср
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="4"
+                        >
+                        Чт
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="5"
+                        >
+                        Пт
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="6"
+                        >
+                        Сб
+                    </label>
+
+                    <label class="weekday">
+                        <input
+                            type="checkbox"
+                            value="0"
+                        >
+                        Вс
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="save-task"
+            >
                 Добавить шаг
             </button>
 
@@ -385,6 +660,43 @@ function openTaskForm() {
         );
 
 
+    // Переключение повторения
+
+    const repeatSelect =
+        form.querySelector(
+            "#task-repeat"
+        );
+
+
+    const weekdaysContainer =
+        form.querySelector(
+            "#weekdays-container"
+        );
+
+
+    repeatSelect.addEventListener(
+        "change",
+        () => {
+
+            if (
+                repeatSelect.value ===
+                "weekly"
+            ) {
+
+                weekdaysContainer.style.display =
+                    "block";
+
+            } else {
+
+                weekdaysContainer.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
     // Сохранение
 
     form
@@ -408,7 +720,8 @@ function openTaskForm() {
             event => {
 
                 if (
-                    event.key === "Enter"
+                    event.key ===
+                    "Enter"
                 ) {
 
                     addTask();
@@ -451,6 +764,7 @@ function setupFirstTaskButton() {
             "#first-task-button"
         );
 
+
     if (button) {
 
         button.addEventListener(
@@ -464,7 +778,7 @@ function setupFirstTaskButton() {
 
 
 // ========================================
-// ДОБАВЛЕНИЕ ЗАДАЧИ
+// ДОБАВЛЕНИЕ
 // ========================================
 
 function addTask() {
@@ -474,14 +788,27 @@ function addTask() {
             "#task-title"
         );
 
+
     const categoryInput =
         document.querySelector(
             "#task-category"
         );
 
 
-    if (!titleInput) {
+    const repeatInput =
+        document.querySelector(
+            "#task-repeat"
+        );
+
+
+    if (
+        !titleInput ||
+        !categoryInput ||
+        !repeatInput
+    ) {
+
         return;
+
     }
 
 
@@ -491,6 +818,10 @@ function addTask() {
 
     const category =
         categoryInput.value;
+
+
+    const repeat =
+        repeatInput.value;
 
 
     if (!title) {
@@ -513,10 +844,55 @@ function addTask() {
             700
         );
 
+
         return;
 
     }
 
+
+    // ====================================
+    // ВЫБРАННЫЕ ДНИ
+    // ====================================
+
+    let weekDays = [];
+
+
+    if (
+        repeat ===
+        "weekly"
+    ) {
+
+        weekDays =
+            Array.from(
+                document.querySelectorAll(
+                    "#weekdays-container input:checked"
+                )
+            ).map(
+                input =>
+                    Number(
+                        input.value
+                    )
+            );
+
+
+        if (
+            weekDays.length === 0
+        ) {
+
+            alert(
+                "Выбери хотя бы один день недели."
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    // ====================================
+    // НОВАЯ ЗАДАЧА
+    // ====================================
 
     const newTask = {
 
@@ -526,11 +902,30 @@ function addTask() {
 
         category: category,
 
-        completed: false,
+        repeat: repeat,
 
-        date: getToday()
+        startDate: getToday(),
+
+        date: getToday(),
+
+        weekDays: weekDays,
+
+        completions: {}
 
     };
+
+
+    // Для одноразовой задачи
+
+    if (
+        repeat === "once"
+    ) {
+
+        newTask.completions[
+            getToday()
+        ] = false;
+
+    }
 
 
     tasks.push(
@@ -560,7 +955,7 @@ function addTask() {
 
 
 // ========================================
-// ОТОБРАЖЕНИЕ ЗАДАЧ
+// ОТОБРАЖЕНИЕ
 // ========================================
 
 function renderTasks() {
@@ -569,6 +964,7 @@ function renderTasks() {
         document.querySelector(
             "#task-groups"
         );
+
 
     const emptyState =
         document.querySelector(
@@ -586,10 +982,13 @@ function renderTasks() {
     }
 
 
+    const today =
+        getToday();
+
+
     const todayTasks =
-        tasks.filter(
-            task =>
-                task.date === getToday()
+        getTasksForDate(
+            today
         );
 
 
@@ -607,9 +1006,11 @@ function renderTasks() {
         emptyState.style.display =
             "block";
 
+
         updateDailyProgress(
             []
         );
+
 
         return;
 
@@ -630,7 +1031,9 @@ function renderTasks() {
     CATEGORIES.forEach(
         category => {
 
-            groupedTasks[category] =
+            groupedTasks[
+                category
+            ] =
                 todayTasks.filter(
                     task =>
                         task.category ===
@@ -648,7 +1051,9 @@ function renderTasks() {
         category => {
 
             const categoryTasks =
-                groupedTasks[category];
+                groupedTasks[
+                    category
+                ];
 
 
             if (
@@ -663,7 +1068,10 @@ function renderTasks() {
             const completed =
                 categoryTasks.filter(
                     task =>
-                        task.completed
+                        isTaskCompleted(
+                            task,
+                            today
+                        )
                 ).length;
 
 
@@ -674,13 +1082,21 @@ function renderTasks() {
                     data-category="${category}"
                 >
 
-                    <div class="task-group-header">
 
-                        <div class="task-group-title">
+                    <div
+                        class="task-group-header"
+                    >
+
+                        <div
+                            class="task-group-title"
+                        >
                             ${category}
                         </div>
 
-                        <div class="task-group-count">
+
+                        <div
+                            class="task-group-count"
+                        >
                             ${completed}/${categoryTasks.length}
                         </div>
 
@@ -689,49 +1105,64 @@ function renderTasks() {
 
                     ${categoryTasks
                         .map(
-                            task => `
+                            task => {
 
-                                <div
-                                    class="task-item
-                                    ${task.completed ? "completed" : ""}"
-                                    data-id="${task.id}"
-                                >
+                                const completed =
+                                    isTaskCompleted(
+                                        task,
+                                        today
+                                    );
 
 
-                                    <button
-                                        class="task-check"
-                                        aria-label="Выполнить задачу"
+                                return `
+
+                                    <div
+                                        class="task-item
+                                        ${completed ? "completed" : ""}"
+                                        data-id="${task.id}"
                                     >
-                                        ${
-                                            task.completed
-                                                ? "✓"
-                                                : ""
-                                        }
-                                    </button>
 
 
-                                    <div class="task-content">
+                                        <button
+                                            class="task-check"
+                                            aria-label="Выполнить задачу"
+                                        >
+                                            ${
+                                                completed
+                                                    ? "✓"
+                                                    : ""
+                                            }
+                                        </button>
 
-                                        <div class="task-title">
-                                            ${escapeHTML(
-                                                task.title
-                                            )}
+
+                                        <div
+                                            class="task-content"
+                                        >
+
+                                            <div
+                                                class="task-title"
+                                            >
+                                                ${escapeHTML(
+                                                    task.title
+                                                )}
+                                            </div>
+
                                         </div>
+
+
+                                        <button
+                                            class="delete-task"
+                                            aria-label="Удалить задачу"
+                                        >
+                                            ×
+                                        </button>
+
 
                                     </div>
 
+                                `;
 
-                                    <button
-                                        class="delete-task"
-                                        aria-label="Удалить задачу"
-                                    >
-                                        ×
-                                    </button>
-
-
-                                </div>
-
-                            `
+                            }
                         )
                         .join("")}
 
@@ -749,7 +1180,7 @@ function renderTasks() {
 
 
     // ====================================
-    // КНОПКИ ВЫПОЛНЕНИЯ
+    // ВЫПОЛНЕНИЕ
     // ====================================
 
     groupsContainer
@@ -769,7 +1200,7 @@ function renderTasks() {
 
 
     // ====================================
-    // КНОПКИ УДАЛЕНИЯ
+    // УДАЛЕНИЕ
     // ====================================
 
     groupsContainer
@@ -827,6 +1258,10 @@ function renderTasks() {
         openTaskForm;
 
 
+    // ====================================
+    // ПРОГРЕСС
+    // ====================================
+
     updateDailyProgress(
         todayTasks
     );
@@ -835,12 +1270,16 @@ function renderTasks() {
 
 
 // ========================================
-// ПРОГРЕСС СЕГОДНЯ
+// ПРОГРЕСС ДНЯ
 // ========================================
 
 function updateDailyProgress(
     todayTasks
 ) {
+
+    const today =
+        getToday();
+
 
     const total =
         todayTasks.length;
@@ -849,7 +1288,10 @@ function updateDailyProgress(
     const completed =
         todayTasks.filter(
             task =>
-                task.completed
+                isTaskCompleted(
+                    task,
+                    today
+                )
         ).length;
 
 
@@ -914,17 +1356,44 @@ function toggleTask(event) {
     const task =
         tasks.find(
             task =>
-                task.id === taskId
+                task.id ===
+                taskId
         );
 
 
     if (!task) {
+
         return;
+
     }
 
 
-    task.completed =
-        !task.completed;
+    const today =
+        getToday();
+
+
+    // Создаём хранилище выполнений
+
+    if (
+        !task.completions
+    ) {
+
+        task.completions = {};
+
+    }
+
+
+    const current =
+        isTaskCompleted(
+            task,
+            today
+        );
+
+
+    task.completions[
+        today
+    ] =
+        !current;
 
 
     saveTasks();
@@ -956,7 +1425,8 @@ function deleteTask(event) {
     tasks =
         tasks.filter(
             task =>
-                task.id !== taskId
+                task.id !==
+                taskId
         );
 
 
