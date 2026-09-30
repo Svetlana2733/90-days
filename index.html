@@ -1,130 +1,331 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>90 дней</title>
 
-    <meta name="theme-color" content="#F5F2EC">
-    <meta name="description" content="Мой личный путь длиной в 90 дней">
+    <meta
+        name="theme-color"
+        content="#f8f0f2"
+    >
+
+    <meta
+        name="description"
+        content="Мой личный путь длиной в 90 дней"
+    >
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
+
 
 <body>
 
-    <div id="app">
+<div id="app">
 
-        <header class="top">
-            <div>
-                <div class="logo">90 дней</div>
-                <div class="subtitle">Мой личный путь</div>
+
+    <!-- ВЕРХ -->
+
+    <header class="top">
+
+        <div>
+
+            <div class="logo">
+                90 дней
             </div>
 
-            <button class="settings-button" aria-label="Настройки">
-                ⚙
-            </button>
-        </header>
+            <div class="subtitle">
+                Мой личный путь
+            </div>
 
-        <main>
+        </div>
 
-            <section class="welcome">
-                <p class="eyebrow">ТВОЙ НОВЫЙ ЭТАП</p>
 
-                <h1>
-                    Маленькие шаги.<br>
-                    Большие изменения.
-                </h1>
+        <button
+            class="settings-button"
+            aria-label="Настройки"
+        >
+            ⚙
+        </button>
 
-                <p class="intro">
-                    90 дней, чтобы стать ближе к той жизни,
-                    которую ты хочешь прожить.
-                </p>
-            </section>
+    </header>
 
-            <section class="progress-section">
 
-                <div class="progress-header">
-                    <span>Прогресс</span>
-                    <span>0%</span>
-                </div>
 
-                <div class="progress-line">
-                    <div class="progress-fill"></div>
-                </div>
+    <main>
 
-                <div class="days">
-                    <span>День 1</span>
-                    <span>из 90</span>
-                </div>
 
-            </section>
+        <!-- ПРИВЕТСТВИЕ -->
 
-            <section class="today">
+        <section class="welcome">
 
-                <div class="section-heading">
-                    <div>
-                        <p class="eyebrow">СЕГОДНЯ</p>
-                        <h2>Мои шаги</h2>
-                    </div>
+            <p class="eyebrow">
+                ТВОЙ НОВЫЙ ЭТАП
+            </p>
 
-                    <span class="date">1 октября</span>
-                </div>
+            <h1>
+                Маленькие шаги.<br>
+                Большие изменения.
+            </h1>
 
-                <div class="empty-state">
+            <p class="intro">
+                90 дней, чтобы стать ближе
+                к той жизни, которую ты
+                хочешь прожить.
+            </p>
 
-                    <div class="empty-number">01</div>
+        </section>
 
-                    <h3>Начало пути</h3>
 
-                    <p>
-                        Здесь появятся твои задачи
-                        на сегодняшний день.
+
+        <!-- ПРОГРЕСС 90 ДНЕЙ -->
+
+        <section class="progress-section">
+
+            <div class="progress-header">
+
+                <span>
+                    Путь за 90 дней
+                </span>
+
+                <span id="challenge-progress">
+                    0%
+                </span>
+
+            </div>
+
+
+            <div class="progress-line">
+
+                <div
+                    class="progress-fill"
+                    id="challenge-progress-fill"
+                ></div>
+
+            </div>
+
+
+            <div class="days">
+
+                <span id="challenge-day">
+                    День 1
+                </span>
+
+                <span>
+                    из 90
+                </span>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- СЕГОДНЯ -->
+
+        <section class="today">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        СЕГОДНЯ
                     </p>
 
-                    <button class="primary-button">
-                        Добавить первый шаг
-                    </button>
+                    <h2>
+                        Мои шаги
+                    </h2>
 
                 </div>
 
-            </section>
 
-        </main>
+                <span
+                    class="date"
+                    id="today-date"
+                >
+                    1 октября
+                </span>
 
-        <nav class="bottom-navigation">
+            </div>
 
-            <button class="nav-item active">
-                <span>01</span>
-                <small>Сегодня</small>
-            </button>
 
-            <button class="nav-item">
-                <span>02</span>
-                <small>До → После</small>
-            </button>
 
-            <button class="nav-item">
-                <span>03</span>
-                <small>90 дней</small>
-            </button>
+            <!-- ПРОГРЕСС СЕГОДНЯ -->
 
-            <button class="nav-item">
-                <span>04</span>
-                <small>Итоги</small>
-            </button>
+            <div class="daily-progress">
 
-        </nav>
+                <div class="daily-progress-top">
 
-    </div>
+                    <span>
+                        Сегодня выполнено
+                    </span>
 
-    <script src="app.js"></script>
+                    <span id="daily-progress-text">
+                        0 из 0
+                    </span>
+
+                </div>
+
+
+                <div class="daily-progress-line">
+
+                    <div
+                        class="daily-progress-fill"
+                        id="daily-progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ЗАДАЧИ -->
+
+            <div
+                class="task-groups"
+                id="task-groups"
+            >
+
+            </div>
+
+
+
+            <!-- ПУСТОЕ СОСТОЯНИЕ -->
+
+            <div
+                class="empty-state"
+                id="empty-state"
+            >
+
+                <div class="empty-number">
+                    01
+                </div>
+
+                <h3>
+                    Начало пути
+                </h3>
+
+                <p>
+                    Добавь первый шаг,
+                    с которого начнётся
+                    твой новый этап.
+                </p>
+
+                <button
+                    class="primary-button"
+                    id="first-task-button"
+                >
+                    Добавить первый шаг
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- НАВИГАЦИЯ -->
+
+    <nav class="bottom-navigation">
+
+
+        <button
+            class="nav-item active"
+        >
+
+            <span>
+                01
+            </span>
+
+            <small>
+                Сегодня
+            </small>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+        >
+
+            <span>
+                02
+            </span>
+
+            <small>
+                До → После
+            </small>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+        >
+
+            <span>
+                03
+            </span>
+
+            <small>
+                90 дней
+            </small>
+
+        </button>
+
+
+        <button
+            class="nav-item"
+        >
+
+            <span>
+                04
+            </span>
+
+            <small>
+                Итоги
+            </small>
+
+        </button>
+
+
+    </nav>
+
+
+</div>
+
+
+<script src="app.js"></script>
 
 </body>
+
 </html>
