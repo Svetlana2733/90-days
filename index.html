@@ -2,504 +2,678 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <title>90 дней</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="theme-color"
-        content="#f8f0f2"
-    >
+<title>90 дней</title>
 
-    <meta
-        name="description"
-        content="Мой личный путь длиной в 90 дней"
-    >
+<meta name="theme-color" content="#f8f0f2">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
-        rel="stylesheet"
-    >
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 
 <body>
 
+
 <div id="app">
 
 
-    <!-- ================================= -->
-    <!-- ВЕРХ -->
-    <!-- ================================= -->
+<header class="top">
 
-    <header class="top">
+    <div>
 
-        <div>
-
-            <div class="logo">
-                90 дней
-            </div>
-
-            <div class="subtitle">
-                Мой личный путь
-            </div>
-
+        <div class="logo">
+            90 дней
         </div>
 
+        <div class="subtitle">
+            Мой личный путь
+        </div>
 
-        <button
-            class="settings-button"
-            aria-label="Настройки"
-        >
-            ⚙
-        </button>
+    </div>
 
-    </header>
 
+    <button class="settings-button">
+        ⚙
+    </button>
 
+</header>
 
-    <main>
 
 
-        <!-- ================================= -->
-        <!-- СТРАНИЦА СЕГОДНЯ -->
-        <!-- ================================= -->
+<main>
 
-        <section
-            id="today-page"
-            class="page active-page"
-        >
 
 
-            <!-- ПРИВЕТСТВИЕ -->
+<section 
+id="today-page" 
+class="page active-page"
+>
 
-            <section class="welcome">
 
-                <p class="eyebrow">
-                    ТВОЙ НОВЫЙ ЭТАП
-                </p>
+<section class="welcome">
 
-                <h1>
-                    Маленькие шаги.<br>
-                    Большие изменения.
-                </h1>
-
-                <p class="intro">
-                    90 дней, чтобы стать ближе
-                    к той жизни, которую ты
-                    хочешь прожить.
-                </p>
-
-            </section>
-
-
-
-            <!-- ПРОГРЕСС 90 ДНЕЙ -->
-
-            <section class="progress-section">
-
-                <div class="progress-header">
-
-                    <span>
-                        Путь за 90 дней
-                    </span>
-
-                    <span id="challenge-progress">
-                        0%
-                    </span>
-
-                </div>
-
-
-                <div class="progress-line">
-
-                    <div
-                        class="progress-fill"
-                        id="challenge-progress-fill"
-                    ></div>
-
-                </div>
-
-
-                <div class="days">
-
-                    <span id="challenge-day">
-                        День 1
-                    </span>
-
-                    <span>
-                        из 90
-                    </span>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- СЕГОДНЯ -->
-
-            <section class="today">
-
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            СЕГОДНЯ
-                        </p>
-
-                        <h2>
-                            Мои шаги
-                        </h2>
-
-                    </div>
-
-
-                    <span
-                        class="date"
-                        id="today-date"
-                    >
-                        1 октября
-                    </span>
-
-                </div>
-
-
-
-                <!-- ПРОГРЕСС ДНЯ -->
-
-                <div class="daily-progress">
-
-                    <div class="daily-progress-top">
-
-                        <span>
-                            Сегодня выполнено
-                        </span>
-
-                        <span id="daily-progress-text">
-                            0 из 0
-                        </span>
-
-                    </div>
-
-
-                    <div class="daily-progress-line">
-
-                        <div
-                            class="daily-progress-fill"
-                            id="daily-progress-fill"
-                        ></div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- ЗАДАЧИ -->
-
-                <div
-                    class="task-groups"
-                    id="task-groups"
-                ></div>
-
-
-
-                <!-- ПУСТОЕ СОСТОЯНИЕ -->
-
-                <div
-                    class="empty-state"
-                    id="empty-state"
-                >
-
-                    <div class="empty-number">
-                        01
-                    </div>
-
-                    <h3>
-                        Начало пути
-                    </h3>
-
-                    <p>
-                        Добавь первый шаг,
-                        с которого начнётся
-                        твой новый этап.
-                    </p>
-
-                    <button
-                        class="primary-button"
-                        id="first-task-button"
-                    >
-                        Добавить первый шаг
-                    </button>
-
-                </div>
-
-
-            </section>
-
-        </section>
-
-
-
-        <!-- ================================= -->
-        <!-- СТРАНИЦА 90 ДНЕЙ -->
-        <!-- ================================= -->
-
-        <section
-            id="calendar-page"
-            class="page"
-        >
-
-            <section class="calendar-section">
-
-
-                <div class="page-heading">
-
-                    <p class="eyebrow">
-                        МОЙ ПУТЬ
-                    </p>
-
-                    <h1 class="page-title">
-                        90 дней
-                    </h1>
-
-                    <p class="page-description">
-                        Каждый день — маленькая
-                        часть большой перемены.
-                    </p>
-
-                </div>
-
-
-
-                <!-- СТАТУСЫ -->
-
-                <div class="calendar-legend">
-
-                    <div class="legend-item">
-
-                        <span class="legend-dot legend-empty"></span>
-
-                        <span>
-                            Впереди
-                        </span>
-
-                    </div>
-
-
-                    <div class="legend-item">
-
-                        <span class="legend-dot legend-partial"></span>
-
-                        <span>
-                            В процессе
-                        </span>
-
-                    </div>
-
-
-                    <div class="legend-item">
-
-                        <span class="legend-dot legend-complete"></span>
-
-                        <span>
-                            Выполнено
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- КАЛЕНДАРЬ -->
-
-                <div
-                    class="challenge-calendar"
-                    id="challenge-calendar"
-                ></div>
-
-
-
-                <!-- ВЫБРАННЫЙ ДЕНЬ -->
-
-                <div
-                    class="selected-day"
-                    id="selected-day"
-                ></div>
-
-
-            </section>
-
-        </section>
-
-
-
-        <!-- ================================= -->
-        <!-- ЗАГЛУШКА ДО / ПОСЛЕ -->
-        <!-- ================================= -->
-
-        <section
-            id="before-after-page"
-            class="page"
-        >
-
-            <div class="future-page">
-
-               <p class="eyebrow">
-    МОЯ ТОЧКА А → ТОЧКА Б
+<p class="eyebrow">
+ТВОЙ НОВЫЙ ЭТАП
 </p>
+
 
 <h1>
-    До → После
+Маленькие шаги.<br>
+Большие изменения.
 </h1>
 
-<p class="ba-description">
-    Здесь мы сохраним твою точку А и сравним её
-    с результатом через 90 дней.
+
+<p class="intro">
+90 дней, чтобы стать ближе
+к той жизни, которую ты
+хочешь прожить.
 </p>
 
-<div id="before-after-content"></div>
 
-            </div>
-
-        </section>
+</section>
 
 
 
-        <!-- ================================= -->
-        <!-- ЗАГЛУШКА ИТОГИ -->
-        <!-- ================================= -->
 
-        <section
-            id="results-page"
-            class="page"
-        >
-
-            <div class="future-page">
-
-                <p class="eyebrow">
-                    МОЙ РЕЗУЛЬТАТ
-                </p>
-
-                <h1 class="page-title">
-                    Итоги
-                </h1>
-
-                <p class="page-description">
-                    Здесь появятся твоя статистика,
-                    достижения и итоговое отражение
-                    после завершения 90 дней.
-                </p>
-
-            </div>
-
-        </section>
+<section class="progress-section">
 
 
-    </main>
+<div class="progress-header">
+
+<span>
+Путь за 90 дней
+</span>
 
 
-
-    <!-- ================================= -->
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-    <!-- ================================= -->
-
-    <nav class="bottom-navigation">
-
-
-        <button
-            class="nav-item active"
-            data-page="today-page"
-        >
-
-            <span>
-                01
-            </span>
-
-            <small>
-                Сегодня
-            </small>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-page="before-after-page"
-        >
-
-            <span>
-                02
-            </span>
-
-            <small>
-                До → После
-            </small>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-page="calendar-page"
-        >
-
-            <span>
-                03
-            </span>
-
-            <small>
-                90 дней
-            </small>
-
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-page="results-page"
-        >
-
-            <span>
-                04
-            </span>
-
-            <small>
-                Итоги
-            </small>
-
-        </button>
-
-
-    </nav>
+<span id="challenge-progress">
+0%
+</span>
 
 
 </div>
 
 
+
+<div class="progress-line">
+
+<div 
+class="progress-fill"
+id="challenge-progress-fill">
+</div>
+
+</div>
+
+
+
+<div class="days">
+
+<span id="challenge-day">
+День 1
+</span>
+
+
+<span>
+из 90
+</span>
+
+</div>
+
+
+</section>
+
+
+
+<section class="today">
+
+
+<div class="section-heading">
+
+
+<div>
+
+<p class="eyebrow">
+СЕГОДНЯ
+</p>
+
+
+<h2>
+Мои шаги
+</h2>
+
+</div>
+
+
+
+<span 
+class="date"
+id="today-date">
+1 октября
+</span>
+
+
+</div>
+
+
+
+<div class="daily-progress">
+
+
+<div class="daily-progress-top">
+
+<span>
+Сегодня выполнено
+</span>
+
+
+<span id="daily-progress-text">
+0 из 0
+</span>
+
+
+</div>
+
+
+
+<div class="daily-progress-line">
+
+<div 
+class="daily-progress-fill"
+id="daily-progress-fill">
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div 
+id="task-groups"
+class="task-groups">
+</div>
+
+
+
+<div 
+id="empty-state"
+class="empty-state"
+>
+
+
+<div class="empty-number">
+01
+</div>
+
+
+<h3>
+Начало пути
+</h3>
+
+
+<p>
+Добавь первый шаг,
+с которого начнётся
+твой новый этап.
+</p>
+
+
+<button 
+class="primary-button"
+id="first-task-button">
+
+Добавить первый шаг
+
+</button>
+
+
+</div>
+
+
+</section>
+
+
+</section>
+<!-- =============================== -->
+<!-- СТРАНИЦА КАЛЕНДАРЯ -->
+<!-- =============================== -->
+
+
+<section 
+id="calendar-page"
+class="page"
+>
+
+
+<section class="calendar-section">
+
+
+<div class="page-heading">
+
+
+<p class="eyebrow">
+МОЙ ПУТЬ
+</p>
+
+
+<h1 class="page-title">
+90 дней
+</h1>
+
+
+<p class="page-description">
+Каждый день — маленькая
+часть большой перемены.
+</p>
+
+
+</div>
+
+
+
+<div class="calendar-legend">
+
+
+<div class="legend-item">
+
+<span class="legend-dot legend-empty"></span>
+
+<span>
+Впереди
+</span>
+
+</div>
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot legend-partial"></span>
+
+<span>
+В процессе
+</span>
+
+</div>
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot legend-complete"></span>
+
+<span>
+Выполнено
+</span>
+
+</div>
+
+
+</div>
+
+
+
+<div 
+id="challenge-calendar"
+class="challenge-calendar">
+</div>
+
+
+
+<div 
+id="selected-day"
+class="selected-day">
+</div>
+
+
+
+</section>
+
+
+</section>
+
+
+
+
+
+<!-- =============================== -->
+<!-- ТОЧКА А → ТОЧКА Б -->
+<!-- =============================== -->
+
+
+<section
+id="before-after-page"
+class="page"
+>
+
+
+<section class="ba-section">
+
+
+<div class="page-heading">
+
+
+<p class="eyebrow">
+МОЯ ТОЧКА А → ТОЧКА Б
+</p>
+
+
+<h1 class="page-title">
+До → После
+</h1>
+
+
+<p class="page-description">
+Зафиксируй начало пути и сравни
+с результатом через 90 дней.
+</p>
+
+
+</div>
+
+
+
+
+<div class="ba-card">
+
+
+<h2>
+Моя точка А
+</h2>
+
+
+<label>
+Что я хочу изменить
+за 90 дней?
+
+<textarea 
+id="ba-main-goal"
+placeholder="Мои цели...">
+</textarea>
+
+</label>
+
+
+
+<label>
+Почему это важно?
+
+<textarea 
+id="ba-why"
+placeholder="Моя мотивация...">
+</textarea>
+
+</label>
+
+
+
+<label>
+Что меня сейчас не устраивает?
+
+<textarea 
+id="ba-current-state"
+placeholder="Моё текущее состояние...">
+</textarea>
+
+</label>
+
+
+
+<label>
+Чем я уже могу гордиться?
+
+<textarea 
+id="ba-proud"
+placeholder="Мои достижения...">
+</textarea>
+
+</label>
+
+
+
+<label>
+Какая я через 90 дней?
+
+<textarea 
+id="ba-want-change"
+placeholder="Моя новая версия...">
+</textarea>
+
+</label>
+
+
+
+<button 
+id="save-point-a"
+class="primary-button">
+
+Сохранить точку А
+
+</button>
+
+
+<div 
+id="point-a-message">
+</div>
+
+
+</div>
+<!-- =============================== -->
+<!-- КОЛЕСО БАЛАНСА -->
+<!-- =============================== -->
+
+
+<div class="ba-card">
+
+
+<p class="eyebrow">
+МОЁ КОЛЕСО ЖИЗНИ
+</p>
+
+
+<h2>
+Как я оцениваю свою жизнь сейчас
+</h2>
+
+
+
+<p class="page-description">
+Оцени каждую сферу от 1 до 10.
+Это твоя честная точка А.
+</p>
+
+
+
+<div 
+id="wheel-visual"
+class="wheel-visual">
+</div>
+
+
+
+<div 
+id="wheel-average"
+class="wheel-average">
+</div>
+
+
+
+<div 
+id="wheel-editor"
+class="wheel-editor">
+</div>
+
+
+
+<button
+id="edit-wheel"
+class="secondary-button">
+
+Изменить сферы
+
+</button>
+
+
+</div>
+
+
+
+
+
+<!-- =============================== -->
+<!-- ТОЧКА Б -->
+<!-- =============================== -->
+
+
+<div class="ba-card ba-locked">
+
+
+<p class="eyebrow">
+ДЕНЬ 90
+</p>
+
+
+<h2>
+Моя точка Б
+</h2>
+
+
+<p>
+Здесь через 90 дней появится
+твоя новая точка.
+</p>
+
+
+
+<div class="point-b-fields">
+
+
+<label>
+Как я изменилась?
+
+<textarea
+id="point-b-result"
+placeholder="Мои результаты...">
+</textarea>
+
+</label>
+
+
+
+<label>
+Чем я горжусь после пути?
+
+<textarea
+id="point-b-proud"
+placeholder="Мои достижения...">
+</textarea>
+
+</label>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<div 
+id="ba-comparison"
+class="ba-comparison">
+</div>
+
+
+</section>
+
+
+</section>
+<!-- =============================== -->
+<!-- НИЖНЯЯ НАВИГАЦИЯ -->
+<!-- =============================== -->
+
+
+<nav class="bottom-navigation">
+
+
+<button
+class="nav-item active"
+data-page="today-page">
+
+<span>
+01
+</span>
+
+<small>
+Сегодня
+</small>
+
+</button>
+
+
+
+
+<button
+class="nav-item"
+data-page="calendar-page">
+
+<span>
+02
+</span>
+
+<small>
+90 дней
+</small>
+
+</button>
+
+
+
+
+<button
+class="nav-item"
+data-page="before-after-page">
+
+<span>
+03
+</span>
+
+<small>
+До → После
+</small>
+
+</button>
+
+
+
+</nav>
+
+
+
+</main>
+
+
+</div>
+
+
+
 <script src="app.js"></script>
+
 
 </body>
 
